@@ -26,6 +26,7 @@ defmodule TowerTest do
     assert(
       [
         %{
+          time: _,
           type: RuntimeError,
           reason: "error inside process",
           stacktrace: stacktrace
@@ -46,6 +47,7 @@ defmodule TowerTest do
     assert(
       [
         %{
+          time: _,
           type: :nocatch,
           reason: "error",
           stacktrace: stacktrace
@@ -66,6 +68,7 @@ defmodule TowerTest do
     assert(
       [
         %{
+          time: _,
           type: ArithmeticError,
           reason: "bad argument in arithmetic expression",
           stacktrace: stacktrace
