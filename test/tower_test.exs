@@ -24,11 +24,20 @@ defmodule TowerTest do
     task =
       Task.Supervisor.async_nolink(
         pid,
-        fn -> raise "from process" end
+        fn -> raise "error inside process" end
       )
 
     Task.yield(task)
 
-    assert Tower.EphemeralReporter.exceptions() |> length() == 1
+    assert(
+      [
+        %{
+          exception: %RuntimeError{message: "error inside process"},
+          stacktrace: stacktrace
+        }
+      ] = Tower.EphemeralReporter.exceptions()
+    )
+
+    assert is_list(stacktrace)
   end
 end
