@@ -19,15 +19,9 @@ defmodule TowerTest do
   test "reports a raise" do
     Tower.EphemeralReporter.start_link([])
 
-    {:ok, pid} = Task.Supervisor.start_link()
-
-    task =
-      Task.Supervisor.async_nolink(
-        pid,
-        fn -> raise "error inside process" end
-      )
-
-    Task.yield(task)
+    in_unlinked_process(fn ->
+      raise "error inside process"
+    end)
 
     assert(
       [
@@ -39,5 +33,32 @@ defmodule TowerTest do
     )
 
     assert is_list(stacktrace)
+  end
+
+  test "reports arithmetic error" do
+    Tower.EphemeralReporter.start_link([])
+
+    in_unlinked_process(fn ->
+      1 / 0
+    end)
+
+    assert(
+      [
+        %{
+          exception: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          stacktrace: stacktrace
+        }
+      ] = Tower.EphemeralReporter.exceptions()
+    )
+
+    assert is_list(stacktrace)
+  end
+
+  defp in_unlinked_process(fun) when is_function(fun, 0) do
+    {:ok, pid} = Task.Supervisor.start_link()
+
+    pid
+    |> Task.Supervisor.async_nolink(fun)
+    |> Task.yield()
   end
 end
