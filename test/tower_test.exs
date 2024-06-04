@@ -100,6 +100,37 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
+  test "doesn't report an normal exit" do
+    Tower.EphemeralReporter.start_link([])
+
+    in_unlinked_process(fn ->
+      exit(:normal)
+    end)
+
+    assert [] = Tower.EphemeralReporter.errors()
+  end
+
+  test "reports an abnormal exit" do
+    Tower.EphemeralReporter.start_link([])
+
+    in_unlinked_process(fn ->
+      exit(:abnormal)
+    end)
+
+    assert(
+      [
+        %{
+          time: _,
+          type: :exit,
+          reason: :abnormal,
+          stacktrace: stacktrace
+        }
+      ] = Tower.EphemeralReporter.errors()
+    )
+
+    assert is_list(stacktrace)
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 
