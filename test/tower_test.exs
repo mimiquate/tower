@@ -16,6 +16,27 @@ defmodule TowerTest do
     assert [] = Tower.EphemeralReporter.errors()
   end
 
+  test "reports arithmetic error" do
+    Tower.EphemeralReporter.start_link([])
+
+    in_unlinked_process(fn ->
+      1 / 0
+    end)
+
+    assert(
+      [
+        %{
+          time: _,
+          type: ArithmeticError,
+          reason: "bad argument in arithmetic expression",
+          stacktrace: stacktrace
+        }
+      ] = Tower.EphemeralReporter.errors()
+    )
+
+    assert is_list(stacktrace)
+  end
+
   test "reports a raise" do
     Tower.EphemeralReporter.start_link([])
 
@@ -71,27 +92,6 @@ defmodule TowerTest do
           time: _,
           type: :nocatch,
           reason: [something: "here"],
-          stacktrace: stacktrace
-        }
-      ] = Tower.EphemeralReporter.errors()
-    )
-
-    assert is_list(stacktrace)
-  end
-
-  test "reports arithmetic error" do
-    Tower.EphemeralReporter.start_link([])
-
-    in_unlinked_process(fn ->
-      1 / 0
-    end)
-
-    assert(
-      [
-        %{
-          time: _,
-          type: ArithmeticError,
-          reason: "bad argument in arithmetic expression",
           stacktrace: stacktrace
         }
       ] = Tower.EphemeralReporter.errors()
