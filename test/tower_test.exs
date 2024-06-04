@@ -13,7 +13,7 @@ defmodule TowerTest do
   test "starts with 0 exceptions" do
     Tower.EphemeralReporter.start_link([])
 
-    assert Tower.EphemeralReporter.exceptions() |> length() == 0
+    assert [] = Tower.EphemeralReporter.errors()
   end
 
   test "reports a raise" do
@@ -26,10 +26,31 @@ defmodule TowerTest do
     assert(
       [
         %{
-          exception: %RuntimeError{message: "error inside process"},
+          type: RuntimeError,
+          reason: "error inside process",
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.exceptions()
+      ] = Tower.EphemeralReporter.errors()
+    )
+
+    assert is_list(stacktrace)
+  end
+
+  test "reports a throw" do
+    Tower.EphemeralReporter.start_link([])
+
+    in_unlinked_process(fn ->
+      throw("error")
+    end)
+
+    assert(
+      [
+        %{
+          type: :nocatch,
+          reason: "error",
+          stacktrace: stacktrace
+        }
+      ] = Tower.EphemeralReporter.errors()
     )
 
     assert is_list(stacktrace)
@@ -45,10 +66,11 @@ defmodule TowerTest do
     assert(
       [
         %{
-          exception: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          type: ArithmeticError,
+          reason: "bad argument in arithmetic expression",
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.exceptions()
+      ] = Tower.EphemeralReporter.errors()
     )
 
     assert is_list(stacktrace)

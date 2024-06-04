@@ -24,11 +24,21 @@ defmodule Tower.LoggerHandler do
     :ok
   end
 
-  def log(%{level: _level, meta: %{crash_reason: {exception, stacktrace}} = meta}, _config)
+  def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}} = meta}, _config)
       when is_exception(exception) and is_list(stacktrace) do
     IO.puts("[Tower.LoggerHandler] EXCEPTION #{inspect(exception)}")
 
     Tower.report_exception(exception, stacktrace, meta)
+  end
+
+  def log(
+        %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}} = meta},
+        _config
+      )
+      when is_list(stacktrace) do
+    IO.puts("[Tower.LoggerHandler] NOCATCH #{inspect(reason)}")
+
+    Tower.report(:nocatch, reason, stacktrace, meta)
   end
 
   def log(log_event, _config) do

@@ -9,16 +9,34 @@ defmodule Tower.EphemeralReporter do
       when is_exception(exception) and is_list(stacktrace) do
     Agent.update(
       __MODULE__,
-      fn exceptions ->
+      fn errors ->
         [
-          %{timestamp: DateTime.utc_now(), exception: exception, stacktrace: stacktrace}
-          | exceptions
+          %{
+            timestamp: DateTime.utc_now(),
+            type: exception.__struct__,
+            reason: Exception.message(exception),
+            stacktrace: stacktrace
+          }
+          | errors
         ]
       end
     )
   end
 
-  def exceptions do
+  def report(type, reason, stacktrace, _meta \\ %{})
+      when is_atom(type) and is_binary(reason) and is_list(stacktrace) do
+    Agent.update(
+      __MODULE__,
+      fn errors ->
+        [
+          %{timestamp: DateTime.utc_now(), type: type, reason: reason, stacktrace: stacktrace}
+          | errors
+        ]
+      end
+    )
+  end
+
+  def errors do
     Agent.get(__MODULE__, & &1)
   end
 end
