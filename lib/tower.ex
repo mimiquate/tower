@@ -3,16 +3,24 @@ defmodule Tower do
   Documentation for `Tower`.
   """
 
-  @doc """
-  Hello world.
+  def attach do
+    :ok = Tower.LoggerHandler.attach()
+  end
 
-  ## Examples
+  def detach do
+    :ok = Tower.LoggerHandler.detach()
+  end
 
-      iex> Tower.hello()
-      :world
+  def report_exception(exception, stacktrace, meta \\ %{}) do
+    reporters()
+    |> Enum.each(fn reporter ->
+      reporter.report_exception(exception, stacktrace, meta)
+    end)
+  end
 
-  """
-  def hello do
-    :world
+  def reporters do
+    [
+      Tower.EphemeralReporter
+    ]
   end
 end
