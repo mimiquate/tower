@@ -19,8 +19,7 @@ defmodule Tower do
     end)
   end
 
-  def report(type, reason, stacktrace, meta \\ %{})
-      when is_atom(type) and is_binary(reason) and is_list(stacktrace) do
+  def report(type, reason, stacktrace, meta \\ %{}) when is_atom(type) and is_list(stacktrace) do
     reporters()
     |> Enum.each(fn reporter ->
       reporter.report(type, reason, stacktrace, meta)

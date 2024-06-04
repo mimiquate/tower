@@ -23,8 +23,7 @@ defmodule Tower.EphemeralReporter do
     )
   end
 
-  def report(type, reason, stacktrace, meta \\ %{})
-      when is_atom(type) and is_binary(reason) and is_list(stacktrace) do
+  def report(type, reason, stacktrace, meta \\ %{}) when is_atom(type) and is_list(stacktrace) do
     Agent.update(
       __MODULE__,
       fn errors ->

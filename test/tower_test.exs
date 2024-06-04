@@ -37,7 +37,7 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  test "reports a throw" do
+  test "reports a thrown string" do
     Tower.EphemeralReporter.start_link([])
 
     in_unlinked_process(fn ->
@@ -50,6 +50,27 @@ defmodule TowerTest do
           time: _,
           type: :nocatch,
           reason: "error",
+          stacktrace: stacktrace
+        }
+      ] = Tower.EphemeralReporter.errors()
+    )
+
+    assert is_list(stacktrace)
+  end
+
+  test "reports a thrown non-string" do
+    Tower.EphemeralReporter.start_link([])
+
+    in_unlinked_process(fn ->
+      throw(something: "here")
+    end)
+
+    assert(
+      [
+        %{
+          time: _,
+          type: :nocatch,
+          reason: [something: "here"],
           stacktrace: stacktrace
         }
       ] = Tower.EphemeralReporter.errors()
