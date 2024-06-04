@@ -10,7 +10,10 @@ defmodule Tower.EphemeralReporter do
     Agent.update(
       __MODULE__,
       fn exceptions ->
-        [%{timestamp: DateTime.utc_now(), exception: exception, stacktrace: stacktrace} | exceptions]
+        [
+          %{timestamp: DateTime.utc_now(), exception: exception, stacktrace: stacktrace}
+          | exceptions
+        ]
       end
     )
   end

@@ -32,6 +32,8 @@ defmodule Tower.LoggerHandler do
   end
 
   def log(log_event, _config) do
-    IO.puts("[Tower.LoggerHandler] UNHANDLED LOG EVENT log_event=#{inspect(log_event, pretty: true)}")
+    IO.puts(
+      "[Tower.LoggerHandler] UNHANDLED LOG EVENT log_event=#{inspect(log_event, pretty: true)}"
+    )
   end
 end
