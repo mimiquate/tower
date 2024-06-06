@@ -24,6 +24,7 @@ defmodule Tower.LoggerHandler do
     :ok
   end
 
+  # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}} = meta}, _config)
       when is_exception(exception) and is_list(stacktrace) do
     IO.puts("[Tower.LoggerHandler] EXCEPTION #{inspect(exception)}")
@@ -31,6 +32,7 @@ defmodule Tower.LoggerHandler do
     Tower.report_exception(exception, stacktrace, meta)
   end
 
+  # elixir 1.15+
   def log(
         %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}} = meta},
         _config
@@ -41,11 +43,26 @@ defmodule Tower.LoggerHandler do
     Tower.report(:nocatch, reason, stacktrace, meta)
   end
 
+  # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}} = meta}, _config)
       when is_list(stacktrace) do
     IO.puts("[Tower.LoggerHandler] EXIT #{inspect(exit_reason)}")
 
     Tower.report(:exit, exit_reason, stacktrace, meta)
+  end
+
+  # elixir 1.14
+  def log(
+        %{
+          level: :error,
+          msg: {:report, %{report: %{reason: {error_reason, stacktrace}}}},
+          meta: meta
+        },
+        _config
+      )
+      when is_atom(error_reason) and is_list(stacktrace) do
+    Exception.normalize(:error, error_reason, stacktrace)
+    |> Tower.report_exception(stacktrace, meta)
   end
 
   def log(log_event, _config) do
