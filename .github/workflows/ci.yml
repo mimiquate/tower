@@ -11,13 +11,15 @@ jobs:
       matrix:
         include:
           - elixir: '1.16'
-            otp: '26.2.5'
+            erlang: '26.2.5'
             lint: true
+          - elixir: '1.15'
+            erlang: '25.3.2.12'
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{ matrix.otp }}
+          otp-version: ${{ matrix.erlang }}
           elixir-version: ${{ matrix.elixir }}
       - run: mix deps.get --check-locked
       - run: mix format --check-formatted
