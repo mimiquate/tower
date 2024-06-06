@@ -15,6 +15,8 @@ jobs:
             lint: true
           - elixir: '1.15'
             erlang: '25.3.2.12'
+          - elixir: '1.14'
+            erlang: '24.3.4.17'
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
