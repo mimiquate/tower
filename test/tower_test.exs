@@ -16,6 +16,7 @@ defmodule TowerTest do
     assert [] = Tower.EphemeralReporter.errors()
   end
 
+  @tag capture_log: true
   test "reports arithmetic error" do
     Tower.EphemeralReporter.start_link([])
 
@@ -37,6 +38,7 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
+  @tag capture_log: true
   test "reports a raise" do
     Tower.EphemeralReporter.start_link([])
 
@@ -58,6 +60,7 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
+  @tag capture_log: true
   test "reports a thrown string" do
     Tower.EphemeralReporter.start_link([])
 
@@ -79,6 +82,7 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
+  @tag capture_log: true
   test "reports a thrown non-string" do
     Tower.EphemeralReporter.start_link([])
 
@@ -110,6 +114,7 @@ defmodule TowerTest do
     assert [] = Tower.EphemeralReporter.errors()
   end
 
+  @tag capture_log: true
   test "reports an abnormal exit" do
     Tower.EphemeralReporter.start_link([])
 
@@ -131,6 +136,7 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
+  @tag capture_log: true
   test "reports a kill exit" do
     Tower.EphemeralReporter.start_link([])
 
