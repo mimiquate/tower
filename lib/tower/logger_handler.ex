@@ -68,6 +68,19 @@ defmodule Tower.LoggerHandler do
   def log(
         %{
           level: :error,
+          msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}},
+          meta: meta
+        },
+        _config
+      )
+      when is_list(stacktrace) do
+    Tower.report(:nocatch, reason, stacktrace, meta)
+  end
+
+  # elixir 1.14
+  def log(
+        %{
+          level: :error,
           msg: {:report, %{report: %{reason: {reason, stacktrace}}}},
           meta: meta
         },
@@ -82,19 +95,6 @@ defmodule Tower.LoggerHandler do
       _ ->
         Tower.report(:exit, reason, stacktrace, meta)
     end
-  end
-
-  # elixir 1.14
-  def log(
-        %{
-          level: :error,
-          msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}},
-          meta: meta
-        },
-        _config
-      )
-      when is_list(stacktrace) do
-    Tower.report(:nocatch, reason, stacktrace, meta)
   end
 
   def log(log_event, _config) do
