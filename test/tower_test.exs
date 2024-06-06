@@ -4,6 +4,7 @@ defmodule TowerTest do
 
   setup do
     Tower.attach()
+    start_reporter()
 
     on_exit(fn ->
       Tower.detach()
@@ -11,15 +12,11 @@ defmodule TowerTest do
   end
 
   test "starts with 0 exceptions" do
-    Tower.EphemeralReporter.start_link([])
-
-    assert [] = Tower.EphemeralReporter.errors()
+    assert [] = reported_errors()
   end
 
   @tag capture_log: true
   test "reports arithmetic error" do
-    Tower.EphemeralReporter.start_link([])
-
     in_unlinked_process(fn ->
       1 / 0
     end)
@@ -32,7 +29,7 @@ defmodule TowerTest do
           reason: "bad argument in arithmetic expression",
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.errors()
+      ] = reported_errors()
     )
 
     assert is_list(stacktrace)
@@ -40,8 +37,6 @@ defmodule TowerTest do
 
   @tag capture_log: true
   test "reports a raise" do
-    Tower.EphemeralReporter.start_link([])
-
     in_unlinked_process(fn ->
       raise "error inside process"
     end)
@@ -54,7 +49,7 @@ defmodule TowerTest do
           reason: "error inside process",
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.errors()
+      ] = reported_errors()
     )
 
     assert is_list(stacktrace)
@@ -62,8 +57,6 @@ defmodule TowerTest do
 
   @tag capture_log: true
   test "reports a thrown string" do
-    Tower.EphemeralReporter.start_link([])
-
     in_unlinked_process(fn ->
       throw("error")
     end)
@@ -76,7 +69,7 @@ defmodule TowerTest do
           reason: "error",
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.errors()
+      ] = reported_errors()
     )
 
     assert is_list(stacktrace)
@@ -84,8 +77,6 @@ defmodule TowerTest do
 
   @tag capture_log: true
   test "reports a thrown non-string" do
-    Tower.EphemeralReporter.start_link([])
-
     in_unlinked_process(fn ->
       throw(something: "here")
     end)
@@ -98,26 +89,22 @@ defmodule TowerTest do
           reason: [something: "here"],
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.errors()
+      ] = reported_errors()
     )
 
     assert is_list(stacktrace)
   end
 
   test "doesn't report an normal exit" do
-    Tower.EphemeralReporter.start_link([])
-
     in_unlinked_process(fn ->
       exit(:normal)
     end)
 
-    assert [] = Tower.EphemeralReporter.errors()
+    assert [] = reported_errors()
   end
 
   @tag capture_log: true
   test "reports an abnormal exit" do
-    Tower.EphemeralReporter.start_link([])
-
     in_unlinked_process(fn ->
       exit(:abnormal)
     end)
@@ -130,7 +117,7 @@ defmodule TowerTest do
           reason: :abnormal,
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.errors()
+      ] = reported_errors()
     )
 
     assert is_list(stacktrace)
@@ -138,8 +125,6 @@ defmodule TowerTest do
 
   @tag capture_log: true
   test "reports a kill exit" do
-    Tower.EphemeralReporter.start_link([])
-
     in_unlinked_process(fn ->
       exit(:kill)
     end)
@@ -152,7 +137,7 @@ defmodule TowerTest do
           reason: :kill,
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.errors()
+      ] = reported_errors()
     )
 
     assert is_list(stacktrace)
@@ -160,8 +145,6 @@ defmodule TowerTest do
 
   @tag capture_log: true
   test "reports a Logger.error" do
-    Tower.EphemeralReporter.start_link([])
-
     in_unlinked_process(fn ->
       require Logger
       Logger.error("Something went wrong here")
@@ -175,7 +158,7 @@ defmodule TowerTest do
           reason: "Something went wrong here",
           stacktrace: stacktrace
         }
-      ] = Tower.EphemeralReporter.errors()
+      ] = reported_errors()
     )
 
     assert is_list(stacktrace)
@@ -187,5 +170,13 @@ defmodule TowerTest do
     pid
     |> Task.Supervisor.async_nolink(fun)
     |> Task.yield()
+  end
+
+  defp start_reporter do
+    Tower.EphemeralReporter.start_link([])
+  end
+
+  defp reported_errors do
+    Tower.EphemeralReporter.errors()
   end
 end
