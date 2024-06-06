@@ -154,7 +154,7 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: _,
+          type: :error,
           reason: "Something went wrong here",
           stacktrace: stacktrace
         }
