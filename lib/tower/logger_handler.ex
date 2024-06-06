@@ -90,8 +90,10 @@ defmodule Tower.LoggerHandler do
     case Exception.normalize(:error, reason) do
       %ErlangError{} ->
         Tower.report(:exit, reason, stacktrace, meta)
+
       e when is_exception(e) ->
         Tower.report_exception(e, stacktrace, meta)
+
       _ ->
         Tower.report(:exit, reason, stacktrace, meta)
     end
