@@ -10,9 +10,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # lint once 1.17 is stable
           - elixir: '1.17'
             erlang: '27.0'
+            # lint: true / enable once 1.17 stable is released
           - elixir: '1.16'
             erlang: '26.2.5'
             lint: true
