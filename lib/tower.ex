@@ -3,16 +3,32 @@ defmodule Tower do
   Documentation for `Tower`.
   """
 
-  @doc """
-  Hello world.
+  @default_reporters [Tower.EphemeralReporter]
 
-  ## Examples
+  def attach do
+    :ok = Tower.LoggerHandler.attach()
+  end
 
-      iex> Tower.hello()
-      :world
+  def detach do
+    :ok = Tower.LoggerHandler.detach()
+  end
 
-  """
-  def hello do
-    :world
+  def report_exception(exception, stacktrace, meta \\ %{})
+      when is_exception(exception) and is_list(stacktrace) do
+    reporters()
+    |> Enum.each(fn reporter ->
+      reporter.report_exception(exception, stacktrace, meta)
+    end)
+  end
+
+  def report(type, reason, stacktrace, meta \\ %{}) when is_atom(type) and is_list(stacktrace) do
+    reporters()
+    |> Enum.each(fn reporter ->
+      reporter.report(type, reason, stacktrace, meta)
+    end)
+  end
+
+  def reporters do
+    Application.get_env(:tower, :reporters, @default_reporters)
   end
 end
