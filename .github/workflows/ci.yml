@@ -26,8 +26,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
         with:
-          path: deps
-          key: ${{ runner.os }}-${{ hashFiles('mix.lock') }}
+          path: _build
+          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.erlang }}-${{ hashFiles('mix.lock') }}
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.erlang }}
