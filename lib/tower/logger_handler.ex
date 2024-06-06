@@ -78,6 +78,19 @@ defmodule Tower.LoggerHandler do
     |> Tower.report_exception(stacktrace, meta)
   end
 
+  # elixir 1.14
+  def log(
+        %{
+          level: :error,
+          msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}},
+          meta: meta
+        },
+        _config
+      )
+      when is_list(stacktrace) do
+    Tower.report(:nocatch, reason, stacktrace, meta)
+  end
+
   def log(log_event, _config) do
     IO.puts(
       "[Tower.LoggerHandler] UNHANDLED LOG EVENT log_event=#{inspect(log_event, pretty: true)}"
