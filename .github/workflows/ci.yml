@@ -37,7 +37,8 @@ jobs:
         if: ${{ matrix.lint }}
       - run: mix deps.unlock --check-unused
         if: ${{ matrix.lint }}
-      - run: mix deps.compile
+      - run: mix compile
+        if: ${{ ! matrix.lint }}
       - run: mix compile --warnings-as-errors
         if: ${{ matrix.lint }}
       - run: mix test
