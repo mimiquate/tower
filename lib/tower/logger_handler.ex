@@ -13,22 +13,16 @@ defmodule Tower.LoggerHandler do
   # :logger callbacks
 
   def adding_handler(config) do
-    IO.puts("[Tower.LoggerHandler] ADDING config=#{inspect(config)}")
-
     {:ok, config}
   end
 
-  def removing_handler(config) do
-    IO.puts("[Tower.LoggerHandler] REMOVING config=#{inspect(config)}")
-
+  def removing_handler(_config) do
     :ok
   end
 
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}} = meta}, _config)
       when is_exception(exception) and is_list(stacktrace) do
-    IO.puts("[Tower.LoggerHandler] EXCEPTION #{inspect(exception)}")
-
     Tower.report_exception(exception, stacktrace, meta)
   end
 
@@ -38,16 +32,12 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    IO.puts("[Tower.LoggerHandler] NOCATCH #{inspect(reason)}")
-
     Tower.report(:nocatch, reason, stacktrace, meta)
   end
 
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}} = meta}, _config)
       when is_list(stacktrace) do
-    IO.puts("[Tower.LoggerHandler] EXIT #{inspect(exit_reason)}")
-
     Tower.report(:exit, exit_reason, stacktrace, meta)
   end
 
