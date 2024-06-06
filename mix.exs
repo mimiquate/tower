@@ -1,13 +1,24 @@
 defmodule Tower.MixProject do
   use Mix.Project
 
+  @description "Solid error handling and reporting"
+  @source_url "https://github.com/mimiquate/tower"
+  @version "0.1.0"
+
   def project do
     [
       app: :tower,
-      version: "0.1.0",
+      description: @description,
+      version: @version,
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      package: package(),
+
+      # Docs
+      name: "Tower",
+      source_url: @source_url,
+      docs: docs()
     ]
   end
 
@@ -21,8 +32,22 @@ defmodule Tower.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:ex_doc, "~> 0.34.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["Apache-2.0"],
+      links: %{
+        "GitHub" => @source_url
+      }
+    ]
+  end
+
+  defp docs do
+    [
+      extras: ["README.md"]
     ]
   end
 end
