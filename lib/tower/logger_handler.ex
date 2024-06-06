@@ -1,6 +1,6 @@
 defmodule Tower.LoggerHandler do
   @default_level :error
-  @handler_id :tower
+  @handler_id Tower
 
   def attach do
     :logger.add_handler(@handler_id, __MODULE__, %{level: @default_level})
