@@ -143,6 +143,25 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
+  @tag capture_log: true
+  test "reports a Logger.error" do
+    in_unlinked_process(fn ->
+      require Logger
+      Logger.error("Something went wrong here")
+    end)
+
+    assert(
+      [
+        %{
+          time: _,
+          type: :error,
+          reason: "Something went wrong here",
+          stacktrace: []
+        }
+      ] = reported_errors()
+    )
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 
