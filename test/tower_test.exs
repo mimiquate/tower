@@ -156,12 +156,10 @@ defmodule TowerTest do
           time: _,
           type: :error,
           reason: "Something went wrong here",
-          stacktrace: stacktrace
+          stacktrace: []
         }
       ] = reported_errors()
     )
-
-    assert is_list(stacktrace)
   end
 
   defp in_unlinked_process(fun) when is_function(fun, 0) do
