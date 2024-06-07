@@ -1,10 +1,13 @@
 defmodule Tower.EphemeralReporter do
+  @behaviour Tower.Reporter
+
   use Agent
 
   def start_link(_opts) do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
+  @impl true
   def report_exception(exception, stacktrace, meta \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
     Agent.update(
