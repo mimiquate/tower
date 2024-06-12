@@ -12,10 +12,9 @@ jobs:
         include:
           - elixir: '1.17'
             erlang: '27.0'
-            # lint: true / enable once 1.17 stable is released
+            lint: true
           - elixir: '1.16'
             erlang: '26.2.5'
-            lint: true
           - elixir: '1.15'
             erlang: '25.3.2.12'
           - elixir: '1.14'
