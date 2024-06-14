@@ -17,7 +17,10 @@ defmodule Tower do
       when is_exception(exception) and is_list(stacktrace) do
     reporters()
     |> Enum.each(fn reporter ->
-      reporter.report_exception(exception, stacktrace, meta)
+      async(fn ->
+        IO.inspect(self())
+        reporter.report_exception(exception, stacktrace, meta)
+      end)
     end)
   end
 
