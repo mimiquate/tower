@@ -7,9 +7,12 @@ defmodule Tower.Application do
 
   @impl true
   def start(_type, _args) do
-    [
-      {Task.Supervisor, name: Tower.TaskSupervisor}
-    ]
-    |> Supervisor.start_link(strategy: :one_for_one, name: Tower.Supervisor)
+    Supervisor.start_link(
+      [
+        {Task.Supervisor, name: Tower.TaskSupervisor}
+      ],
+      strategy: :one_for_one,
+      name: Tower.Supervisor
+    )
   end
 end
