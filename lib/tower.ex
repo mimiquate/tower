@@ -24,11 +24,18 @@ defmodule Tower do
   def report(type, reason, stacktrace, meta \\ %{}) when is_atom(type) and is_list(stacktrace) do
     reporters()
     |> Enum.each(fn reporter ->
-      reporter.report(type, reason, stacktrace, meta)
+      async(fn ->
+        reporter.report(type, reason, stacktrace, meta)
+      end)
     end)
   end
 
   def reporters do
     Application.get_env(:tower, :reporters, @default_reporters)
+  end
+
+  defp async(fun) do
+    Tower.TaskSupervisor
+    |> Task.Supervisor.start_child(fun)
   end
 end
