@@ -18,7 +18,6 @@ defmodule Tower do
     reporters()
     |> Enum.each(fn reporter ->
       async(fn ->
-        IO.inspect(self())
         reporter.report_exception(exception, stacktrace, meta)
       end)
     end)
