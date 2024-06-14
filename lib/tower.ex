@@ -15,19 +15,22 @@ defmodule Tower do
 
   def report_exception(exception, stacktrace, meta \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
-    reporters()
-    |> Enum.each(fn reporter ->
-      async(fn ->
-        reporter.report_exception(exception, stacktrace, meta)
-      end)
+    each_reporter(fn reporter ->
+      reporter.report_exception(exception, stacktrace, meta)
     end)
   end
 
   def report(type, reason, stacktrace, meta \\ %{}) when is_atom(type) and is_list(stacktrace) do
+    each_reporter(fn reporter ->
+      reporter.report(type, reason, stacktrace, meta)
+    end)
+  end
+
+  defp each_reporter(fun) when is_function(fun, 1) do
     reporters()
     |> Enum.each(fn reporter ->
       async(fn ->
-        reporter.report(type, reason, stacktrace, meta)
+        fun.(reporter)
       end)
     end)
   end
