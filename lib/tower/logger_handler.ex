@@ -1,5 +1,5 @@
 defmodule Tower.LoggerHandler do
-  @default_level :error
+  @default_level :notice
   @handler_id Tower
 
   def attach do
