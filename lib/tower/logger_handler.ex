@@ -23,7 +23,7 @@ defmodule Tower.LoggerHandler do
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}} = meta}, _config)
       when is_exception(exception) and is_list(stacktrace) do
-    Tower.report_exception(exception, stacktrace, meta)
+    Tower.handle_exception(exception, stacktrace, meta)
   end
 
   # elixir 1.15+
@@ -32,13 +32,13 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    report_nocatch(reason, stacktrace, meta)
+    Tower.handle_throw(reason, stacktrace, meta)
   end
 
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}} = meta}, _config)
       when is_list(stacktrace) do
-    report_exit(exit_reason, stacktrace, meta)
+    Tower.handle_exit(exit_reason, stacktrace, meta)
   end
 
   # elixir 1.14
@@ -51,7 +51,7 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_exception(exception) and is_list(stacktrace) do
-    Tower.report_exception(exception, stacktrace, meta)
+    Tower.handle_exception(exception, stacktrace, meta)
   end
 
   # elixir 1.14
@@ -64,7 +64,7 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    report_nocatch(reason, stacktrace, meta)
+    Tower.handle_throw(reason, stacktrace, meta)
   end
 
   # elixir 1.14
@@ -79,37 +79,23 @@ defmodule Tower.LoggerHandler do
       when is_list(stacktrace) do
     case Exception.normalize(:error, reason) do
       %ErlangError{} ->
-        report_exit(reason, stacktrace, meta)
+        Tower.handle_exit(reason, stacktrace, meta)
 
       e when is_exception(e) ->
-        Tower.report_exception(e, stacktrace, meta)
+        Tower.handle_exception(e, stacktrace, meta)
 
       _ ->
-        report_exit(reason, stacktrace, meta)
+        Tower.handle_exit(reason, stacktrace, meta)
     end
   end
 
-  def log(%{level: :error, msg: {:string, reason}, meta: meta}, _config) do
-    Tower.report_term(reason, Map.merge(meta, %{type: :error, level: :error}))
+  def log(%{level: level, msg: {:string, reason}, meta: meta}, _config) do
+    Tower.handle_message(level, reason, meta)
   end
 
   def log(log_event, _config) do
     IO.puts(
       "[Tower.LoggerHandler] UNHANDLED LOG EVENT log_event=#{inspect(log_event, pretty: true)}"
-    )
-  end
-
-  defp report_nocatch(reason, stacktrace, meta) do
-    Tower.report_term(
-      reason,
-      Map.merge(meta, %{level: :error, type: :nocatch, stacktrace: stacktrace})
-    )
-  end
-
-  defp report_exit(reason, stacktrace, meta) do
-    Tower.report_term(
-      reason,
-      Map.merge(meta, %{level: :error, type: :exit, stacktrace: stacktrace})
     )
   end
 end

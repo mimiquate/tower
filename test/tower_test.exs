@@ -25,7 +25,8 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: ArithmeticError,
+          level: :error,
+          kind: ArithmeticError,
           reason: "bad argument in arithmetic expression",
           stacktrace: stacktrace
         }
@@ -45,7 +46,8 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: RuntimeError,
+          level: :error,
+          kind: RuntimeError,
           reason: "error inside process",
           stacktrace: stacktrace
         }
@@ -65,7 +67,8 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :nocatch,
+          level: :error,
+          kind: :throw,
           reason: "error",
           stacktrace: stacktrace
         }
@@ -85,7 +88,8 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :nocatch,
+          level: :error,
+          kind: :throw,
           reason: [something: "here"],
           stacktrace: stacktrace
         }
@@ -113,7 +117,8 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :exit,
+          level: :error,
+          kind: :exit,
           reason: :abnormal,
           stacktrace: stacktrace
         }
@@ -133,7 +138,8 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :exit,
+          level: :error,
+          kind: :exit,
           reason: :kill,
           stacktrace: stacktrace
         }
@@ -154,7 +160,8 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :error,
+          level: :error,
+          kind: nil,
           reason: "Something went wrong here",
           stacktrace: []
         }

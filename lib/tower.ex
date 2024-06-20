@@ -13,16 +13,28 @@ defmodule Tower do
     :ok = Tower.LoggerHandler.detach()
   end
 
-  def report_exception(exception, stacktrace, meta \\ %{})
+  def handle_exception(exception, stacktrace, meta \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
     each_reporter(fn reporter ->
       reporter.report_exception(exception, stacktrace, meta)
     end)
   end
 
-  def report_term(term, metadata \\ %{}) do
+  def handle_throw(reason, stacktrace, metadata \\ %{}) do
     each_reporter(fn reporter ->
-      reporter.report_term(term, metadata)
+      reporter.report_throw(reason, stacktrace, metadata)
+    end)
+  end
+
+  def handle_exit(reason, stacktrace, metadata \\ %{}) do
+    each_reporter(fn reporter ->
+      reporter.report_exit(reason, stacktrace, metadata)
+    end)
+  end
+
+  def handle_message(level, message, metadata \\ %{}) do
+    each_reporter(fn reporter ->
+      reporter.report_message(level, message, metadata)
     end)
   end
 

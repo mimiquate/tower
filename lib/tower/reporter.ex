@@ -5,6 +5,10 @@ defmodule Tower.Reporter do
   @callback report_exception(exception :: Exception.t(), stacktrace :: list()) :: :ok
   @callback report_exception(exception :: Exception.t(), stacktrace :: list(), metadata :: map()) ::
               :ok
-  @callback report_term(term :: term()) :: :ok
-  @callback report_term(term :: term(), metadata :: map()) :: :ok
+  @callback report_throw(reason :: term(), stacktrace :: list()) :: :ok
+  @callback report_throw(reason :: term(), stacktrace :: list(), metadata :: map()) :: :ok
+  @callback report_exit(reason :: term(), stacktrace :: list()) :: :ok
+  @callback report_exit(reason :: term(), stacktrace :: list(), metadata :: map()) :: :ok
+  @callback report_message(level :: atom(), message :: term()) :: :ok
+  @callback report_message(level :: atom(), message :: term(), metadata :: map()) :: :ok
 end
