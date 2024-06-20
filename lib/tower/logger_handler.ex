@@ -94,8 +94,10 @@ defmodule Tower.LoggerHandler do
   end
 
   def log(log_event, _config) do
-    IO.puts(
-      "[Tower.LoggerHandler] UNHANDLED LOG EVENT log_event=#{inspect(log_event, pretty: true)}"
-    )
+    warning_message =
+      "[Tower.LoggerHandler] UNRECOGNIZED LOG EVENT log_event=#{inspect(log_event, pretty: true)}"
+
+    IO.puts(warning_message)
+    Tower.handle_message(:warning, warning_message)
   end
 end
