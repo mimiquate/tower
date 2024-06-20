@@ -12,7 +12,7 @@ defmodule TowerTest do
   end
 
   test "starts with 0 exceptions" do
-    assert [] = reported_errors()
+    assert [] = reported_events()
   end
 
   @tag capture_log: true
@@ -25,11 +25,12 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: ArithmeticError,
+          level: :error,
+          kind: ArithmeticError,
           reason: "bad argument in arithmetic expression",
           stacktrace: stacktrace
         }
-      ] = reported_errors()
+      ] = reported_events()
     )
 
     assert is_list(stacktrace)
@@ -45,11 +46,12 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: RuntimeError,
+          level: :error,
+          kind: RuntimeError,
           reason: "error inside process",
           stacktrace: stacktrace
         }
-      ] = reported_errors()
+      ] = reported_events()
     )
 
     assert is_list(stacktrace)
@@ -65,11 +67,12 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :nocatch,
+          level: :error,
+          kind: :throw,
           reason: "error",
           stacktrace: stacktrace
         }
-      ] = reported_errors()
+      ] = reported_events()
     )
 
     assert is_list(stacktrace)
@@ -85,11 +88,12 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :nocatch,
+          level: :error,
+          kind: :throw,
           reason: [something: "here"],
           stacktrace: stacktrace
         }
-      ] = reported_errors()
+      ] = reported_events()
     )
 
     assert is_list(stacktrace)
@@ -100,7 +104,7 @@ defmodule TowerTest do
       exit(:normal)
     end)
 
-    assert [] = reported_errors()
+    assert [] = reported_events()
   end
 
   @tag capture_log: true
@@ -113,11 +117,12 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :exit,
+          level: :error,
+          kind: :exit,
           reason: :abnormal,
           stacktrace: stacktrace
         }
-      ] = reported_errors()
+      ] = reported_events()
     )
 
     assert is_list(stacktrace)
@@ -133,11 +138,12 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :exit,
+          level: :error,
+          kind: :exit,
           reason: :kill,
           stacktrace: stacktrace
         }
-      ] = reported_errors()
+      ] = reported_events()
     )
 
     assert is_list(stacktrace)
@@ -154,11 +160,12 @@ defmodule TowerTest do
       [
         %{
           time: _,
-          type: :error,
+          level: :error,
+          kind: nil,
           reason: "Something went wrong here",
           stacktrace: []
         }
-      ] = reported_errors()
+      ] = reported_events()
     )
   end
 
@@ -174,7 +181,7 @@ defmodule TowerTest do
     Tower.EphemeralReporter.start_link([])
   end
 
-  defp reported_errors do
-    Tower.EphemeralReporter.errors()
+  defp reported_events do
+    Tower.EphemeralReporter.events()
   end
 end
