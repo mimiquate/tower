@@ -8,14 +8,14 @@ defmodule Tower.EphemeralReporter do
   end
 
   @impl true
-  def report_exception(exception, stacktrace, meta \\ %{})
+  def report_exception(exception, stacktrace, metadata \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
     Agent.update(
       __MODULE__,
       fn errors ->
         [
           %{
-            time: Map.get(meta, :time, :logger.timestamp()),
+            time: Map.get(metadata, :time, :logger.timestamp()),
             type: exception.__struct__,
             reason: Exception.message(exception),
             stacktrace: stacktrace
@@ -26,22 +26,40 @@ defmodule Tower.EphemeralReporter do
     )
   end
 
-  def report(type, reason, stacktrace, meta \\ %{}) when is_atom(type) and is_list(stacktrace) do
+  @impl true
+  def report_term(reason, metadata \\ %{}) do
     Agent.update(
       __MODULE__,
-      fn errors ->
+      fn events ->
         [
           %{
-            time: Map.get(meta, :time, :logger.timestamp()),
-            type: type,
+            time: Map.get(metadata, :time, :logger.timestamp()),
+            type: Map.get(metadata, :type),
             reason: reason,
-            stacktrace: stacktrace
+            stacktrace: Map.get(metadata, :stacktrace, [])
           }
-          | errors
+          | events
         ]
       end
     )
   end
+
+  # def report_error(type, reason, stacktrace, metadata \\ %{}) when is_atom(type) and is_list(stacktrace) do
+  #   Agent.update(
+  #     __MODULE__,
+  #     fn events ->
+  #       [
+  #         %{
+  #           time: Map.get(metadata, :time, :logger.timestamp()),
+  #           type: type,
+  #           reason: reason,
+  #           stacktrace: stacktrace
+  #         }
+  #         | events
+  #       ]
+  #     end
+  #   )
+  # end
 
   def errors do
     Agent.get(__MODULE__, & &1)

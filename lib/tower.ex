@@ -20,9 +20,9 @@ defmodule Tower do
     end)
   end
 
-  def report(type, reason, stacktrace, meta \\ %{}) when is_atom(type) and is_list(stacktrace) do
+  def report_term(reason, metadata \\ %{}) do
     each_reporter(fn reporter ->
-      reporter.report(type, reason, stacktrace, meta)
+      reporter.report_term(reason, metadata)
     end)
   end
 
