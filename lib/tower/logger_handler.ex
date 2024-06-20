@@ -100,12 +100,16 @@ defmodule Tower.LoggerHandler do
   end
 
   defp report_nocatch(reason, stacktrace, meta) do
-    # Tower.report(:nocatch, reason, stacktrace, meta)
-    Tower.report_term(reason, Map.merge(meta, %{type: :nocatch, stacktrace: stacktrace}))
+    Tower.report_term(
+      reason,
+      Map.merge(meta, %{level: :error, type: :nocatch, stacktrace: stacktrace})
+    )
   end
 
   defp report_exit(reason, stacktrace, meta) do
-    # Tower.report(:exit, exit_reason, stacktrace, meta)
-    Tower.report_term(reason, Map.merge(meta, %{type: :exit, stacktrace: stacktrace}))
+    Tower.report_term(
+      reason,
+      Map.merge(meta, %{level: :error, type: :exit, stacktrace: stacktrace})
+    )
   end
 end
