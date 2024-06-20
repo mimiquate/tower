@@ -44,23 +44,6 @@ defmodule Tower.EphemeralReporter do
     )
   end
 
-  # def report_error(type, reason, stacktrace, metadata \\ %{}) when is_atom(type) and is_list(stacktrace) do
-  #   Agent.update(
-  #     __MODULE__,
-  #     fn events ->
-  #       [
-  #         %{
-  #           time: Map.get(metadata, :time, :logger.timestamp()),
-  #           type: type,
-  #           reason: reason,
-  #           stacktrace: stacktrace
-  #         }
-  #         | events
-  #       ]
-  #     end
-  #   )
-  # end
-
   def events do
     Agent.get(__MODULE__, & &1)
   end
