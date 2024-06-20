@@ -20,9 +20,9 @@ defmodule Tower do
     end)
   end
 
-  def report_term(reason, metadata \\ %{}) do
+  def report_term(term, metadata \\ %{}) do
     each_reporter(fn reporter ->
-      reporter.report_term(reason, metadata)
+      reporter.report_term(term, metadata)
     end)
   end
 

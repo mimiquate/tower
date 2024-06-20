@@ -27,7 +27,7 @@ defmodule Tower.EphemeralReporter do
   end
 
   @impl true
-  def report_term(reason, metadata \\ %{}) do
+  def report_term(term, metadata \\ %{}) do
     Agent.update(
       __MODULE__,
       fn events ->
@@ -35,7 +35,7 @@ defmodule Tower.EphemeralReporter do
           %{
             time: Map.get(metadata, :time, :logger.timestamp()),
             type: Map.get(metadata, :type),
-            reason: reason,
+            reason: term,
             stacktrace: Map.get(metadata, :stacktrace, [])
           }
           | events
