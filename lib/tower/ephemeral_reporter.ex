@@ -12,7 +12,7 @@ defmodule Tower.EphemeralReporter do
       when is_exception(exception) and is_list(stacktrace) do
     Agent.update(
       __MODULE__,
-      fn errors ->
+      fn events ->
         [
           %{
             time: Map.get(metadata, :time, :logger.timestamp()),
@@ -20,7 +20,7 @@ defmodule Tower.EphemeralReporter do
             reason: Exception.message(exception),
             stacktrace: stacktrace
           }
-          | errors
+          | events
         ]
       end
     )
@@ -61,7 +61,7 @@ defmodule Tower.EphemeralReporter do
   #   )
   # end
 
-  def errors do
+  def events do
     Agent.get(__MODULE__, & &1)
   end
 end
