@@ -169,6 +169,34 @@ defmodule TowerTest do
     )
   end
 
+  @tag capture_log: true
+  test "reports a Logger.error with charlist" do
+    in_unlinked_process(fn ->
+      require Logger
+
+      Logger.error([
+        "Postgrex.Protocol",
+        32,
+        40,
+        "#PID<0.2612.0>",
+        ") disconnected: " | "** (DBConnection.ConnectionError) tcp recv (idle): closed"
+      ])
+    end)
+
+    assert(
+      [
+        %{
+          time: _,
+          level: :error,
+          kind: nil,
+          reason:
+            "Postgrex.Protocol (#PID<0.2612.0>) disconnected: ** (DBConnection.ConnectionError) tcp recv (idle): closed",
+          stacktrace: []
+        }
+      ] = reported_events()
+    )
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 
