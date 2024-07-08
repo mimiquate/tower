@@ -89,8 +89,8 @@ defmodule Tower.LoggerHandler do
     end
   end
 
-  def log(%{level: level, msg: {:string, reason}, meta: meta}, _config) do
-    Tower.handle_message(level, reason, meta)
+  def log(%{level: level, msg: {:string, reason_chardata}, meta: meta}, _config) do
+    Tower.handle_message(level, IO.chardata_to_string(reason_chardata), meta)
   end
 
   def log(log_event, _config) do
