@@ -189,7 +189,8 @@ defmodule TowerTest do
           time: _,
           level: :error,
           kind: nil,
-          reason: "Postgrex.Protocol (#PID<0.2612.0>) disconnected: ** (DBConnection.ConnectionError) tcp recv (idle): closed",
+          reason:
+            "Postgrex.Protocol (#PID<0.2612.0>) disconnected: ** (DBConnection.ConnectionError) tcp recv (idle): closed",
           stacktrace: []
         }
       ] = reported_events()
