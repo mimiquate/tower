@@ -106,6 +106,8 @@ defmodule Tower.LoggerHandler do
   end
 
   defp log_level do
+    # This config env can be to any of the 8 levels in https://www.erlang.org/doc/apps/kernel/logger#t:level/0,
+    # or special values :all and :none.
     Application.get_env(:tower, :log_level, @default_log_level)
   end
 end
