@@ -95,6 +95,12 @@ defmodule Tower.LoggerHandler do
     end
   end
 
+  def log(%{level: level, msg: {:report, report}, meta: meta}, _config) do
+    if should_handle?(level) do
+      Tower.handle_message(level, report, meta)
+    end
+  end
+
   def log(log_event, _config) do
     IO.puts(
       "[Tower.LoggerHandler] UNHANDLED LOG EVENT log_event=#{inspect(log_event, pretty: true)}"

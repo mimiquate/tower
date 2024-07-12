@@ -211,6 +211,26 @@ defmodule TowerTest do
     )
   end
 
+  @tag capture_log: true
+  test "reports a Logger structured report" do
+    in_unlinked_process(fn ->
+      require Logger
+      Logger.critical(something: :reported, this: :critical)
+    end)
+
+    assert(
+      [
+        %{
+          time: _,
+          level: :critical,
+          kind: nil,
+          reason: [something: :reported, this: :critical],
+          stacktrace: []
+        }
+      ] = reported_events()
+    )
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 
