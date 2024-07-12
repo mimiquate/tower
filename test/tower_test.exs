@@ -150,7 +150,19 @@ defmodule TowerTest do
   end
 
   @tag capture_log: true
-  test "reports a Logger.error" do
+  test "doesn't report a Logger.error by default" do
+    in_unlinked_process(fn ->
+      require Logger
+      Logger.error("Something went wrong here")
+    end)
+
+    assert [] = reported_events()
+  end
+
+  @tag capture_log: true
+  test "reports a Logger.error (if enabled)" do
+    put_env(:log_level, :error)
+
     in_unlinked_process(fn ->
       require Logger
       Logger.error("Something went wrong here")
@@ -170,7 +182,9 @@ defmodule TowerTest do
   end
 
   @tag capture_log: true
-  test "reports a Logger.error with charlist" do
+  test "reports a Logger.error (if enabled) with charlist" do
+    put_env(:log_level, :error)
+
     in_unlinked_process(fn ->
       require Logger
 
@@ -211,5 +225,18 @@ defmodule TowerTest do
 
   defp reported_events do
     Tower.EphemeralReporter.events()
+  end
+
+  defp put_env(key, value) do
+    original_value = Application.get_env(:tower, key)
+    Application.put_env(:tower, key, value)
+
+    on_exit(fn ->
+      if original_value == nil do
+        Application.delete_env(:tower, key)
+      else
+        Application.put_env(:tower, key, original_value)
+      end
+    end)
   end
 end

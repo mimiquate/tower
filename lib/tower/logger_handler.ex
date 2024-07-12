@@ -1,9 +1,9 @@
 defmodule Tower.LoggerHandler do
-  @default_level :notice
+  @default_log_level :critical
   @handler_id Tower
 
   def attach do
-    :logger.add_handler(@handler_id, __MODULE__, %{level: @default_level})
+    :logger.add_handler(@handler_id, __MODULE__, %{level: :all})
   end
 
   def detach do
@@ -90,12 +90,24 @@ defmodule Tower.LoggerHandler do
   end
 
   def log(%{level: level, msg: {:string, reason_chardata}, meta: meta}, _config) do
-    Tower.handle_message(level, IO.chardata_to_string(reason_chardata), meta)
+    if should_handle?(level) do
+      Tower.handle_message(level, IO.chardata_to_string(reason_chardata), meta)
+    end
   end
 
   def log(log_event, _config) do
     IO.puts(
       "[Tower.LoggerHandler] UNHANDLED LOG EVENT log_event=#{inspect(log_event, pretty: true)}"
     )
+  end
+
+  defp should_handle?(level) do
+    :logger.compare_levels(level, log_level()) in [:gt, :eq]
+  end
+
+  defp log_level do
+    # This config env can be to any of the 8 levels in https://www.erlang.org/doc/apps/kernel/logger#t:level/0,
+    # or special values :all and :none.
+    Application.get_env(:tower, :log_level, @default_log_level)
   end
 end
