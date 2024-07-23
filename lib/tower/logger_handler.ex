@@ -1,7 +1,6 @@
 defmodule Tower.LoggerHandler do
   @moduledoc false
 
-  @default_log_level :critical
   @handler_id Tower
   @own_logs_domain [:tower, :logger_handler]
 
@@ -101,7 +100,7 @@ defmodule Tower.LoggerHandler do
   defp log_level do
     # This config env can be to any of the 8 levels in https://www.erlang.org/doc/apps/kernel/logger#t:level/0,
     # or special values :all and :none.
-    Application.get_env(:tower, :log_level, @default_log_level)
+    Application.fetch_env!(:tower, :log_level)
   end
 
   defp safe_log(level, message) do

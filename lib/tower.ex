@@ -218,8 +218,6 @@ defmodule Tower do
 
   alias Tower.Event
 
-  @default_reporters [Tower.EphemeralReporter]
-
   @doc """
   Determines if a process exit `reason` is "normal".
 
@@ -450,7 +448,7 @@ defmodule Tower do
   end
 
   defp reporters do
-    Application.get_env(:tower, :reporters, @default_reporters)
+    Application.fetch_env!(:tower, :reporters)
   end
 
   defp async(fun) do
