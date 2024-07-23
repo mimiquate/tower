@@ -3,8 +3,6 @@ defmodule Tower do
   Documentation for `Tower`.
   """
 
-  @default_reporters [Tower.EphemeralReporter]
-
   def attach do
     :ok = Tower.LoggerHandler.attach()
   end
@@ -48,7 +46,7 @@ defmodule Tower do
   end
 
   def reporters do
-    Application.get_env(:tower, :reporters, @default_reporters)
+    Application.fetch_env!(:tower, :reporters)
   end
 
   defp async(fun) do
