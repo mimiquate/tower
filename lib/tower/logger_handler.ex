@@ -68,7 +68,12 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_exception(exception) and is_list(stacktrace) do
-    Tower.handle_exception(exception, stacktrace, meta)
+    %Tower.Event{
+      exception: exception,
+      stacktrace: stacktrace,
+      log_event_meta: meta
+    }
+    |> Tower.handle_event()
   end
 
   # elixir 1.14
@@ -81,7 +86,13 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    Tower.handle_throw(reason, stacktrace, meta)
+    %Tower.Event{
+      kind: :throw,
+      message: reason,
+      stacktrace: stacktrace,
+      log_event_meta: meta
+    }
+    |> Tower.handle_event()
   end
 
   # elixir 1.14
@@ -96,25 +107,52 @@ defmodule Tower.LoggerHandler do
       when is_list(stacktrace) do
     case Exception.normalize(:error, reason) do
       %ErlangError{} ->
-        Tower.handle_exit(reason, stacktrace, meta)
+        %Tower.Event{
+          kind: :exit,
+          message: reason,
+          stacktrace: stacktrace,
+          log_event_meta: meta
+        }
 
       e when is_exception(e) ->
-        Tower.handle_exception(e, stacktrace, meta)
+        %Tower.Event{
+          exception: e,
+          stacktrace: stacktrace,
+          log_event_meta: meta
+        }
 
       _ ->
-        Tower.handle_exit(reason, stacktrace, meta)
+        %Tower.Event{
+          kind: :exit,
+          message: reason,
+          stacktrace: stacktrace,
+          log_event_meta: meta
+        }
     end
+    |> Tower.handle_event()
   end
 
   def log(%{level: level, msg: {:string, reason_chardata}, meta: meta}, _config) do
     if should_handle?(level) do
-      Tower.handle_message(level, IO.chardata_to_string(reason_chardata), meta)
+      %Tower.Event{
+        kind: :message,
+        level: level,
+        message: IO.chardata_to_string(reason_chardata),
+        log_event_meta: meta
+      }
+      |> Tower.handle_event()
     end
   end
 
   def log(%{level: level, msg: {:report, report}, meta: meta}, _config) do
     if should_handle?(level) do
-      Tower.handle_message(level, report, meta)
+      %Tower.Event{
+        kind: :message,
+        level: level,
+        message: report,
+        log_event_meta: meta
+      }
+      |> Tower.handle_event()
     end
   end
 
