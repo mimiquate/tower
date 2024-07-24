@@ -45,13 +45,6 @@ defmodule Tower do
     end)
   end
 
-  def handle_exception(exception, stacktrace, meta \\ %{})
-      when is_exception(exception) and is_list(stacktrace) do
-    each_reporter(fn reporter ->
-      reporter.report_exception(exception, stacktrace, meta)
-    end)
-  end
-
   def handle_message(level, message, metadata \\ %{}) do
     each_reporter(fn reporter ->
       reporter.report_message(level, message, metadata)
