@@ -37,7 +37,13 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    Tower.handle_throw(reason, stacktrace, meta)
+    %Tower.Event{
+      kind: :throw,
+      message: reason,
+      stacktrace: stacktrace,
+      log_event_meta: meta
+    }
+    |> Tower.handle_event()
   end
 
   # elixir 1.15+
