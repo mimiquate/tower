@@ -23,7 +23,12 @@ defmodule Tower.LoggerHandler do
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}} = meta}, _config)
       when is_exception(exception) and is_list(stacktrace) do
-    Tower.handle_exception(exception, stacktrace, meta)
+    %Tower.Event{
+      exception: exception,
+      stacktrace: stacktrace,
+      log_event_meta: meta
+    }
+    |> Tower.handle_event()
   end
 
   # elixir 1.15+
