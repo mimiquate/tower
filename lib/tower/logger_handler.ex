@@ -21,20 +21,22 @@ defmodule Tower.LoggerHandler do
   end
 
   # elixir 1.15+
-  def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}} = meta}, _config)
+  def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event, _config)
       when is_exception(exception) and is_list(stacktrace) do
     %Tower.Event{
       kind: :exception,
       exception: exception,
       stacktrace: stacktrace,
-      log_event_meta: meta
+      metadata: %{
+        log_event: log_event
+      }
     }
     |> Tower.handle_event()
   end
 
   # elixir 1.15+
   def log(
-        %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}} = meta},
+        %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event,
         _config
       )
       when is_list(stacktrace) do
@@ -42,19 +44,23 @@ defmodule Tower.LoggerHandler do
       kind: :throw,
       message: reason,
       stacktrace: stacktrace,
-      log_event_meta: meta
+      metadata: %{
+        log_event: log_event
+      }
     }
     |> Tower.handle_event()
   end
 
   # elixir 1.15+
-  def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}} = meta}, _config)
+  def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event, _config)
       when is_list(stacktrace) do
     %Tower.Event{
       kind: :exit,
       message: exit_reason,
       stacktrace: stacktrace,
-      log_event_meta: meta
+      metadata: %{
+        log_event: log_event
+      }
     }
     |> Tower.handle_event()
   end
@@ -63,9 +69,8 @@ defmodule Tower.LoggerHandler do
   def log(
         %{
           level: :error,
-          msg: {:report, %{report: %{reason: {exception, stacktrace}}}},
-          meta: meta
-        },
+          msg: {:report, %{report: %{reason: {exception, stacktrace}}}}
+        } = log_event,
         _config
       )
       when is_exception(exception) and is_list(stacktrace) do
@@ -73,7 +78,9 @@ defmodule Tower.LoggerHandler do
       kind: :exception,
       exception: exception,
       stacktrace: stacktrace,
-      log_event_meta: meta
+      metadata: %{
+        log_event: log_event
+      }
     }
     |> Tower.handle_event()
   end
@@ -82,9 +89,8 @@ defmodule Tower.LoggerHandler do
   def log(
         %{
           level: :error,
-          msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}},
-          meta: meta
-        },
+          msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}}
+        } = log_event,
         _config
       )
       when is_list(stacktrace) do
@@ -92,7 +98,9 @@ defmodule Tower.LoggerHandler do
       kind: :throw,
       message: reason,
       stacktrace: stacktrace,
-      log_event_meta: meta
+      metadata: %{
+        log_event: log_event
+      }
     }
     |> Tower.handle_event()
   end
@@ -101,9 +109,8 @@ defmodule Tower.LoggerHandler do
   def log(
         %{
           level: :error,
-          msg: {:report, %{report: %{reason: {reason, stacktrace}}}},
-          meta: meta
-        },
+          msg: {:report, %{report: %{reason: {reason, stacktrace}}}}
+        } = log_event,
         _config
       )
       when is_list(stacktrace) do
@@ -113,7 +120,9 @@ defmodule Tower.LoggerHandler do
           kind: :exit,
           message: reason,
           stacktrace: stacktrace,
-          log_event_meta: meta
+          metadata: %{
+            log_event: log_event
+          }
         }
 
       e when is_exception(e) ->
@@ -121,7 +130,9 @@ defmodule Tower.LoggerHandler do
           kind: :exception,
           exception: e,
           stacktrace: stacktrace,
-          log_event_meta: meta
+          metadata: %{
+            log_event: log_event
+          }
         }
 
       _ ->
@@ -129,31 +140,37 @@ defmodule Tower.LoggerHandler do
           kind: :exit,
           message: reason,
           stacktrace: stacktrace,
-          log_event_meta: meta
+          metadata: %{
+            log_event: log_event
+          }
         }
     end
     |> Tower.handle_event()
   end
 
-  def log(%{level: level, msg: {:string, reason_chardata}, meta: meta}, _config) do
+  def log(%{level: level, msg: {:string, reason_chardata}} = log_event, _config) do
     if should_handle?(level) do
       %Tower.Event{
         kind: :message,
         level: level,
         message: IO.chardata_to_string(reason_chardata),
-        log_event_meta: meta
+        metadata: %{
+          log_event: log_event
+        }
       }
       |> Tower.handle_event()
     end
   end
 
-  def log(%{level: level, msg: {:report, report}, meta: meta}, _config) do
+  def log(%{level: level, msg: {:report, report}} = log_event, _config) do
     if should_handle?(level) do
       %Tower.Event{
         kind: :message,
         level: level,
         message: report,
-        log_event_meta: meta
+        metadata: %{
+          log_event: log_event
+        }
       }
       |> Tower.handle_event()
     end

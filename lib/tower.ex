@@ -13,47 +13,9 @@ defmodule Tower do
     :ok = Tower.LoggerHandler.detach()
   end
 
-  def handle_event(%Tower.Event{
-        kind: :exception,
-        exception: exception,
-        stacktrace: stacktrace,
-        log_event_meta: meta
-      }) do
+  def handle_event(event) do
     each_reporter(fn reporter ->
-      reporter.report_exception(exception, stacktrace, meta)
-    end)
-  end
-
-  def handle_event(%Tower.Event{
-        kind: :message,
-        level: level,
-        message: message,
-        log_event_meta: metadata
-      }) do
-    each_reporter(fn reporter ->
-      reporter.report_message(level, message, metadata)
-    end)
-  end
-
-  def handle_event(%Tower.Event{
-        kind: :throw,
-        message: reason,
-        stacktrace: stacktrace,
-        log_event_meta: metadata
-      }) do
-    each_reporter(fn reporter ->
-      reporter.report_throw(reason, stacktrace, metadata)
-    end)
-  end
-
-  def handle_event(%Tower.Event{
-        kind: :exit,
-        message: reason,
-        stacktrace: stacktrace,
-        log_event_meta: metadata
-      }) do
-    each_reporter(fn reporter ->
-      reporter.report_exit(reason, stacktrace, metadata)
+      reporter.handle_event(event)
     end)
   end
 
