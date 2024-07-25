@@ -3,7 +3,7 @@ defmodule Tower do
   Documentation for `Tower`.
   """
 
-  @default_reporters [Tower.EphemeralReporter]
+  @default_handlers [Tower.EphemeralReporter]
 
   def attach do
     :ok = Tower.LoggerHandler.attach()
@@ -14,22 +14,22 @@ defmodule Tower do
   end
 
   def handle_event(event) do
-    each_reporter(fn reporter ->
-      reporter.handle_event(event)
+    each_handler(fn handler ->
+      handler.handle_event(event)
     end)
   end
 
-  defp each_reporter(fun) when is_function(fun, 1) do
-    reporters()
-    |> Enum.each(fn reporter ->
+  defp each_handler(fun) when is_function(fun, 1) do
+    handlers()
+    |> Enum.each(fn handler ->
       async(fn ->
-        fun.(reporter)
+        fun.(handler)
       end)
     end)
   end
 
-  def reporters do
-    Application.get_env(:tower, :reporters, @default_reporters)
+  def handlers do
+    Application.get_env(:tower, :handlers, @default_handlers)
   end
 
   defp async(fun) do
