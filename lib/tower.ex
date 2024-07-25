@@ -14,6 +14,17 @@ defmodule Tower do
   end
 
   def handle_event(%Tower.Event{
+        kind: :exception,
+        exception: exception,
+        stacktrace: stacktrace,
+        log_event_meta: meta
+      }) do
+    each_reporter(fn reporter ->
+      reporter.report_exception(exception, stacktrace, meta)
+    end)
+  end
+
+  def handle_event(%Tower.Event{
         kind: :message,
         level: level,
         message: message,
@@ -43,16 +54,6 @@ defmodule Tower do
       }) do
     each_reporter(fn reporter ->
       reporter.report_exit(reason, stacktrace, metadata)
-    end)
-  end
-
-  def handle_event(%Tower.Event{
-        exception: exception,
-        stacktrace: stacktrace,
-        log_event_meta: meta
-      }) do
-    each_reporter(fn reporter ->
-      reporter.report_exception(exception, stacktrace, meta)
     end)
   end
 
