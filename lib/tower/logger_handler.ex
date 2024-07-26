@@ -23,14 +23,7 @@ defmodule Tower.LoggerHandler do
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event, _config)
       when is_exception(exception) and is_list(stacktrace) do
-    %Tower.Event{
-      kind: :error,
-      reason: exception,
-      stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
-    }
+    new_event(:error, exception, stacktrace, log_event)
     |> Tower.handle_event()
   end
 
@@ -41,28 +34,14 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    %Tower.Event{
-      kind: :throw,
-      reason: throw_reason,
-      stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
-    }
+    new_event(:throw, throw_reason, stacktrace, log_event)
     |> Tower.handle_event()
   end
 
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event, _config)
       when is_list(stacktrace) do
-    %Tower.Event{
-      kind: :exit,
-      reason: exit_reason,
-      stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
-    }
+    new_event(:exit, exit_reason, stacktrace, log_event)
     |> Tower.handle_event()
   end
 
@@ -75,14 +54,7 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_exception(exception) and is_list(stacktrace) do
-    %Tower.Event{
-      kind: :error,
-      reason: exception,
-      stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
-    }
+    new_event(:error, exception, stacktrace, log_event)
     |> Tower.handle_event()
   end
 
@@ -95,14 +67,7 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    %Tower.Event{
-      kind: :throw,
-      reason: throw_reason,
-      stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
-    }
+    new_event(:throw, throw_reason, stacktrace, log_event)
     |> Tower.handle_event()
   end
 
@@ -117,34 +82,13 @@ defmodule Tower.LoggerHandler do
       when is_list(stacktrace) do
     case Exception.normalize(:error, reason) do
       %ErlangError{} ->
-        %Tower.Event{
-          kind: :exit,
-          reason: reason,
-          stacktrace: stacktrace,
-          metadata: %{
-            log_event: log_event
-          }
-        }
+        new_event(:exit, reason, stacktrace, log_event)
 
       e when is_exception(e) ->
-        %Tower.Event{
-          kind: :error,
-          reason: e,
-          stacktrace: stacktrace,
-          metadata: %{
-            log_event: log_event
-          }
-        }
+        new_event(:error, e, stacktrace, log_event)
 
       _ ->
-        %Tower.Event{
-          kind: :exit,
-          reason: reason,
-          stacktrace: stacktrace,
-          metadata: %{
-            log_event: log_event
-          }
-        }
+        new_event(:exit, reason, stacktrace, log_event)
     end
     |> Tower.handle_event()
   end
@@ -152,6 +96,7 @@ defmodule Tower.LoggerHandler do
   def log(%{level: level, msg: {:string, reason_chardata}} = log_event, _config) do
     if should_handle?(level) do
       %Tower.Event{
+        time: time_from(log_event),
         kind: :message,
         level: level,
         reason: IO.chardata_to_string(reason_chardata),
@@ -166,6 +111,7 @@ defmodule Tower.LoggerHandler do
   def log(%{level: level, msg: {:report, report}} = log_event, _config) do
     if should_handle?(level) do
       %Tower.Event{
+        time: time_from(log_event),
         kind: :message,
         level: level,
         reason: report,
@@ -191,5 +137,21 @@ defmodule Tower.LoggerHandler do
     # This config env can be to any of the 8 levels in https://www.erlang.org/doc/apps/kernel/logger#t:level/0,
     # or special values :all and :none.
     Application.get_env(:tower, :log_level, @default_log_level)
+  end
+
+  defp new_event(kind, reason, stacktrace, log_event) do
+    %Tower.Event{
+      time: time_from(log_event),
+      kind: kind,
+      reason: reason,
+      stacktrace: stacktrace,
+      metadata: %{
+        log_event: log_event
+      }
+    }
+  end
+
+  defp time_from(%{meta: %{time: time}}) do
+    time
   end
 end
