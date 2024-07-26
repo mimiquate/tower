@@ -24,7 +24,7 @@ defmodule Tower.LoggerHandler do
   def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event, _config)
       when is_exception(exception) and is_list(stacktrace) do
     %Tower.Event{
-      kind: :exception,
+      kind: :error,
       reason: exception,
       stacktrace: stacktrace,
       metadata: %{
@@ -76,7 +76,7 @@ defmodule Tower.LoggerHandler do
       )
       when is_exception(exception) and is_list(stacktrace) do
     %Tower.Event{
-      kind: :exception,
+      kind: :error,
       reason: exception,
       stacktrace: stacktrace,
       metadata: %{
@@ -128,7 +128,7 @@ defmodule Tower.LoggerHandler do
 
       e when is_exception(e) ->
         %Tower.Event{
-          kind: :exception,
+          kind: :error,
           reason: e,
           stacktrace: stacktrace,
           metadata: %{
