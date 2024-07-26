@@ -25,7 +25,7 @@ defmodule Tower.LoggerHandler do
       when is_exception(exception) and is_list(stacktrace) do
     %Tower.Event{
       kind: :exception,
-      exception: exception,
+      reason: exception,
       stacktrace: stacktrace,
       metadata: %{
         log_event: log_event
@@ -36,13 +36,14 @@ defmodule Tower.LoggerHandler do
 
   # elixir 1.15+
   def log(
-        %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event,
+        %{level: :error, meta: %{crash_reason: {{:nocatch, throw_reason}, stacktrace}}} =
+          log_event,
         _config
       )
       when is_list(stacktrace) do
     %Tower.Event{
       kind: :throw,
-      message: reason,
+      reason: throw_reason,
       stacktrace: stacktrace,
       metadata: %{
         log_event: log_event
@@ -56,7 +57,7 @@ defmodule Tower.LoggerHandler do
       when is_list(stacktrace) do
     %Tower.Event{
       kind: :exit,
-      message: exit_reason,
+      reason: exit_reason,
       stacktrace: stacktrace,
       metadata: %{
         log_event: log_event
@@ -76,7 +77,7 @@ defmodule Tower.LoggerHandler do
       when is_exception(exception) and is_list(stacktrace) do
     %Tower.Event{
       kind: :exception,
-      exception: exception,
+      reason: exception,
       stacktrace: stacktrace,
       metadata: %{
         log_event: log_event
@@ -89,14 +90,14 @@ defmodule Tower.LoggerHandler do
   def log(
         %{
           level: :error,
-          msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}}
+          msg: {:report, %{report: %{reason: {{:nocatch, throw_reason}, stacktrace}}}}
         } = log_event,
         _config
       )
       when is_list(stacktrace) do
     %Tower.Event{
       kind: :throw,
-      message: reason,
+      reason: throw_reason,
       stacktrace: stacktrace,
       metadata: %{
         log_event: log_event
@@ -118,7 +119,7 @@ defmodule Tower.LoggerHandler do
       %ErlangError{} ->
         %Tower.Event{
           kind: :exit,
-          message: reason,
+          reason: reason,
           stacktrace: stacktrace,
           metadata: %{
             log_event: log_event
@@ -128,7 +129,7 @@ defmodule Tower.LoggerHandler do
       e when is_exception(e) ->
         %Tower.Event{
           kind: :exception,
-          exception: e,
+          reason: e,
           stacktrace: stacktrace,
           metadata: %{
             log_event: log_event
@@ -138,7 +139,7 @@ defmodule Tower.LoggerHandler do
       _ ->
         %Tower.Event{
           kind: :exit,
-          message: reason,
+          reason: reason,
           stacktrace: stacktrace,
           metadata: %{
             log_event: log_event
@@ -153,7 +154,7 @@ defmodule Tower.LoggerHandler do
       %Tower.Event{
         kind: :message,
         level: level,
-        message: IO.chardata_to_string(reason_chardata),
+        reason: IO.chardata_to_string(reason_chardata),
         metadata: %{
           log_event: log_event
         }
@@ -167,7 +168,7 @@ defmodule Tower.LoggerHandler do
       %Tower.Event{
         kind: :message,
         level: level,
-        message: report,
+        reason: report,
         metadata: %{
           log_event: log_event
         }

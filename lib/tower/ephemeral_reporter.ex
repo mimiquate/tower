@@ -10,7 +10,7 @@ defmodule Tower.EphemeralReporter do
   @impl true
   def handle_event(%Tower.Event{
         kind: :exception,
-        exception: exception,
+        reason: exception,
         stacktrace: stacktrace,
         metadata: metadata
       }) do
@@ -19,7 +19,7 @@ defmodule Tower.EphemeralReporter do
 
   def handle_event(%Tower.Event{
         kind: kind,
-        message: reason,
+        reason: reason,
         stacktrace: stacktrace,
         metadata: metadata
       })
@@ -30,7 +30,7 @@ defmodule Tower.EphemeralReporter do
   def handle_event(%Tower.Event{
         kind: :message,
         level: level,
-        message: message,
+        reason: message,
         metadata: metadata
       }) do
     add(%{

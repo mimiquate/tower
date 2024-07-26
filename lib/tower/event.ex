@@ -1,13 +1,12 @@
 defmodule Tower.Event do
-  defstruct [:level, :kind, :exception, :message, :stacktrace, :metadata]
+  defstruct [:level, :kind, :reason, :stacktrace, :metadata]
 
   @type metadata() :: %{log_event: :logger.log_event()}
 
   @type t :: %__MODULE__{
           level: :logger.level(),
           kind: :exception | :throw | :exit | :message,
-          exception: Exception.t(),
-          message: binary(),
+          reason: Exception.t() | binary(),
           stacktrace: Exception.stacktrace(),
           metadata: metadata()
         }
