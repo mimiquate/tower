@@ -5,10 +5,10 @@ defmodule Tower.Event do
 
   @type t :: %__MODULE__{
           level: :logger.level(),
-          kind: atom(),
+          kind: :exception | :throw | :exit | :message,
           exception: Exception.t(),
           message: binary(),
-          stacktrace: list(),
+          stacktrace: Exception.stacktrace(),
           metadata: metadata()
         }
 end
