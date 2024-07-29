@@ -231,6 +231,23 @@ defmodule TowerTest do
     )
   end
 
+  # @tag capture_log: true
+  test "reports message manually" do
+    Tower.handle_message(:info, "Something interesting")
+
+    assert(
+      [
+        %{
+          time: _,
+          level: :info,
+          kind: nil,
+          reason: "Something interesting",
+          stacktrace: []
+        }
+      ] = reported_events()
+    )
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 

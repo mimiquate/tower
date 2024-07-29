@@ -37,10 +37,14 @@ defmodule Tower.EphemeralReporter do
     add_error(:throw, reason, stacktrace, log_event_meta)
   end
 
-  @impl true
-  def report_message(level, message, metadata \\ %{}) do
+  def report_event(%Event{
+        kind: :message,
+        level: level,
+        reason: message,
+        log_event_meta: log_event_meta
+      }) do
     add(%{
-      time: Map.get(metadata, :time, :logger.timestamp()),
+      time: Map.get(log_event_meta, :time, :logger.timestamp()),
       level: level,
       kind: nil,
       reason: message,

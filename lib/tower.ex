@@ -32,9 +32,8 @@ defmodule Tower do
   end
 
   def handle_message(level, message, metadata \\ %{}) do
-    each_reporter(fn reporter ->
-      reporter.report_message(level, message, metadata)
-    end)
+    Event.from_message(level, message, metadata)
+    |> report_event()
   end
 
   defp report_event(%Event{} = event) do
