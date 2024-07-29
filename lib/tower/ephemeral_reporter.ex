@@ -9,15 +9,30 @@ defmodule Tower.EphemeralReporter do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
-  def report_event(%Event{kind: :error, reason: exception, stacktrace: stacktrace, log_event_meta: log_event_meta}) do
+  def report_event(%Event{
+        kind: :error,
+        reason: exception,
+        stacktrace: stacktrace,
+        log_event_meta: log_event_meta
+      }) do
     add_error(exception.__struct__, Exception.message(exception), stacktrace, log_event_meta)
   end
 
-  def report_event(%Event{kind: :exit, reason: reason, stacktrace: stacktrace, log_event_meta: log_event_meta}) do
+  def report_event(%Event{
+        kind: :exit,
+        reason: reason,
+        stacktrace: stacktrace,
+        log_event_meta: log_event_meta
+      }) do
     add_error(:exit, reason, stacktrace, log_event_meta)
   end
 
-  def report_event(%Event{kind: :throw, reason: reason, stacktrace: stacktrace, log_event_meta: log_event_meta}) do
+  def report_event(%Event{
+        kind: :throw,
+        reason: reason,
+        stacktrace: stacktrace,
+        log_event_meta: log_event_meta
+      }) do
     add_error(:throw, reason, stacktrace, log_event_meta)
   end
 
