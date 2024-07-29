@@ -20,9 +20,8 @@ defmodule Tower do
   end
 
   def handle_throw(reason, stacktrace, metadata \\ %{}) do
-    each_reporter(fn reporter ->
-      reporter.report_throw(reason, stacktrace, metadata)
-    end)
+    Tower.Event.from_throw(reason, stacktrace, metadata)
+    |> report_event()
   end
 
   def handle_exit(reason, stacktrace, metadata \\ %{}) do

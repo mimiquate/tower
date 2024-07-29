@@ -18,4 +18,13 @@ defmodule Tower.Event do
       log_event_meta: log_event_meta
     }
   end
+
+  def from_throw(reason, stacktrace, log_event_meta) do
+    %__MODULE__{
+      kind: :throw,
+      reason: reason,
+      stacktrace: stacktrace,
+      log_event_meta: log_event_meta
+    }
+  end
 end

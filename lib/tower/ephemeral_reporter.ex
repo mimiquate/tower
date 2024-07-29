@@ -17,6 +17,10 @@ defmodule Tower.EphemeralReporter do
     add_error(:exit, reason, stacktrace, log_event_meta)
   end
 
+  def report_event(%Event{kind: :throw, reason: reason, stacktrace: stacktrace, log_event_meta: log_event_meta}) do
+    add_error(:throw, reason, stacktrace, log_event_meta)
+  end
+
   @impl true
   def report_exception(exception, stacktrace, metadata \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
