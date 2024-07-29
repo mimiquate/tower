@@ -15,10 +15,8 @@ defmodule Tower do
 
   def handle_exception(exception, stacktrace, meta \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
-    event = Tower.Event.from_exception(exception, stacktrace, meta)
-    each_reporter(fn reporter ->
-      reporter.report_event(event)
-    end)
+    Tower.Event.from_exception(exception, stacktrace, meta)
+    |> report_event()
   end
 
   def handle_throw(reason, stacktrace, metadata \\ %{}) do
@@ -28,14 +26,19 @@ defmodule Tower do
   end
 
   def handle_exit(reason, stacktrace, metadata \\ %{}) do
-    each_reporter(fn reporter ->
-      reporter.report_exit(reason, stacktrace, metadata)
-    end)
+    Tower.Event.from_exit(reason, stacktrace, metadata)
+    |> report_event()
   end
 
   def handle_message(level, message, metadata \\ %{}) do
     each_reporter(fn reporter ->
       reporter.report_message(level, message, metadata)
+    end)
+  end
+
+  defp report_event(%Tower.Event{} = event) do
+    each_reporter(fn reporter ->
+      reporter.report_event(event)
     end)
   end
 
