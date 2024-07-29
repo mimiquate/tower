@@ -3,6 +3,8 @@ defmodule Tower do
   Documentation for `Tower`.
   """
 
+  alias Tower.Event
+
   @default_reporters [Tower.EphemeralReporter]
 
   def attach do
@@ -15,17 +17,17 @@ defmodule Tower do
 
   def handle_exception(exception, stacktrace, meta \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
-    Tower.Event.from_exception(exception, stacktrace, meta)
+    Event.from_exception(exception, stacktrace, meta)
     |> report_event()
   end
 
   def handle_throw(reason, stacktrace, metadata \\ %{}) do
-    Tower.Event.from_throw(reason, stacktrace, metadata)
+    Event.from_throw(reason, stacktrace, metadata)
     |> report_event()
   end
 
   def handle_exit(reason, stacktrace, metadata \\ %{}) do
-    Tower.Event.from_exit(reason, stacktrace, metadata)
+    Event.from_exit(reason, stacktrace, metadata)
     |> report_event()
   end
 
@@ -35,7 +37,7 @@ defmodule Tower do
     end)
   end
 
-  defp report_event(%Tower.Event{} = event) do
+  defp report_event(%Event{} = event) do
     each_reporter(fn reporter ->
       reporter.report_event(event)
     end)
