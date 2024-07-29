@@ -3,8 +3,14 @@ defmodule Tower.EphemeralReporter do
 
   use Agent
 
+  alias Tower.Event
+
   def start_link(_opts) do
     Agent.start_link(fn -> [] end, name: __MODULE__)
+  end
+
+  def report_event(%Event{exception: exception, stacktrace: stacktrace, log_event_meta: log_event_meta}) do
+    add_error(exception.__struct__, Exception.message(exception), stacktrace, log_event_meta)
   end
 
   @impl true

@@ -15,8 +15,9 @@ defmodule Tower do
 
   def handle_exception(exception, stacktrace, meta \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
+    event = Tower.Event.from_exception(exception, stacktrace, meta)
     each_reporter(fn reporter ->
-      reporter.report_exception(exception, stacktrace, meta)
+      reporter.report_event(event)
     end)
   end
 
