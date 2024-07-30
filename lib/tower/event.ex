@@ -3,7 +3,7 @@ defmodule Tower.Event do
 
   @type t :: %__MODULE__{
           level: :logger.level(),
-          kind: :error | :exit | :throw,
+          kind: :error | :exit | :throw | :message,
           reason: Exception.t() | term(),
           stacktrace: Exception.stacktrace(),
           log_event_meta: :logger.metadata()
