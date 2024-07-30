@@ -16,7 +16,7 @@ defmodule Tower.Event do
     log_event = Keyword.get(options, :log_event)
 
     %__MODULE__{
-      time: log_event[:meta][:time] || :logger.timestamp(),
+      time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :error,
       reason: exception,
@@ -31,7 +31,7 @@ defmodule Tower.Event do
     log_event = Keyword.get(options, :log_event)
 
     %__MODULE__{
-      time: log_event[:meta][:time] || :logger.timestamp(),
+      time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :exit,
       reason: reason,
@@ -46,7 +46,7 @@ defmodule Tower.Event do
     log_event = Keyword.get(options, :log_event)
 
     %__MODULE__{
-      time: log_event[:meta][:time] || :logger.timestamp(),
+      time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :throw,
       reason: reason,
@@ -61,7 +61,7 @@ defmodule Tower.Event do
     log_event = Keyword.get(options, :log_event)
 
     %__MODULE__{
-      time: log_event[:meta][:time] || :logger.timestamp(),
+      time: log_event[:meta][:time] || now(),
       level: level,
       kind: :message,
       reason: message,
@@ -69,5 +69,9 @@ defmodule Tower.Event do
         log_event: log_event
       }
     }
+  end
+
+  defp now do
+    :logger.timestamp()
   end
 end
