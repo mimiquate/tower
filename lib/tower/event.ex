@@ -12,7 +12,9 @@ defmodule Tower.Event do
           metadata: metadata()
         }
 
-  def from_exception(exception, stacktrace, log_event) do
+  def from_exception(exception, stacktrace, options \\ []) do
+    log_event = Keyword.get(options, :log_event)
+
     %__MODULE__{
       time: log_event[:meta][:time] || :logger.timestamp(),
       level: :error,
@@ -25,7 +27,9 @@ defmodule Tower.Event do
     }
   end
 
-  def from_exit(reason, stacktrace, log_event) do
+  def from_exit(reason, stacktrace, options \\ []) do
+    log_event = Keyword.get(options, :log_event)
+
     %__MODULE__{
       time: log_event[:meta][:time] || :logger.timestamp(),
       level: :error,
@@ -38,7 +42,9 @@ defmodule Tower.Event do
     }
   end
 
-  def from_throw(reason, stacktrace, log_event) do
+  def from_throw(reason, stacktrace, options \\ []) do
+    log_event = Keyword.get(options, :log_event)
+
     %__MODULE__{
       time: log_event[:meta][:time] || :logger.timestamp(),
       level: :error,
@@ -51,7 +57,9 @@ defmodule Tower.Event do
     }
   end
 
-  def from_message(level, message, log_event) do
+  def from_message(level, message, options \\ []) do
+    log_event = Keyword.get(options, :log_event)
+
     %__MODULE__{
       time: log_event[:meta][:time] || :logger.timestamp(),
       level: level,

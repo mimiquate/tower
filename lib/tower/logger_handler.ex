@@ -23,7 +23,7 @@ defmodule Tower.LoggerHandler do
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event, _config)
       when is_exception(exception) and is_list(stacktrace) do
-    Tower.handle_exception(exception, stacktrace, log_event)
+    Tower.handle_exception(exception, stacktrace, log_event: log_event)
   end
 
   # elixir 1.15+
@@ -32,13 +32,13 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    Tower.handle_throw(reason, stacktrace, log_event)
+    Tower.handle_throw(reason, stacktrace, log_event: log_event)
   end
 
   # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event, _config)
       when is_list(stacktrace) do
-    Tower.handle_exit(exit_reason, stacktrace, log_event)
+    Tower.handle_exit(exit_reason, stacktrace, log_event: log_event)
   end
 
   # elixir 1.14
@@ -48,7 +48,7 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_exception(exception) and is_list(stacktrace) do
-    Tower.handle_exception(exception, stacktrace, log_event)
+    Tower.handle_exception(exception, stacktrace, log_event: log_event)
   end
 
   # elixir 1.14
@@ -58,7 +58,7 @@ defmodule Tower.LoggerHandler do
         _config
       )
       when is_list(stacktrace) do
-    Tower.handle_throw(reason, stacktrace, log_event)
+    Tower.handle_throw(reason, stacktrace, log_event: log_event)
   end
 
   # elixir 1.14
@@ -69,25 +69,25 @@ defmodule Tower.LoggerHandler do
       when is_list(stacktrace) do
     case Exception.normalize(:error, reason) do
       %ErlangError{} ->
-        Tower.handle_exit(reason, stacktrace, log_event)
+        Tower.handle_exit(reason, stacktrace, log_event: log_event)
 
       e when is_exception(e) ->
-        Tower.handle_exception(e, stacktrace, log_event)
+        Tower.handle_exception(e, stacktrace, log_event: log_event)
 
       _ ->
-        Tower.handle_exit(reason, stacktrace, log_event)
+        Tower.handle_exit(reason, stacktrace, log_event: log_event)
     end
   end
 
   def log(%{level: level, msg: {:string, reason_chardata}} = log_event, _config) do
     if should_handle?(level) do
-      Tower.handle_message(level, IO.chardata_to_string(reason_chardata), log_event)
+      Tower.handle_message(level, IO.chardata_to_string(reason_chardata), log_event: log_event)
     end
   end
 
   def log(%{level: level, msg: {:report, report}} = log_event, _config) do
     if should_handle?(level) do
-      Tower.handle_message(level, report, log_event)
+      Tower.handle_message(level, report, log_event: log_event)
     end
   end
 
