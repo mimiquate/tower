@@ -3,30 +3,48 @@ defmodule Tower.EphemeralReporter do
 
   use Agent
 
+  alias Tower.Event
+
   def start_link(_opts) do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
   @impl true
-  def report_exception(exception, stacktrace, metadata \\ %{})
-      when is_exception(exception) and is_list(stacktrace) do
-    add_error(exception.__struct__, Exception.message(exception), stacktrace, metadata)
+  def report_event(%Event{
+        kind: :error,
+        reason: exception,
+        stacktrace: stacktrace,
+        log_event_meta: log_event_meta
+      }) do
+    add_error(exception.__struct__, Exception.message(exception), stacktrace, log_event_meta)
   end
 
-  @impl true
-  def report_throw(reason, stacktrace, metadata \\ %{}) do
-    add_error(:throw, reason, stacktrace, metadata)
+  def report_event(%Event{
+        kind: :exit,
+        reason: reason,
+        stacktrace: stacktrace,
+        log_event_meta: log_event_meta
+      }) do
+    add_error(:exit, reason, stacktrace, log_event_meta)
   end
 
-  @impl true
-  def report_exit(reason, stacktrace, metadata \\ %{}) do
-    add_error(:exit, reason, stacktrace, metadata)
+  def report_event(%Event{
+        kind: :throw,
+        reason: reason,
+        stacktrace: stacktrace,
+        log_event_meta: log_event_meta
+      }) do
+    add_error(:throw, reason, stacktrace, log_event_meta)
   end
 
-  @impl true
-  def report_message(level, message, metadata \\ %{}) do
+  def report_event(%Event{
+        kind: :message,
+        level: level,
+        reason: message,
+        log_event_meta: log_event_meta
+      }) do
     add(%{
-      time: Map.get(metadata, :time, :logger.timestamp()),
+      time: Map.get(log_event_meta, :time, :logger.timestamp()),
       level: level,
       kind: nil,
       reason: message,

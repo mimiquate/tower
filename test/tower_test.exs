@@ -2,6 +2,8 @@ defmodule TowerTest do
   use ExUnit.Case
   doctest Tower
 
+  use AssertEventually, timeout: 100, interval: 10
+
   setup do
     Tower.attach()
     start_reporter()
@@ -21,7 +23,7 @@ defmodule TowerTest do
       1 / 0
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
@@ -42,7 +44,7 @@ defmodule TowerTest do
       raise "error inside process"
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
@@ -63,7 +65,7 @@ defmodule TowerTest do
       throw("error")
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
@@ -84,7 +86,7 @@ defmodule TowerTest do
       throw(something: "here")
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
@@ -113,7 +115,7 @@ defmodule TowerTest do
       exit(:abnormal)
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
@@ -134,7 +136,7 @@ defmodule TowerTest do
       exit(:kill)
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
@@ -168,7 +170,7 @@ defmodule TowerTest do
       Logger.error("Something went wrong here")
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
@@ -197,7 +199,7 @@ defmodule TowerTest do
       ])
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
@@ -218,13 +220,29 @@ defmodule TowerTest do
       Logger.critical(something: :reported, this: :critical)
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
           time: _,
           level: :critical,
           kind: nil,
           reason: [something: :reported, this: :critical],
+          stacktrace: []
+        }
+      ] = reported_events()
+    )
+  end
+
+  test "reports message manually" do
+    Tower.handle_message(:info, "Something interesting")
+
+    assert_eventually(
+      [
+        %{
+          time: _,
+          level: :info,
+          kind: nil,
+          reason: "Something interesting",
           stacktrace: []
         }
       ] = reported_events()
