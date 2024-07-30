@@ -297,7 +297,7 @@ defmodule TowerTest do
       catch
         x ->
           Tower.handle_throw(x, __STACKTRACE__)
-        end
+      end
     end)
 
     assert_eventually(
