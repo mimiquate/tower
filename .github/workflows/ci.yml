@@ -35,6 +35,7 @@ jobs:
           # Don't cache PLTs based on mix.lock hash, as Dialyzer can incrementally update even old ones
           key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.erlang }}-plt
           path: priv/plts
+        if: ${{ matrix.lint }}
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.erlang }}
