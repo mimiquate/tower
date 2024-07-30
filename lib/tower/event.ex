@@ -1,7 +1,8 @@
 defmodule Tower.Event do
-  defstruct [:level, :kind, :reason, :stacktrace, :log_event_meta]
+  defstruct [:time, :level, :kind, :reason, :stacktrace, :log_event_meta]
 
   @type t :: %__MODULE__{
+          time: :logger.timestamp(),
           level: :logger.level(),
           kind: :error | :exit | :throw | :message,
           reason: Exception.t() | term(),
@@ -9,8 +10,9 @@ defmodule Tower.Event do
           log_event_meta: :logger.metadata()
         }
 
-  def from_exception(exception, stacktrace, log_event_meta) do
+  def from_exception(exception, stacktrace, %{time: time} = log_event_meta) do
     %__MODULE__{
+      time: time,
       level: :error,
       kind: :error,
       reason: exception,
@@ -19,8 +21,9 @@ defmodule Tower.Event do
     }
   end
 
-  def from_exit(reason, stacktrace, log_event_meta) do
+  def from_exit(reason, stacktrace, %{time: time} = log_event_meta) do
     %__MODULE__{
+      time: time,
       level: :error,
       kind: :exit,
       reason: reason,
@@ -29,8 +32,9 @@ defmodule Tower.Event do
     }
   end
 
-  def from_throw(reason, stacktrace, log_event_meta) do
+  def from_throw(reason, stacktrace, %{time: time} = log_event_meta) do
     %__MODULE__{
+      time: time,
       level: :error,
       kind: :throw,
       reason: reason,
@@ -41,6 +45,7 @@ defmodule Tower.Event do
 
   def from_message(level, message, log_event_meta) do
     %__MODULE__{
+      time: Map.get(log_event_meta, :time, :logger.timestamp()),
       level: level,
       kind: :message,
       reason: message,
