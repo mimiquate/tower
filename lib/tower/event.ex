@@ -32,9 +32,9 @@ defmodule Tower.Event do
     }
   end
 
-  def from_throw(reason, stacktrace, %{time: time} = log_event_meta) do
+  def from_throw(reason, stacktrace, log_event_meta) do
     %__MODULE__{
-      time: time,
+      time: Map.get(log_event_meta, :time, :logger.timestamp()),
       level: :error,
       kind: :throw,
       reason: reason,
