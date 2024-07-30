@@ -2,15 +2,36 @@ defmodule Tower.Event do
   defstruct [:time, :level, :kind, :reason, :stacktrace, :metadata]
 
   @type metadata :: %{log_event: :logger.log_event()}
+  @type error_kind :: :error | :exit | :throw
+  @type non_error_kind :: :message
 
   @type t :: %__MODULE__{
           time: :logger.timestamp(),
           level: :logger.level(),
-          kind: :error | :exit | :throw | :message,
+          kind: error_kind() | non_error_kind(),
           reason: Exception.t() | term(),
           stacktrace: Exception.stacktrace(),
           metadata: metadata()
         }
+
+  def from_caught(kind, exception, stacktrace, options \\ [])
+
+  def from_caught(:error, exception, stacktrace, options) when is_exception(exception) do
+    from_exception(exception, stacktrace, options)
+  end
+
+  def from_caught(:error, reason, stacktrace, options) do
+    Exception.normalize(:error, reason, stacktrace)
+    |> from_exception(stacktrace, options)
+  end
+
+  def from_caught(:exit, reason, stacktrace, options) do
+    from_exit(reason, stacktrace, options)
+  end
+
+  def from_caught(:throw, reason, stacktrace, options) do
+    from_throw(reason, stacktrace, options)
+  end
 
   def from_exception(exception, stacktrace, options \\ []) do
     log_event = Keyword.get(options, :log_event)
