@@ -14,15 +14,14 @@ defmodule Tower.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
+      dialyzer: [
+        plt_local_path: "priv/plts"
+      ],
 
       # Docs
       name: "Tower",
       source_url: @source_url,
-      docs: docs(),
-
-      dialyzer: [
-        plt_local_path: "priv/plts"
-      ]
+      docs: docs()
     ]
   end
 
