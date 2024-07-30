@@ -33,7 +33,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           # Don't cache PLTs based on mix.lock hash, as Dialyzer can incrementally update even old ones
-          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrxi.erlang }}-plt
+          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.erlang }}-plt
           path: priv/plts
       - uses: erlef/setup-beam@v1
         with:
