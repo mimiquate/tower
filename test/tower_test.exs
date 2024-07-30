@@ -233,7 +233,6 @@ defmodule TowerTest do
     )
   end
 
-  # @tag capture_log: true
   test "reports message manually" do
     Tower.handle_message(:info, "Something interesting")
 
