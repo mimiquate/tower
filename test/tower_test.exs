@@ -263,6 +263,32 @@ defmodule TowerTest do
     assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
+  test "reports Exception manually" do
+    in_unlinked_process(fn ->
+      try do
+        1 / 0
+      rescue
+        e ->
+          Tower.handle_exception(e, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          time: time,
+          level: :error,
+          kind: ArithmeticError,
+          reason: "bad argument in arithmetic expression",
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 

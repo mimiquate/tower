@@ -15,7 +15,7 @@ defmodule Tower do
     :ok = Tower.LoggerHandler.detach()
   end
 
-  def handle_exception(exception, stacktrace, meta)
+  def handle_exception(exception, stacktrace, meta \\ %{})
       when is_exception(exception) and is_list(stacktrace) do
     Event.from_exception(exception, stacktrace, meta)
     |> report_event()
