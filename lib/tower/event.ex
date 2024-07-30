@@ -1,5 +1,7 @@
 defmodule Tower.Event do
-  defstruct [:time, :level, :kind, :reason, :stacktrace, :log_event_meta]
+  defstruct [:time, :level, :kind, :reason, :stacktrace, :metadata]
+
+  @type metadata :: %{log_event: :logger.log_event()}
 
   @type t :: %__MODULE__{
           time: :logger.timestamp(),
@@ -7,49 +9,65 @@ defmodule Tower.Event do
           kind: :error | :exit | :throw | :message,
           reason: Exception.t() | term(),
           stacktrace: Exception.stacktrace(),
-          log_event_meta: :logger.metadata()
+          metadata: metadata()
         }
 
-  def from_exception(exception, stacktrace, log_event_meta) do
+  def from_exception(exception, stacktrace, options \\ []) do
+    log_event = Keyword.get(options, :log_event)
+
     %__MODULE__{
-      time: Map.get(log_event_meta, :time, now()),
+      time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :error,
       reason: exception,
       stacktrace: stacktrace,
-      log_event_meta: log_event_meta
+      metadata: %{
+        log_event: log_event
+      }
     }
   end
 
-  def from_exit(reason, stacktrace, log_event_meta) do
+  def from_exit(reason, stacktrace, options \\ []) do
+    log_event = Keyword.get(options, :log_event)
+
     %__MODULE__{
-      time: Map.get(log_event_meta, :time, now()),
+      time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :exit,
       reason: reason,
       stacktrace: stacktrace,
-      log_event_meta: log_event_meta
+      metadata: %{
+        log_event: log_event
+      }
     }
   end
 
-  def from_throw(reason, stacktrace, log_event_meta) do
+  def from_throw(reason, stacktrace, options \\ []) do
+    log_event = Keyword.get(options, :log_event)
+
     %__MODULE__{
-      time: Map.get(log_event_meta, :time, now()),
+      time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :throw,
       reason: reason,
       stacktrace: stacktrace,
-      log_event_meta: log_event_meta
+      metadata: %{
+        log_event: log_event
+      }
     }
   end
 
-  def from_message(level, message, log_event_meta) do
+  def from_message(level, message, options \\ []) do
+    log_event = Keyword.get(options, :log_event)
+
     %__MODULE__{
-      time: Map.get(log_event_meta, :time, now()),
+      time: log_event[:meta][:time] || now(),
       level: level,
       kind: :message,
       reason: message,
-      log_event_meta: log_event_meta
+      metadata: %{
+        log_event: log_event
+      }
     }
   end
 
