@@ -30,6 +30,11 @@ jobs:
             _build
             deps
           key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.erlang }}-${{ hashFiles('mix.lock') }}
+      - uses: actions/cache@v4
+        with:
+          # Don't cache PLTs based on mix.lock hash, as Dialyzer can incrementally update even old ones
+          key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrxi.erlang }}-plt
+          path: priv/plts
       - uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.erlang }}

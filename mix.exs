@@ -18,7 +18,11 @@ defmodule Tower.MixProject do
       # Docs
       name: "Tower",
       source_url: @source_url,
-      docs: docs()
+      docs: docs(),
+
+      dialyzer: [
+        plt_local_path: "priv/plts"
+      ]
     ]
   end
 
