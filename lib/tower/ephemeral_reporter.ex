@@ -10,41 +10,21 @@ defmodule Tower.EphemeralReporter do
   end
 
   @impl true
-  def report_event(%Event{
-        kind: :error,
-        reason: exception,
-        stacktrace: stacktrace,
-        log_event_meta: log_event_meta
-      }) do
-    add_error(exception.__struct__, Exception.message(exception), stacktrace, log_event_meta)
+  def report_event(%Event{time: time, kind: :error, reason: exception, stacktrace: stacktrace}) do
+    add_error(time, exception.__struct__, Exception.message(exception), stacktrace)
   end
 
-  def report_event(%Event{
-        kind: :exit,
-        reason: reason,
-        stacktrace: stacktrace,
-        log_event_meta: log_event_meta
-      }) do
-    add_error(:exit, reason, stacktrace, log_event_meta)
+  def report_event(%Event{time: time, kind: :exit, reason: reason, stacktrace: stacktrace}) do
+    add_error(time, :exit, reason, stacktrace)
   end
 
-  def report_event(%Event{
-        kind: :throw,
-        reason: reason,
-        stacktrace: stacktrace,
-        log_event_meta: log_event_meta
-      }) do
-    add_error(:throw, reason, stacktrace, log_event_meta)
+  def report_event(%Event{time: time, kind: :throw, reason: reason, stacktrace: stacktrace}) do
+    add_error(time, :throw, reason, stacktrace)
   end
 
-  def report_event(%Event{
-        kind: :message,
-        level: level,
-        reason: message,
-        log_event_meta: log_event_meta
-      }) do
+  def report_event(%Event{time: time, kind: :message, level: level, reason: message}) do
     add(%{
-      time: Map.get(log_event_meta, :time, :logger.timestamp()),
+      time: time,
       level: level,
       kind: nil,
       reason: message,
@@ -56,9 +36,9 @@ defmodule Tower.EphemeralReporter do
     Agent.get(__MODULE__, & &1)
   end
 
-  defp add_error(kind, reason, stacktrace, metadata) do
+  defp add_error(time, kind, reason, stacktrace) do
     add(%{
-      time: Map.get(metadata, :time, :logger.timestamp()),
+      time: time,
       level: :error,
       kind: kind,
       reason: reason,

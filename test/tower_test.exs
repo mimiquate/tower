@@ -26,7 +26,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :error,
           kind: ArithmeticError,
           reason: "bad argument in arithmetic expression",
@@ -35,6 +35,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -47,7 +48,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :error,
           kind: RuntimeError,
           reason: "error inside process",
@@ -56,6 +57,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -68,7 +70,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :error,
           kind: :throw,
           reason: "error",
@@ -77,6 +79,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -89,7 +92,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :error,
           kind: :throw,
           reason: [something: "here"],
@@ -98,6 +101,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -118,7 +122,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :error,
           kind: :exit,
           reason: :abnormal,
@@ -127,6 +131,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -139,7 +144,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :error,
           kind: :exit,
           reason: :kill,
@@ -148,6 +153,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -173,7 +179,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :error,
           kind: nil,
           reason: "Something went wrong here",
@@ -181,6 +187,8 @@ defmodule TowerTest do
         }
       ] = reported_events()
     )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
   @tag capture_log: true
@@ -202,7 +210,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :error,
           kind: nil,
           reason:
@@ -211,6 +219,8 @@ defmodule TowerTest do
         }
       ] = reported_events()
     )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
   @tag capture_log: true
@@ -223,7 +233,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :critical,
           kind: nil,
           reason: [something: :reported, this: :critical],
@@ -231,6 +241,8 @@ defmodule TowerTest do
         }
       ] = reported_events()
     )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
   test "reports message manually" do
@@ -239,7 +251,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: _,
+          time: time,
           level: :info,
           kind: nil,
           reason: "Something interesting",
@@ -247,6 +259,8 @@ defmodule TowerTest do
         }
       ] = reported_events()
     )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
   defp in_unlinked_process(fun) when is_function(fun, 0) do
