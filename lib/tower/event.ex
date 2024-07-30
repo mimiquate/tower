@@ -10,9 +10,9 @@ defmodule Tower.Event do
           log_event_meta: :logger.metadata()
         }
 
-  def from_exception(exception, stacktrace, %{time: time} = log_event_meta) do
+  def from_exception(exception, stacktrace, log_event_meta) do
     %__MODULE__{
-      time: time,
+      time: Map.get(log_event_meta, :time, :logger.timestamp()),
       level: :error,
       kind: :error,
       reason: exception,
@@ -21,9 +21,9 @@ defmodule Tower.Event do
     }
   end
 
-  def from_exit(reason, stacktrace, %{time: time} = log_event_meta) do
+  def from_exit(reason, stacktrace, log_event_meta) do
     %__MODULE__{
-      time: time,
+      time: Map.get(log_event_meta, :time, :logger.timestamp()),
       level: :error,
       kind: :exit,
       reason: reason,
@@ -32,9 +32,9 @@ defmodule Tower.Event do
     }
   end
 
-  def from_throw(reason, stacktrace, %{time: time} = log_event_meta) do
+  def from_throw(reason, stacktrace, log_event_meta) do
     %__MODULE__{
-      time: time,
+      time: Map.get(log_event_meta, :time, :logger.timestamp()),
       level: :error,
       kind: :throw,
       reason: reason,
