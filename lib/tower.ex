@@ -26,7 +26,7 @@ defmodule Tower do
     |> report_event()
   end
 
-  def handle_exit(reason, stacktrace, metadata) do
+  def handle_exit(reason, stacktrace, metadata \\ %{}) do
     Event.from_exit(reason, stacktrace, metadata)
     |> report_event()
   end
