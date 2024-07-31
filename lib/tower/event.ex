@@ -4,17 +4,20 @@ defmodule Tower.Event do
   @type metadata :: %{optional(:log_event) => :logger.log_event()}
   @type error_kind :: :error | :exit | :throw
   @type non_error_kind :: :message
+  @type reason :: Exception.t() | term()
 
   @type t :: %__MODULE__{
           time: :logger.timestamp(),
           level: :logger.level(),
           kind: error_kind() | non_error_kind(),
-          reason: Exception.t() | term(),
+          reason: reason(),
           stacktrace: Exception.stacktrace() | nil,
           metadata: metadata()
         }
 
-  def from_caught(kind, exception, stacktrace, options \\ [])
+  @spec from_caught(error_kind(), reason(), Exception.stacktrace()) :: t()
+  @spec from_caught(error_kind(), reason(), Exception.stacktrace(), Keyword.t()) :: t()
+  def from_caught(kind, reason, stacktrace, options \\ [])
 
   def from_caught(:error, exception, stacktrace, options) when is_exception(exception) do
     from_exception(exception, stacktrace, options)
