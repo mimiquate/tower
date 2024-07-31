@@ -15,8 +15,8 @@ defmodule Tower.Event do
           metadata: metadata()
         }
 
-  @spec from_caught(error_kind(), reason(), Exception.stacktrace()) :: t()
-  @spec from_caught(error_kind(), reason(), Exception.stacktrace(), Keyword.t()) :: t()
+  @spec from_caught(Exception.kind(), reason(), Exception.stacktrace()) :: t()
+  @spec from_caught(Exception.kind(), reason(), Exception.stacktrace(), Keyword.t()) :: t()
   def from_caught(kind, reason, stacktrace, options \\ [])
 
   def from_caught(:error, exception, stacktrace, options) when is_exception(exception) do
