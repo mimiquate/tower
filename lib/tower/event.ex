@@ -1,9 +1,10 @@
 defmodule Tower.Event do
-  defstruct [:time, :level, :kind, :reason, :stacktrace, :metadata]
+  defstruct [:id, :time, :level, :kind, :reason, :stacktrace, :metadata]
 
   @type metadata :: %{optional(:log_event) => :logger.log_event()}
 
   @type t :: %__MODULE__{
+          id: Uniq.UUID.t(),
           time: :logger.timestamp(),
           level: :logger.level(),
           kind: :error | :exit | :throw | :message,
@@ -18,6 +19,7 @@ defmodule Tower.Event do
     log_event = Keyword.get(options, :log_event)
 
     %__MODULE__{
+      id: new_id(),
       time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :error,
@@ -35,6 +37,7 @@ defmodule Tower.Event do
     log_event = Keyword.get(options, :log_event)
 
     %__MODULE__{
+      id: new_id(),
       time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :exit,
@@ -52,6 +55,7 @@ defmodule Tower.Event do
     log_event = Keyword.get(options, :log_event)
 
     %__MODULE__{
+      id: new_id(),
       time: log_event[:meta][:time] || now(),
       level: :error,
       kind: :throw,
@@ -69,6 +73,7 @@ defmodule Tower.Event do
     log_event = Keyword.get(options, :log_event)
 
     %__MODULE__{
+      id: new_id(),
       time: log_event[:meta][:time] || now(),
       level: level,
       kind: :message,
@@ -81,5 +86,9 @@ defmodule Tower.Event do
 
   defp now do
     :logger.timestamp()
+  end
+
+  def new_id do
+    Uniq.UUID.uuid7()
   end
 end
