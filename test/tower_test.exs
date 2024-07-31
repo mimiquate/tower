@@ -267,6 +267,32 @@ defmodule TowerTest do
     in_unlinked_process(fn ->
       try do
         1 / 0
+      catch
+        kind, reason ->
+          Tower.handle_caught(kind, reason, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          time: time,
+          level: :error,
+          kind: ArithmeticError,
+          reason: "bad argument in arithmetic expression",
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
+  test "reports Exception manually (shorthand)" do
+    in_unlinked_process(fn ->
+      try do
+        1 / 0
       rescue
         e ->
           Tower.handle_exception(e, __STACKTRACE__)
@@ -295,6 +321,33 @@ defmodule TowerTest do
       try do
         throw("error")
       catch
+        kind, reason ->
+          Tower.handle_caught(kind, reason, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          time: time,
+          level: :error,
+          kind: :throw,
+          reason: "error",
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
+  @tag capture_log: true
+  test "manually reports a thrown string (shorthand)" do
+    in_unlinked_process(fn ->
+      try do
+        throw("error")
+      catch
         x ->
           Tower.handle_throw(x, __STACKTRACE__)
       end
@@ -318,6 +371,33 @@ defmodule TowerTest do
 
   @tag capture_log: true
   test "manually reports an abnormal exit" do
+    in_unlinked_process(fn ->
+      try do
+        exit(:abnormal)
+      catch
+        kind, reason ->
+          Tower.handle_caught(kind, reason, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          time: time,
+          level: :error,
+          kind: :exit,
+          reason: :abnormal,
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
+  @tag capture_log: true
+  test "manually reports an abnormal exit (shorthand)" do
     in_unlinked_process(fn ->
       try do
         exit(:abnormal)

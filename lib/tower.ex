@@ -17,6 +17,14 @@ defmodule Tower do
     :ok = Tower.LoggerHandler.detach()
   end
 
+  @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace()) :: :ok
+  @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace(), Keyword.t()) ::
+          :ok
+  def handle_caught(kind, reason, stacktrace, options \\ []) do
+    Event.from_caught(kind, reason, stacktrace, options)
+    |> report_event()
+  end
+
   @spec handle_exception(Exception.t(), Exception.stacktrace()) :: :ok
   @spec handle_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: :ok
   def handle_exception(exception, stacktrace, options \\ [])
