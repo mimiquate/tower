@@ -2,10 +2,12 @@ defmodule Tower.LoggerHandler do
   @default_log_level :critical
   @handler_id Tower
 
+  @spec attach() :: :ok | {:error, term()}
   def attach do
     :logger.add_handler(@handler_id, __MODULE__, %{level: :all})
   end
 
+  @spec detach() :: :ok | {:error, term()}
   def detach do
     :logger.remove_handler(@handler_id)
   end
