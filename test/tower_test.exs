@@ -26,6 +26,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: ArithmeticError,
@@ -35,6 +36,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
@@ -48,6 +50,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: RuntimeError,
@@ -57,6 +60,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
@@ -70,6 +74,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: :throw,
@@ -79,6 +84,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
@@ -92,6 +98,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: :throw,
@@ -101,6 +108,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
@@ -122,6 +130,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: :exit,
@@ -131,6 +140,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
@@ -144,6 +154,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: :exit,
@@ -153,6 +164,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
@@ -179,6 +191,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: nil,
@@ -188,6 +201,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
@@ -210,6 +224,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: nil,
@@ -220,6 +235,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
@@ -233,6 +249,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :critical,
           kind: nil,
@@ -242,6 +259,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
@@ -251,6 +269,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :info,
           kind: nil,
@@ -260,6 +279,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
   end
 
@@ -302,6 +322,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: ArithmeticError,
@@ -311,6 +332,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
@@ -356,6 +378,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: :throw,
@@ -365,6 +388,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
@@ -410,6 +434,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
+          id: id,
           time: time,
           level: :error,
           kind: :exit,
@@ -419,6 +444,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
