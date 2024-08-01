@@ -10,7 +10,13 @@ defmodule Tower.EphemeralReporter do
   end
 
   @impl true
-  def report_event(%Event{id: id, time: time, kind: :error, reason: exception, stacktrace: stacktrace}) do
+  def report_event(%Event{
+        id: id,
+        time: time,
+        kind: :error,
+        reason: exception,
+        stacktrace: stacktrace
+      }) do
     add_error(id, time, exception.__struct__, Exception.message(exception), stacktrace)
   end
 
@@ -18,7 +24,13 @@ defmodule Tower.EphemeralReporter do
     add_error(id, time, :exit, reason, stacktrace)
   end
 
-  def report_event(%Event{id: id, time: time, kind: :throw, reason: reason, stacktrace: stacktrace}) do
+  def report_event(%Event{
+        id: id,
+        time: time,
+        kind: :throw,
+        reason: reason,
+        stacktrace: stacktrace
+      }) do
     add_error(id, time, :throw, reason, stacktrace)
   end
 
