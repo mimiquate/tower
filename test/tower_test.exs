@@ -264,7 +264,7 @@ defmodule TowerTest do
   end
 
   test "reports message manually" do
-    Tower.handle_message(:info, "Something interesting")
+    Tower.handle_message(:info, "Something interesting", metadata: %{something: "else"})
 
     assert_eventually(
       [
@@ -274,7 +274,10 @@ defmodule TowerTest do
           level: :info,
           kind: nil,
           reason: "Something interesting",
-          stacktrace: []
+          stacktrace: [],
+          metadata: %{
+            something: "else"
+          }
         }
       ] = reported_events()
     )
