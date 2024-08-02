@@ -49,9 +49,9 @@ defmodule Tower.Event do
       kind: :error,
       reason: exception,
       stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
+      metadata:
+        %{log_event: log_event}
+        |> Map.merge(Keyword.get(options, :metadata, %{}))
     }
   end
 
@@ -67,9 +67,9 @@ defmodule Tower.Event do
       kind: :exit,
       reason: reason,
       stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
+      metadata:
+        %{log_event: log_event}
+        |> Map.merge(Keyword.get(options, :metadata, %{}))
     }
   end
 
@@ -85,9 +85,9 @@ defmodule Tower.Event do
       kind: :throw,
       reason: reason,
       stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
+      metadata:
+        %{log_event: log_event}
+        |> Map.merge(Keyword.get(options, :metadata, %{}))
     }
   end
 
@@ -102,9 +102,9 @@ defmodule Tower.Event do
       level: level,
       kind: :message,
       reason: message,
-      metadata: %{
-        log_event: log_event
-      }
+      metadata:
+        %{log_event: log_event}
+        |> Map.merge(Keyword.get(options, :metadata, %{}))
     }
   end
 
