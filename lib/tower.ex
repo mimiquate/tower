@@ -29,8 +29,10 @@ defmodule Tower do
   @spec handle_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: :ok
   def handle_exception(exception, stacktrace, options \\ [])
       when is_exception(exception) and is_list(stacktrace) do
-    Event.from_exception(exception, stacktrace, options)
-    |> report_event()
+    unless exception.__struct__ in ignored_exceptions() do
+      Event.from_exception(exception, stacktrace, options)
+      |> report_event()
+    end
   end
 
   @spec handle_throw(term(), Exception.stacktrace()) :: :ok
@@ -76,5 +78,10 @@ defmodule Tower do
   defp async(fun) do
     Tower.TaskSupervisor
     |> Task.Supervisor.start_child(fun)
+  end
+
+  defp ignored_exceptions do
+    # TODO: Make it configurable
+    [ExUnit.AssertionError]
   end
 end
