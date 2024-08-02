@@ -1,7 +1,6 @@
 defmodule Tower.Event do
-  defstruct [:id, :time, :level, :kind, :reason, :stacktrace, :metadata]
+  defstruct [:id, :time, :level, :kind, :reason, :stacktrace, :log_event, :metadata]
 
-  @type metadata :: %{optional(:log_event) => :logger.log_event()}
   @type error_kind :: :error | :exit | :throw
   @type non_error_kind :: :message
   @type reason :: Exception.t() | term()
@@ -13,7 +12,8 @@ defmodule Tower.Event do
           kind: error_kind() | non_error_kind(),
           reason: reason(),
           stacktrace: Exception.stacktrace() | nil,
-          metadata: metadata()
+          log_event: :logger.log_event() | nil,
+          metadata: map()
         }
 
   @spec from_caught(Exception.kind(), reason(), Exception.stacktrace()) :: t()
@@ -49,9 +49,8 @@ defmodule Tower.Event do
       kind: :error,
       reason: exception,
       stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
+      log_event: log_event,
+      metadata: Keyword.get(options, :metadata, %{})
     }
   end
 
@@ -67,9 +66,8 @@ defmodule Tower.Event do
       kind: :exit,
       reason: reason,
       stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
+      log_event: log_event,
+      metadata: Keyword.get(options, :metadata, %{})
     }
   end
 
@@ -85,9 +83,8 @@ defmodule Tower.Event do
       kind: :throw,
       reason: reason,
       stacktrace: stacktrace,
-      metadata: %{
-        log_event: log_event
-      }
+      log_event: log_event,
+      metadata: Keyword.get(options, :metadata, %{})
     }
   end
 
@@ -102,9 +99,8 @@ defmodule Tower.Event do
       level: level,
       kind: :message,
       reason: message,
-      metadata: %{
-        log_event: log_event
-      }
+      log_event: log_event,
+      metadata: Keyword.get(options, :metadata, %{})
     }
   end
 

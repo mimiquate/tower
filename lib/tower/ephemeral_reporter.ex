@@ -15,13 +15,21 @@ defmodule Tower.EphemeralReporter do
         time: time,
         kind: :error,
         reason: exception,
-        stacktrace: stacktrace
+        stacktrace: stacktrace,
+        metadata: metadata
       }) do
-    add_error(id, time, exception.__struct__, Exception.message(exception), stacktrace)
+    add_error(id, time, exception.__struct__, Exception.message(exception), stacktrace, metadata)
   end
 
-  def report_event(%Event{id: id, time: time, kind: :exit, reason: reason, stacktrace: stacktrace}) do
-    add_error(id, time, :exit, reason, stacktrace)
+  def report_event(%Event{
+        id: id,
+        time: time,
+        kind: :exit,
+        reason: reason,
+        stacktrace: stacktrace,
+        metadata: metadata
+      }) do
+    add_error(id, time, :exit, reason, stacktrace, metadata)
   end
 
   def report_event(%Event{
@@ -34,14 +42,22 @@ defmodule Tower.EphemeralReporter do
     add_error(id, time, :throw, reason, stacktrace)
   end
 
-  def report_event(%Event{id: id, time: time, kind: :message, level: level, reason: message}) do
+  def report_event(%Event{
+        id: id,
+        time: time,
+        kind: :message,
+        level: level,
+        reason: message,
+        metadata: metadata
+      }) do
     add(%{
       id: id,
       time: time,
       level: level,
       kind: nil,
       reason: message,
-      stacktrace: []
+      stacktrace: [],
+      metadata: metadata
     })
   end
 
@@ -49,14 +65,15 @@ defmodule Tower.EphemeralReporter do
     Agent.get(__MODULE__, & &1)
   end
 
-  defp add_error(id, time, kind, reason, stacktrace) do
+  defp add_error(id, time, kind, reason, stacktrace, metadata \\ %{}) do
     add(%{
       id: id,
       time: time,
       level: :error,
       kind: kind,
       reason: reason,
-      stacktrace: stacktrace
+      stacktrace: stacktrace,
+      metadata: metadata
     })
   end
 
