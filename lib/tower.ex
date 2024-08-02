@@ -330,8 +330,10 @@ defmodule Tower do
   @spec handle_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: :ok
   def handle_exception(exception, stacktrace, options \\ [])
       when is_exception(exception) and is_list(stacktrace) do
-    Event.from_exception(exception, stacktrace, options)
-    |> report_event()
+    unless exception.__struct__ in ignored_exceptions() do
+      Event.from_exception(exception, stacktrace, options)
+      |> report_event()
+    end
   end
 
   @doc """
@@ -454,5 +456,9 @@ defmodule Tower do
   defp async(fun) do
     Tower.TaskSupervisor
     |> Task.Supervisor.start_child(fun)
+  end
+
+  defp ignored_exceptions do
+    Application.fetch_env!(:tower, :ignored_exceptions)
   end
 end

@@ -591,6 +591,29 @@ defmodule TowerTest do
     assert similarity_id != other_similarity_id
   end
 
+  test "doesn't report ignored exceptions" do
+    put_env(:ignored_exceptions, [ArithmeticError])
+
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        1 / 0
+      end)
+
+      in_unlinked_process(fn ->
+        raise "error"
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          kind: :error,
+          reason: %RuntimeError{message: "error"}
+        }
+      ] = reported_events()
+    )
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 

@@ -32,7 +32,8 @@ defmodule Tower.MixProject do
       extra_applications: [:logger, :inets],
       env: [
         reporters: [Tower.EphemeralReporter],
-        log_level: :critical
+        log_level: :critical,
+        ignored_exceptions: []
       ],
       mod: {Tower.Application, []}
     ]
