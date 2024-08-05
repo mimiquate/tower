@@ -108,7 +108,7 @@ defmodule Tower.LoggerHandler do
   end
 
   defp should_handle?(level) do
-    :logger.compare_levels(level, log_level()) in [:gt, :eq]
+    Tower.equal_or_greater_level?(level, log_level())
   end
 
   defp log_level do
