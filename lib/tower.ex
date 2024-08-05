@@ -55,16 +55,10 @@ defmodule Tower do
   end
 
   defp report_event(%Event{} = event) do
-    each_reporter(fn reporter ->
-      reporter.report_event(event)
-    end)
-  end
-
-  defp each_reporter(fun) when is_function(fun, 1) do
     reporters()
     |> Enum.each(fn reporter ->
       async(fn ->
-        fun.(reporter)
+        reporter.report_event(event)
       end)
     end)
   end
