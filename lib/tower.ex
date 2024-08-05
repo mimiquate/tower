@@ -54,6 +54,14 @@ defmodule Tower do
     |> report_event()
   end
 
+  def equal_or_greater_level?(%Event{level: level1}, level2) when is_atom(level2) do
+    equal_or_greater_level?(level1, level2)
+  end
+
+  def equal_or_greater_level?(level1, level2) when is_atom(level1) and is_atom(level2) do
+    :logger.compare_levels(level1, level2) in [:gt, :eq]
+  end
+
   defp report_event(%Event{} = event) do
     reporters()
     |> Enum.each(fn reporter ->

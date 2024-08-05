@@ -10,46 +10,52 @@ defmodule Tower.EphemeralReporter do
   end
 
   @impl true
-  def report_event(%Event{
-        id: id,
-        time: time,
-        kind: :error,
-        reason: exception,
-        stacktrace: stacktrace,
-        metadata: metadata
-      }) do
+  def report_event(%Event{level: level} = event) do
+    if Tower.equal_or_greater_level?(level, :all) do
+      do_report_event(event)
+    end
+  end
+
+  defp do_report_event(%Event{
+         id: id,
+         time: time,
+         kind: :error,
+         reason: exception,
+         stacktrace: stacktrace,
+         metadata: metadata
+       }) do
     add_error(id, time, exception.__struct__, Exception.message(exception), stacktrace, metadata)
   end
 
-  def report_event(%Event{
-        id: id,
-        time: time,
-        kind: :exit,
-        reason: reason,
-        stacktrace: stacktrace,
-        metadata: metadata
-      }) do
+  defp do_report_event(%Event{
+         id: id,
+         time: time,
+         kind: :exit,
+         reason: reason,
+         stacktrace: stacktrace,
+         metadata: metadata
+       }) do
     add_error(id, time, :exit, reason, stacktrace, metadata)
   end
 
-  def report_event(%Event{
-        id: id,
-        time: time,
-        kind: :throw,
-        reason: reason,
-        stacktrace: stacktrace
-      }) do
+  defp do_report_event(%Event{
+         id: id,
+         time: time,
+         kind: :throw,
+         reason: reason,
+         stacktrace: stacktrace
+       }) do
     add_error(id, time, :throw, reason, stacktrace)
   end
 
-  def report_event(%Event{
-        id: id,
-        time: time,
-        kind: :message,
-        level: level,
-        reason: message,
-        metadata: metadata
-      }) do
+  defp do_report_event(%Event{
+         id: id,
+         time: time,
+         kind: :message,
+         level: level,
+         reason: message,
+         metadata: metadata
+       }) do
     add(%{
       id: id,
       time: time,
