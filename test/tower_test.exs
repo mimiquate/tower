@@ -2,6 +2,8 @@ defmodule TowerTest do
   use ExUnit.Case
   doctest Tower
 
+  use AssertEventually, timeout: 100, interval: 10
+
   setup do
     Tower.attach()
     start_reporter()
@@ -21,10 +23,11 @@ defmodule TowerTest do
       1 / 0
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
-          time: _,
+          id: id,
+          time: time,
           level: :error,
           kind: ArithmeticError,
           reason: "bad argument in arithmetic expression",
@@ -33,6 +36,8 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -42,10 +47,11 @@ defmodule TowerTest do
       raise "error inside process"
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
-          time: _,
+          id: id,
+          time: time,
           level: :error,
           kind: RuntimeError,
           reason: "error inside process",
@@ -54,6 +60,8 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -63,10 +71,11 @@ defmodule TowerTest do
       throw("error")
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
-          time: _,
+          id: id,
+          time: time,
           level: :error,
           kind: :throw,
           reason: "error",
@@ -75,6 +84,8 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -84,10 +95,11 @@ defmodule TowerTest do
       throw(something: "here")
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
-          time: _,
+          id: id,
+          time: time,
           level: :error,
           kind: :throw,
           reason: [something: "here"],
@@ -96,6 +108,8 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -113,10 +127,11 @@ defmodule TowerTest do
       exit(:abnormal)
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
-          time: _,
+          id: id,
+          time: time,
           level: :error,
           kind: :exit,
           reason: :abnormal,
@@ -125,6 +140,8 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
@@ -134,10 +151,11 @@ defmodule TowerTest do
       exit(:kill)
     end)
 
-    assert(
+    assert_eventually(
       [
         %{
-          time: _,
+          id: id,
+          time: time,
           level: :error,
           kind: :exit,
           reason: :kill,
@@ -146,20 +164,35 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
   end
 
   @tag capture_log: true
-  test "reports a Logger.error" do
+  test "doesn't report a Logger.error by default" do
     in_unlinked_process(fn ->
       require Logger
       Logger.error("Something went wrong here")
     end)
 
-    assert(
+    assert [] = reported_events()
+  end
+
+  @tag capture_log: true
+  test "reports a Logger.error (if enabled)" do
+    put_env(:log_level, :error)
+
+    in_unlinked_process(fn ->
+      require Logger
+      Logger.error("Something went wrong here")
+    end)
+
+    assert_eventually(
       [
         %{
-          time: _,
+          id: id,
+          time: time,
           level: :error,
           kind: nil,
           reason: "Something went wrong here",
@@ -167,6 +200,256 @@ defmodule TowerTest do
         }
       ] = reported_events()
     )
+
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+  end
+
+  @tag capture_log: true
+  test "reports a Logger.error (if enabled) with charlist" do
+    put_env(:log_level, :error)
+
+    in_unlinked_process(fn ->
+      require Logger
+
+      Logger.error([
+        "Postgrex.Protocol",
+        32,
+        40,
+        "#PID<0.2612.0>",
+        ") disconnected: " | "** (DBConnection.ConnectionError) tcp recv (idle): closed"
+      ])
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          time: time,
+          level: :error,
+          kind: nil,
+          reason:
+            "Postgrex.Protocol (#PID<0.2612.0>) disconnected: ** (DBConnection.ConnectionError) tcp recv (idle): closed",
+          stacktrace: []
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+  end
+
+  @tag capture_log: true
+  test "reports a Logger structured report" do
+    in_unlinked_process(fn ->
+      require Logger
+      Logger.critical(something: :reported, this: :critical)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          time: time,
+          level: :critical,
+          kind: nil,
+          reason: [something: :reported, this: :critical],
+          stacktrace: []
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+  end
+
+  test "reports message manually" do
+    Tower.handle_message(:info, "Something interesting", metadata: %{something: "else"})
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          time: time,
+          level: :info,
+          kind: nil,
+          reason: "Something interesting",
+          stacktrace: [],
+          metadata: %{
+            something: "else"
+          }
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+  end
+
+  test "reports Exception manually" do
+    in_unlinked_process(fn ->
+      try do
+        1 / 0
+      catch
+        kind, reason ->
+          Tower.handle_caught(kind, reason, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          time: time,
+          level: :error,
+          kind: ArithmeticError,
+          reason: "bad argument in arithmetic expression",
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
+  test "reports Exception manually (shorthand)" do
+    in_unlinked_process(fn ->
+      try do
+        1 / 0
+      rescue
+        e ->
+          Tower.handle_exception(e, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          time: time,
+          level: :error,
+          kind: ArithmeticError,
+          reason: "bad argument in arithmetic expression",
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
+  @tag capture_log: true
+  test "manually reports a thrown string" do
+    in_unlinked_process(fn ->
+      try do
+        throw("error")
+      catch
+        kind, reason ->
+          Tower.handle_caught(kind, reason, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          time: time,
+          level: :error,
+          kind: :throw,
+          reason: "error",
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
+  @tag capture_log: true
+  test "manually reports a thrown string (shorthand)" do
+    in_unlinked_process(fn ->
+      try do
+        throw("error")
+      catch
+        x ->
+          Tower.handle_throw(x, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          time: time,
+          level: :error,
+          kind: :throw,
+          reason: "error",
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
+  @tag capture_log: true
+  test "manually reports an abnormal exit" do
+    in_unlinked_process(fn ->
+      try do
+        exit(:abnormal)
+      catch
+        kind, reason ->
+          Tower.handle_caught(kind, reason, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          time: time,
+          level: :error,
+          kind: :exit,
+          reason: :abnormal,
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
+  end
+
+  @tag capture_log: true
+  test "manually reports an abnormal exit (shorthand)" do
+    in_unlinked_process(fn ->
+      try do
+        exit(:abnormal)
+      catch
+        :exit, reason ->
+          Tower.handle_exit(reason, __STACKTRACE__)
+      end
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          time: time,
+          level: :error,
+          kind: :exit,
+          reason: :abnormal,
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert is_list(stacktrace)
   end
 
   defp in_unlinked_process(fun) when is_function(fun, 0) do
@@ -183,5 +466,18 @@ defmodule TowerTest do
 
   defp reported_events do
     Tower.EphemeralReporter.events()
+  end
+
+  defp put_env(key, value) do
+    original_value = Application.get_env(:tower, key)
+    Application.put_env(:tower, key, value)
+
+    on_exit(fn ->
+      if original_value == nil do
+        Application.delete_env(:tower, key)
+      else
+        Application.put_env(:tower, key, original_value)
+      end
+    end)
   end
 end

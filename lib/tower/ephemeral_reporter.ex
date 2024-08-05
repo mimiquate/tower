@@ -3,34 +3,61 @@ defmodule Tower.EphemeralReporter do
 
   use Agent
 
+  alias Tower.Event
+
   def start_link(_opts) do
     Agent.start_link(fn -> [] end, name: __MODULE__)
   end
 
   @impl true
-  def report_exception(exception, stacktrace, metadata \\ %{})
-      when is_exception(exception) and is_list(stacktrace) do
-    add_error(exception.__struct__, Exception.message(exception), stacktrace, metadata)
+  def report_event(%Event{
+        id: id,
+        time: time,
+        kind: :error,
+        reason: exception,
+        stacktrace: stacktrace,
+        metadata: metadata
+      }) do
+    add_error(id, time, exception.__struct__, Exception.message(exception), stacktrace, metadata)
   end
 
-  @impl true
-  def report_throw(reason, stacktrace, metadata \\ %{}) do
-    add_error(:throw, reason, stacktrace, metadata)
+  def report_event(%Event{
+        id: id,
+        time: time,
+        kind: :exit,
+        reason: reason,
+        stacktrace: stacktrace,
+        metadata: metadata
+      }) do
+    add_error(id, time, :exit, reason, stacktrace, metadata)
   end
 
-  @impl true
-  def report_exit(reason, stacktrace, metadata \\ %{}) do
-    add_error(:exit, reason, stacktrace, metadata)
+  def report_event(%Event{
+        id: id,
+        time: time,
+        kind: :throw,
+        reason: reason,
+        stacktrace: stacktrace
+      }) do
+    add_error(id, time, :throw, reason, stacktrace)
   end
 
-  @impl true
-  def report_message(level, message, metadata \\ %{}) do
+  def report_event(%Event{
+        id: id,
+        time: time,
+        kind: :message,
+        level: level,
+        reason: message,
+        metadata: metadata
+      }) do
     add(%{
-      time: Map.get(metadata, :time, :logger.timestamp()),
+      id: id,
+      time: time,
       level: level,
       kind: nil,
       reason: message,
-      stacktrace: []
+      stacktrace: [],
+      metadata: metadata
     })
   end
 
@@ -38,13 +65,15 @@ defmodule Tower.EphemeralReporter do
     Agent.get(__MODULE__, & &1)
   end
 
-  defp add_error(kind, reason, stacktrace, metadata) do
+  defp add_error(id, time, kind, reason, stacktrace, metadata \\ %{}) do
     add(%{
-      time: Map.get(metadata, :time, :logger.timestamp()),
+      id: id,
+      time: time,
       level: :error,
       kind: kind,
       reason: reason,
-      stacktrace: stacktrace
+      stacktrace: stacktrace,
+      metadata: metadata
     })
   end
 
