@@ -1,6 +1,8 @@
 defmodule Tower.EphemeralReporter do
   @behaviour Tower.Reporter
 
+  @default_level :info
+
   use Agent
 
   alias Tower.Event
@@ -11,7 +13,7 @@ defmodule Tower.EphemeralReporter do
 
   @impl true
   def report_event(%Event{level: level} = event) do
-    if Tower.equal_or_greater_level?(level, :all) do
+    if Tower.equal_or_greater_level?(level, @default_level) do
       do_report_event(event)
     end
   end
