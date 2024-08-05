@@ -93,10 +93,18 @@ defmodule Tower.LoggerHandler do
     end
   end
 
-  def log(log_event, _config) do
-    IO.puts(
-      "[Tower.LoggerHandler] UNHANDLED LOG EVENT log_event=#{inspect(log_event, pretty: true)}"
-    )
+  def log(%{level: level} = log_event, _config) do
+    log_event_str = inspect(log_event, pretty: true)
+    IO.puts("[Tower.LoggerHandler] UNRECOGNIZED LOG EVENT log_event=#{log_event_str}")
+
+    if should_handle?(level) do
+      Tower.handle_message(
+        level,
+        "Unrecognized log event",
+        log_event: log_event,
+        metadata: %{log_event: log_event_str}
+      )
+    end
   end
 
   defp should_handle?(level) do
