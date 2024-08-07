@@ -4,7 +4,22 @@ defmodule Tower.LoggerHandler do
 
   @spec attach() :: :ok | {:error, term()}
   def attach do
-    :logger.add_handler(@handler_id, __MODULE__, %{level: :all})
+    # filters: [{&:logger_filters.remote_gl/2, :stop}],
+
+    :logger.add_handler(
+      @handler_id,
+      __MODULE__,
+      %{
+        level: :all,
+        filters: [tower_filter: {&tower_filter/2, []}]
+      }
+    )
+  end
+
+  defp tower_filter(%{meta: %{domain: domain}} = log_event, _extra) do
+    IO.inspect(domain)
+    # log_event
+    :logger_filters.domain(log_event, {:stop, :not_equal, [:elixir]})
   end
 
   @spec detach() :: :ok | {:error, term()}
