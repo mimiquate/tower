@@ -161,11 +161,7 @@ defmodule Tower.LoggerHandler do
   end
 
   defp safe_log(level, message) do
-    Logger.log(
-      level,
-      message,
-      %{domain: @own_logs_domain}
-    )
+    Logger.log(level, message, domain: @own_logs_domain)
   end
 
   defp hit do
