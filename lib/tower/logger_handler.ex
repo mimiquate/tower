@@ -1,10 +1,33 @@
 defmodule Tower.LoggerHandler do
   @default_log_level :critical
   @handler_id Tower
+  @default_burst_limit_period 1
+  @default_burst_limit_hits 10
+  @own_logs_domain [:tower, :logger_handler]
+
+  require Logger
 
   @spec attach() :: :ok | {:error, term()}
-  def attach do
-    :logger.add_handler(@handler_id, __MODULE__, %{level: :all})
+  @spec attach(Keyword.t()) :: :ok | {:error, term()}
+  def attach(options \\ []) do
+    :logger.add_handler(
+      @handler_id,
+      __MODULE__,
+      %{
+        level: :all,
+        filters: [
+          tower_domain_filter: {
+            &:logger_filters.domain/2,
+            {:stop, :sub, [:elixir | @own_logs_domain]}
+          }
+        ],
+        config: %{
+          burst_limit_period:
+            Keyword.get(options, :burst_limit_period, @default_burst_limit_period),
+          burst_limit_hits: Keyword.get(options, :burst_limit_hits, @default_burst_limit_hits)
+        }
+      }
+    )
   end
 
   @spec detach() :: :ok | {:error, term()}
@@ -14,7 +37,9 @@ defmodule Tower.LoggerHandler do
 
   # :logger callbacks
 
-  def adding_handler(config) do
+  def adding_handler(%{config: config2} = config) do
+    rate_limiter_init(config2)
+
     {:ok, config}
   end
 
@@ -22,53 +47,69 @@ defmodule Tower.LoggerHandler do
     :ok
   end
 
+  def log(log_event, _config) do
+    hit()
+    |> case do
+      :ok ->
+        handle_log_event(log_event)
+
+      {:error, expected_wait_time_in_ms} ->
+        safe_log(
+          :warning,
+          "Tower.LoggerHandler burst limited, ignoring log event. Expected to resume in #{expected_wait_time_in_ms}ms."
+        )
+
+        :ignore
+    end
+  end
+
   # elixir 1.15+
-  def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event, _config)
-      when is_exception(exception) and is_list(stacktrace) do
+  defp handle_log_event(
+         %{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event
+       )
+       when is_exception(exception) and is_list(stacktrace) do
     Tower.handle_exception(exception, stacktrace, log_event: log_event)
   end
 
   # elixir 1.15+
-  def log(
-        %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event,
-        _config
-      )
-      when is_list(stacktrace) do
+  defp handle_log_event(
+         %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event
+       )
+       when is_list(stacktrace) do
     Tower.handle_throw(reason, stacktrace, log_event: log_event)
   end
 
   # elixir 1.15+
-  def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event, _config)
-      when is_list(stacktrace) do
+  defp handle_log_event(
+         %{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event
+       )
+       when is_list(stacktrace) do
     Tower.handle_exit(exit_reason, stacktrace, log_event: log_event)
   end
 
   # elixir 1.14
-  def log(
-        %{level: :error, msg: {:report, %{report: %{reason: {exception, stacktrace}}}}} =
-          log_event,
-        _config
-      )
-      when is_exception(exception) and is_list(stacktrace) do
+  defp handle_log_event(
+         %{level: :error, msg: {:report, %{report: %{reason: {exception, stacktrace}}}}} =
+           log_event
+       )
+       when is_exception(exception) and is_list(stacktrace) do
     Tower.handle_exception(exception, stacktrace, log_event: log_event)
   end
 
   # elixir 1.14
-  def log(
-        %{level: :error, msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}}} =
-          log_event,
-        _config
-      )
-      when is_list(stacktrace) do
+  defp handle_log_event(
+         %{level: :error, msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}}} =
+           log_event
+       )
+       when is_list(stacktrace) do
     Tower.handle_throw(reason, stacktrace, log_event: log_event)
   end
 
   # elixir 1.14
-  def log(
-        %{level: :error, msg: {:report, %{report: %{reason: {reason, stacktrace}}}}} = log_event,
-        _config
-      )
-      when is_list(stacktrace) do
+  defp handle_log_event(
+         %{level: :error, msg: {:report, %{report: %{reason: {reason, stacktrace}}}}} = log_event
+       )
+       when is_list(stacktrace) do
     case Exception.normalize(:error, reason) do
       %ErlangError{} ->
         Tower.handle_exit(reason, stacktrace, log_event: log_event)
@@ -81,19 +122,19 @@ defmodule Tower.LoggerHandler do
     end
   end
 
-  def log(%{level: level, msg: {:string, reason_chardata}} = log_event, _config) do
+  defp handle_log_event(%{level: level, msg: {:string, reason_chardata}} = log_event) do
     if should_handle?(level) do
       Tower.handle_message(level, IO.chardata_to_string(reason_chardata), log_event: log_event)
     end
   end
 
-  def log(%{level: level, msg: {:report, report}} = log_event, _config) do
+  defp handle_log_event(%{level: level, msg: {:report, report}} = log_event) do
     if should_handle?(level) do
       Tower.handle_message(level, report, log_event: log_event)
     end
   end
 
-  def log(%{level: level} = log_event, _config) do
+  defp handle_log_event(%{level: level} = log_event) do
     log_event_str = inspect(log_event, pretty: true)
     IO.puts("[Tower.LoggerHandler] UNRECOGNIZED LOG EVENT log_event=#{log_event_str}")
 
@@ -115,5 +156,29 @@ defmodule Tower.LoggerHandler do
     # This config env can be to any of the 8 levels in https://www.erlang.org/doc/apps/kernel/logger#t:level/0,
     # or special values :all and :none.
     Application.get_env(:tower, :log_level, @default_log_level)
+  end
+
+  defp safe_log(level, message) do
+    Logger.log(
+      level,
+      message,
+      %{domain: @own_logs_domain}
+    )
+  end
+
+  defp hit do
+    rate_limiter()
+    |> RateLimiter.hit()
+  end
+
+  defp rate_limiter_init(%{
+         burst_limit_period: burst_limit_period,
+         burst_limit_hits: burst_limit_hits
+       }) do
+    RateLimiter.new(@handler_id, burst_limit_period, burst_limit_hits)
+  end
+
+  defp rate_limiter do
+    RateLimiter.get!(@handler_id)
   end
 end

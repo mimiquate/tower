@@ -5,7 +5,7 @@ defmodule TowerTest do
   use AssertEventually, timeout: 100, interval: 10
 
   setup do
-    Tower.attach()
+    Tower.attach(burst_limit_period: 10, burst_limit_hits: 1)
     start_reporter()
 
     on_exit(fn ->
@@ -17,11 +17,17 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
-  @tag capture_log: true
   test "reports arithmetic error" do
-    in_unlinked_process(fn ->
-      1 / 0
-    end)
+    captured_log =
+      ExUnit.CaptureLog.capture_log(fn ->
+        in_unlinked_process(fn ->
+          1 / 0
+        end)
+
+        in_unlinked_process(fn ->
+          1 / 0
+        end)
+      end)
 
     assert_eventually(
       [
@@ -39,6 +45,7 @@ defmodule TowerTest do
     assert String.length(id) == 36
     assert_in_delta(time, :logger.timestamp(), 100_000)
     assert is_list(stacktrace)
+    assert captured_log =~ "[warning] Tower.LoggerHandler burst limited, ignoring log event"
   end
 
   @tag capture_log: true
