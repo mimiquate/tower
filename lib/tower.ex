@@ -8,8 +8,9 @@ defmodule Tower do
   @default_reporters [Tower.EphemeralReporter]
 
   @spec attach() :: :ok
-  def attach do
-    :ok = Tower.LoggerHandler.attach()
+  @spec attach(Keyword.t()) :: :ok
+  def attach(options \\ []) do
+    :ok = Tower.LoggerHandler.attach(options)
   end
 
   @spec detach() :: :ok
