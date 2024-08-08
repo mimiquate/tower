@@ -44,6 +44,8 @@ defmodule Tower.LoggerHandler do
   end
 
   def removing_handler(_config) do
+    rate_limiter_delete()
+
     :ok
   end
 
@@ -176,6 +178,10 @@ defmodule Tower.LoggerHandler do
          burst_limit_hits: burst_limit_hits
        }) do
     RateLimiter.new(@handler_id, burst_limit_period, burst_limit_hits)
+  end
+
+  defp rate_limiter_delete do
+    RateLimiter.delete(@handler_id)
   end
 
   defp rate_limiter do
