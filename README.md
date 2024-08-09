@@ -13,7 +13,7 @@ The package can be installed by adding `tower` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:tower, "~> 0.1.0"}
+    {:tower, "~> 0.2.0"}
   ]
 end
 ```
