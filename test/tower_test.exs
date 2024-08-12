@@ -27,7 +27,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: ArithmeticError,
           reason: "bad argument in arithmetic expression",
@@ -37,7 +37,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -51,7 +51,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: RuntimeError,
           reason: "error inside process",
@@ -61,7 +61,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -75,7 +75,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: :throw,
           reason: "error",
@@ -85,7 +85,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -99,7 +99,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: :throw,
           reason: [something: "here"],
@@ -109,7 +109,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -131,7 +131,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: :exit,
           reason: :abnormal,
@@ -141,7 +141,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -155,7 +155,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: :exit,
           reason: :kill,
@@ -165,7 +165,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -192,7 +192,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: nil,
           reason: "Something went wrong here",
@@ -202,7 +202,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
   end
 
   @tag capture_log: true
@@ -225,7 +225,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: nil,
           reason:
@@ -236,7 +236,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
   end
 
   @tag capture_log: true
@@ -250,7 +250,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :critical,
           kind: nil,
           reason: [something: :reported, this: :critical],
@@ -260,7 +260,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
   end
 
   test "reports message manually" do
@@ -270,7 +270,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :info,
           kind: nil,
           reason: "Something interesting",
@@ -283,7 +283,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
   end
 
   test "reports Exception manually" do
@@ -299,7 +299,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: ArithmeticError,
           reason: "bad argument in arithmetic expression",
@@ -308,7 +308,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -326,7 +326,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: ArithmeticError,
           reason: "bad argument in arithmetic expression",
@@ -336,7 +336,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -354,7 +354,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: :throw,
           reason: "error",
@@ -363,7 +363,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -382,7 +382,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: :throw,
           reason: "error",
@@ -392,7 +392,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -410,7 +410,7 @@ defmodule TowerTest do
     assert_eventually(
       [
         %{
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: :exit,
           reason: :abnormal,
@@ -419,7 +419,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -438,7 +438,7 @@ defmodule TowerTest do
       [
         %{
           id: id,
-          time: time,
+          datetime: datetime,
           level: :error,
           kind: :exit,
           reason: :abnormal,
@@ -448,7 +448,7 @@ defmodule TowerTest do
     )
 
     assert String.length(id) == 36
-    assert_in_delta(time, :logger.timestamp(), 100_000)
+    assert recent_datetime?(datetime)
     assert is_list(stacktrace)
   end
 
@@ -479,5 +479,14 @@ defmodule TowerTest do
         Application.put_env(:tower, key, original_value)
       end
     end)
+  end
+
+  defp recent_datetime?(datetime) do
+    diff =
+      :logger.timestamp()
+      |> DateTime.from_unix!(:microsecond)
+      |> DateTime.diff(datetime, :microsecond)
+
+    diff >= 0 && diff < 100_000
   end
 end

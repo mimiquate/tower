@@ -1,5 +1,5 @@
 defmodule Tower.Event do
-  defstruct [:id, :time, :level, :kind, :reason, :stacktrace, :log_event, :metadata]
+  defstruct [:id, :datetime, :level, :kind, :reason, :stacktrace, :log_event, :metadata]
 
   @type error_kind :: :error | :exit | :throw
   @type non_error_kind :: :message
@@ -7,7 +7,7 @@ defmodule Tower.Event do
 
   @type t :: %__MODULE__{
           id: Uniq.UUID.t(),
-          time: :logger.timestamp(),
+          datetime: DateTime.t(),
           level: :logger.level(),
           kind: error_kind() | non_error_kind(),
           reason: reason(),
@@ -15,6 +15,8 @@ defmodule Tower.Event do
           log_event: :logger.log_event() | nil,
           metadata: map()
         }
+
+  @logger_time_unit :microsecond
 
   @spec from_caught(Exception.kind(), reason(), Exception.stacktrace()) :: t()
   @spec from_caught(Exception.kind(), reason(), Exception.stacktrace(), Keyword.t()) :: t()
@@ -44,7 +46,7 @@ defmodule Tower.Event do
 
     %__MODULE__{
       id: new_id(),
-      time: log_event[:meta][:time] || now(),
+      datetime: event_datetime(log_event),
       level: :error,
       kind: :error,
       reason: exception,
@@ -61,7 +63,7 @@ defmodule Tower.Event do
 
     %__MODULE__{
       id: new_id(),
-      time: log_event[:meta][:time] || now(),
+      datetime: event_datetime(log_event),
       level: :error,
       kind: :exit,
       reason: reason,
@@ -78,7 +80,7 @@ defmodule Tower.Event do
 
     %__MODULE__{
       id: new_id(),
-      time: log_event[:meta][:time] || now(),
+      datetime: event_datetime(log_event),
       level: :error,
       kind: :throw,
       reason: reason,
@@ -95,7 +97,7 @@ defmodule Tower.Event do
 
     %__MODULE__{
       id: new_id(),
-      time: log_event[:meta][:time] || now(),
+      datetime: event_datetime(log_event),
       level: level,
       kind: :message,
       reason: message,
@@ -104,7 +106,17 @@ defmodule Tower.Event do
     }
   end
 
-  defp now do
+  defp event_datetime(log_event) do
+    log_event
+    |> event_timestamp()
+    |> DateTime.from_unix!(@logger_time_unit)
+  end
+
+  defp event_timestamp(%{meta: %{time: log_event_time}}) do
+    log_event_time
+  end
+
+  defp event_timestamp(_) do
     :logger.timestamp()
   end
 
