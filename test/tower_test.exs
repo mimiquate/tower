@@ -5,8 +5,8 @@ defmodule TowerTest do
   use AssertEventually, timeout: 100, interval: 10
 
   setup do
-    Tower.attach()
     start_reporter()
+    Tower.attach()
 
     on_exit(fn ->
       Tower.detach()
