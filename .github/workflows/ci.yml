@@ -17,10 +17,8 @@ jobs:
             erlang: '26.2.5'
           - elixir: '1.15'
             erlang: '25.3.2.12'
-          - elixir: '1.14'
+          - elixir: '1.15'
             erlang: '24.3.4.17'
-          - elixir: '1.13'
-            erlang: '23.3.4.20'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4

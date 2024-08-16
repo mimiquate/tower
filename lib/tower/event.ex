@@ -1,5 +1,15 @@
 defmodule Tower.Event do
-  defstruct [:id, :datetime, :level, :kind, :reason, :stacktrace, :log_event, :metadata]
+  defstruct [
+    :id,
+    :datetime,
+    :level,
+    :kind,
+    :reason,
+    :stacktrace,
+    :log_event,
+    :plug_conn,
+    :metadata
+  ]
 
   @type error_kind :: :error | :exit | :throw
   @type non_error_kind :: :message
@@ -13,6 +23,7 @@ defmodule Tower.Event do
           reason: reason(),
           stacktrace: Exception.stacktrace() | nil,
           log_event: :logger.log_event() | nil,
+          plug_conn: struct() | nil,
           metadata: map()
         }
 
@@ -52,6 +63,7 @@ defmodule Tower.Event do
       reason: exception,
       stacktrace: stacktrace,
       log_event: log_event,
+      plug_conn: plug_conn(options),
       metadata: Keyword.get(options, :metadata, %{})
     }
   end
@@ -69,6 +81,7 @@ defmodule Tower.Event do
       reason: reason,
       stacktrace: stacktrace,
       log_event: log_event,
+      plug_conn: plug_conn(options),
       metadata: Keyword.get(options, :metadata, %{})
     }
   end
@@ -86,6 +99,7 @@ defmodule Tower.Event do
       reason: reason,
       stacktrace: stacktrace,
       log_event: log_event,
+      plug_conn: plug_conn(options),
       metadata: Keyword.get(options, :metadata, %{})
     }
   end
@@ -102,6 +116,7 @@ defmodule Tower.Event do
       kind: :message,
       reason: message,
       log_event: log_event,
+      plug_conn: plug_conn(options),
       metadata: Keyword.get(options, :metadata, %{})
     }
   end
@@ -122,5 +137,9 @@ defmodule Tower.Event do
 
   def new_id do
     Uniq.UUID.uuid7()
+  end
+
+  defp plug_conn(options) do
+    Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
   end
 end
