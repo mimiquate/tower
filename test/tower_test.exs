@@ -29,8 +29,8 @@ defmodule TowerTest do
           id: id,
           datetime: datetime,
           level: :error,
-          kind: ArithmeticError,
-          reason: "bad argument in arithmetic expression",
+          kind: :error,
+          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
           stacktrace: stacktrace
         }
       ] = reported_events()
@@ -53,8 +53,8 @@ defmodule TowerTest do
           id: id,
           datetime: datetime,
           level: :error,
-          kind: RuntimeError,
-          reason: "error inside process",
+          kind: :error,
+          reason: %RuntimeError{message: "error inside process"},
           stacktrace: stacktrace
         }
       ] = reported_events()
@@ -194,9 +194,9 @@ defmodule TowerTest do
           id: id,
           datetime: datetime,
           level: :error,
-          kind: nil,
+          kind: :message,
           reason: "Something went wrong here",
-          stacktrace: []
+          stacktrace: nil
         }
       ] = reported_events()
     )
@@ -227,10 +227,10 @@ defmodule TowerTest do
           id: id,
           datetime: datetime,
           level: :error,
-          kind: nil,
+          kind: :message,
           reason:
             "Postgrex.Protocol (#PID<0.2612.0>) disconnected: ** (DBConnection.ConnectionError) tcp recv (idle): closed",
-          stacktrace: []
+          stacktrace: nil
         }
       ] = reported_events()
     )
@@ -252,9 +252,9 @@ defmodule TowerTest do
           id: id,
           datetime: datetime,
           level: :critical,
-          kind: nil,
+          kind: :message,
           reason: [something: :reported, this: :critical],
-          stacktrace: []
+          stacktrace: nil
         }
       ] = reported_events()
     )
@@ -272,9 +272,9 @@ defmodule TowerTest do
           id: id,
           datetime: datetime,
           level: :info,
-          kind: nil,
+          kind: :message,
           reason: "Something interesting",
-          stacktrace: [],
+          stacktrace: nil,
           metadata: %{
             something: "else"
           }
@@ -301,8 +301,8 @@ defmodule TowerTest do
         %{
           datetime: datetime,
           level: :error,
-          kind: ArithmeticError,
-          reason: "bad argument in arithmetic expression",
+          kind: :error,
+          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
           stacktrace: stacktrace
         }
       ] = reported_events()
@@ -328,8 +328,8 @@ defmodule TowerTest do
           id: id,
           datetime: datetime,
           level: :error,
-          kind: ArithmeticError,
-          reason: "bad argument in arithmetic expression",
+          kind: :error,
+          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
           stacktrace: stacktrace
         }
       ] = reported_events()
