@@ -22,13 +22,11 @@ defmodule Tower.LoggerHandler do
     :ok
   end
 
-  # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event, _config)
       when is_exception(exception) and is_list(stacktrace) do
     Tower.handle_exception(exception, stacktrace, log_event: log_event)
   end
 
-  # elixir 1.15+
   def log(
         %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event,
         _config
@@ -37,48 +35,9 @@ defmodule Tower.LoggerHandler do
     Tower.handle_throw(reason, stacktrace, log_event: log_event)
   end
 
-  # elixir 1.15+
   def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event, _config)
       when is_list(stacktrace) do
     Tower.handle_exit(exit_reason, stacktrace, log_event: log_event)
-  end
-
-  # elixir 1.14
-  def log(
-        %{level: :error, msg: {:report, %{report: %{reason: {exception, stacktrace}}}}} =
-          log_event,
-        _config
-      )
-      when is_exception(exception) and is_list(stacktrace) do
-    Tower.handle_exception(exception, stacktrace, log_event: log_event)
-  end
-
-  # elixir 1.14
-  def log(
-        %{level: :error, msg: {:report, %{report: %{reason: {{:nocatch, reason}, stacktrace}}}}} =
-          log_event,
-        _config
-      )
-      when is_list(stacktrace) do
-    Tower.handle_throw(reason, stacktrace, log_event: log_event)
-  end
-
-  # elixir 1.14
-  def log(
-        %{level: :error, msg: {:report, %{report: %{reason: {reason, stacktrace}}}}} = log_event,
-        _config
-      )
-      when is_list(stacktrace) do
-    case Exception.normalize(:error, reason) do
-      %ErlangError{} ->
-        Tower.handle_exit(reason, stacktrace, log_event: log_event)
-
-      e when is_exception(e) ->
-        Tower.handle_exception(e, stacktrace, log_event: log_event)
-
-      _ ->
-        Tower.handle_exit(reason, stacktrace, log_event: log_event)
-    end
   end
 
   def log(%{level: level, msg: {:string, reason_chardata}} = log_event, _config) do
