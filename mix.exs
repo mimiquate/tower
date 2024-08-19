@@ -41,6 +41,7 @@ defmodule Tower.MixProject do
   defp deps do
     [
       {:uniq, "~> 0.6.1"},
+      {:telemetry, "~> 1.2"},
 
       # Dev
       {:ex_doc, "~> 0.34.0", only: :dev, runtime: false},
@@ -48,7 +49,8 @@ defmodule Tower.MixProject do
 
       # Test
       {:assert_eventually, "~> 1.0", only: :test},
-      {:plug_cowboy, "~> 2.7", only: :test}
+      {:plug_cowboy, "~> 2.7", only: :test},
+      {:bandit, "~> 1.5", only: :test}
     ]
   end
 

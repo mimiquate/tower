@@ -10,11 +10,13 @@ defmodule Tower do
   @spec attach() :: :ok
   def attach do
     :ok = Tower.LoggerHandler.attach()
+    :ok = Tower.BanditExceptionHandler.attach()
   end
 
   @spec detach() :: :ok
   def detach do
     :ok = Tower.LoggerHandler.detach()
+    :ok = Tower.BanditExceptionHandler.detach()
   end
 
   @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace()) :: :ok
