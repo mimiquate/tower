@@ -40,6 +40,10 @@ defmodule Tower.LoggerHandler do
     Tower.handle_exit(exit_reason, stacktrace, log_event: log_event)
   end
 
+  def log(%{level: :error, meta: %{crash_reason: exit_reason}} = log_event, _config) do
+    Tower.handle_exit(exit_reason, [], log_event: log_event)
+  end
+
   def log(%{level: level, msg: {:string, reason_chardata}} = log_event, _config) do
     if should_handle?(level) do
       Tower.handle_message(level, IO.chardata_to_string(reason_chardata), log_event: log_event)

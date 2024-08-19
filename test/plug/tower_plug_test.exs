@@ -13,7 +13,7 @@ defmodule TowerPlugTest do
   end
 
   @tag capture_log: true
-  test "reports arithmetic error when a Plug.Conn IS present" do
+  test "reports arithmetic error during plug dispatch" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/arithmetic-error"
@@ -30,6 +30,66 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :error,
           reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          stacktrace: stacktrace,
+          plug_conn: %Plug.Conn{} = plug_conn
+        }
+      ] = Tower.EphemeralReporter.events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+    assert is_list(stacktrace)
+    assert Plug.Conn.request_url(plug_conn) == url
+  end
+
+  @tag capture_log: true
+  test "reports uncaught throw during plug dispatch" do
+    # An ephemeral port hopefully not being in the host running this code
+    plug_port = 51111
+    url = "http://127.0.0.1:#{plug_port}/uncaught-throw"
+
+    start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
+
+    {:ok, _response} = :httpc.request(url)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          kind: :throw,
+          reason: "something",
+          stacktrace: stacktrace,
+          plug_conn: %Plug.Conn{} = plug_conn
+        }
+      ] = Tower.EphemeralReporter.events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+    assert is_list(stacktrace)
+    assert Plug.Conn.request_url(plug_conn) == url
+  end
+
+  @tag capture_log: true
+  test "reports abnormal exit during plug dispatch" do
+    # An ephemeral port hopefully not being in the host running this code
+    plug_port = 51111
+    url = "http://127.0.0.1:#{plug_port}/abnormal-exit"
+
+    start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
+
+    {:ok, _response} = :httpc.request(url)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          kind: :exit,
+          reason: :abnormal,
           stacktrace: stacktrace,
           plug_conn: %Plug.Conn{} = plug_conn
         }
