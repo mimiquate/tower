@@ -40,8 +40,8 @@ defmodule Tower.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:uniq, "~> 0.6.1"},
-      {:telemetry, "~> 1.2"},
+      {:uniq, "~> 0.6.0"},
+      {:telemetry, "~> 1.1"},
 
       # Dev
       {:ex_doc, "~> 0.34.0", only: :dev, runtime: false},
