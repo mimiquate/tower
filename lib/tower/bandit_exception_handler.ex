@@ -26,7 +26,8 @@ defmodule Tower.BanditExceptionHandler do
   end
 
   defp handle_event_metadata(%{
-         kind: _kind,
+         # Not sure why bandit sends all exception with kind: :exit
+         kind: :exit,
          exception: %{
            __struct__: Plug.Conn.WrapperError,
            kind: :error,
