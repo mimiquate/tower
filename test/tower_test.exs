@@ -8,7 +8,7 @@ defmodule TowerTest do
 
   setup do
     start_reporter()
-    Tower.attach()
+    Tower.attach(burst_limit_period: 10, burst_limit_hits: 1)
 
     on_exit(fn ->
       Tower.detach()
@@ -20,11 +20,16 @@ defmodule TowerTest do
   end
 
   test "reports arithmetic error" do
-    capture_log(fn ->
-      in_unlinked_process(fn ->
-        1 / 0
+    captured_log =
+      capture_log(fn ->
+        in_unlinked_process(fn ->
+          1 / 0
+        end)
+
+        in_unlinked_process(fn ->
+          1 / 0
+        end)
       end)
-    end)
 
     assert_eventually(
       [
@@ -42,6 +47,7 @@ defmodule TowerTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert is_list(stacktrace)
+    assert captured_log =~ "[warning] Tower.LoggerHandler burst limited, ignoring log event"
   end
 
   test "reports a raise" do
