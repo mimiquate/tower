@@ -28,7 +28,7 @@ the core `tower` package:
 # mix.exs
 def deps do
   [
-    {:tower, "~> 0.4.0"}
+    {:tower, "~> 0.5.0"}
   ]
 end
 ```
