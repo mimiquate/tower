@@ -208,8 +208,12 @@ defmodule Tower do
   passed along to the reporter.
   """
 
+  require Logger
+
   alias Tower.Event
 
+  @default_burst_limit_period 1
+  @default_burst_limit_hits 10
   @default_reporters [Tower.EphemeralReporter]
 
   @doc """
@@ -226,8 +230,14 @@ defmodule Tower do
   Note that `Tower.attach/0` is not a precondition for `Tower` `handle_*` functions to work
   properly and inform reporters. They are independent.
   """
-  @spec attach() :: :ok
-  def attach do
+  @spec attach(Keyword.t()) :: :ok
+  def attach(options \\ []) do
+    rate_limiter_init(%{
+      burst_limit_period: Keyword.get(options, :burst_limit_period, @default_burst_limit_period),
+      burst_limit_hits: Keyword.get(options, :burst_limit_hits, @default_burst_limit_hits)
+    })
+
+    :ok = Tower.Config.update(options)
     :ok = Tower.LoggerHandler.attach()
     :ok = Tower.BanditExceptionHandler.attach()
     :ok = Tower.ObanExceptionHandler.attach()
@@ -242,6 +252,8 @@ defmodule Tower do
   """
   @spec detach() :: :ok
   def detach do
+    rate_limiter_delete()
+
     :ok = Tower.LoggerHandler.detach()
     :ok = Tower.BanditExceptionHandler.detach()
     :ok = Tower.ObanExceptionHandler.detach()
@@ -394,12 +406,24 @@ defmodule Tower do
   end
 
   defp report_event(%Event{} = event) do
-    reporters()
-    |> Enum.each(fn reporter ->
-      async(fn ->
-        reporter.report_event(event)
-      end)
-    end)
+    hit()
+    |> case do
+      :ok ->
+        reporters()
+        |> Enum.each(fn reporter ->
+          async(fn ->
+            reporter.report_event(event)
+          end)
+        end)
+
+      {:error, expected_wait_time_in_ms} ->
+        Logger.log(
+          :warning,
+          "Tower.LoggerHandler burst limited, ignoring log event. Expected to resume in #{expected_wait_time_in_ms}ms."
+        )
+
+        :ignore
+    end
   end
 
   defp reporters do
@@ -409,5 +433,25 @@ defmodule Tower do
   defp async(fun) do
     Tower.TaskSupervisor
     |> Task.Supervisor.start_child(fun)
+  end
+
+  defp hit do
+    rate_limiter()
+    |> RateLimiter.hit()
+  end
+
+  defp rate_limiter_init(%{
+         burst_limit_period: burst_limit_period,
+         burst_limit_hits: burst_limit_hits
+       }) do
+    RateLimiter.new(__MODULE__, burst_limit_period, burst_limit_hits)
+  end
+
+  defp rate_limiter_delete do
+    RateLimiter.delete(__MODULE__)
+  end
+
+  defp rate_limiter do
+    RateLimiter.get!(__MODULE__)
   end
 end

@@ -40,6 +40,7 @@ defmodule Tower.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:rate_limiter, "~> 0.4.0"},
       {:uniq, "~> 0.6.0"},
       {:telemetry, "~> 1.1"},
 
