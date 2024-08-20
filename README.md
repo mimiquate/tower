@@ -13,6 +13,7 @@ Tower is an Elixir package that tries to do one job well, **handle** error **eve
 
 You can either write your own reporter or use any amount of the following reporters:
 
+- [tower_email](http://github.com/mimiquate/tower_email)
 - [tower_rollbar](http://github.com/mimiquate/tower_rollbar)
 - [tower_slack](http://github.com/mimiquate/tower_slack)
 
