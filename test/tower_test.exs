@@ -4,6 +4,8 @@ defmodule TowerTest do
 
   use AssertEventually, timeout: 100, interval: 10
 
+  import ExUnit.CaptureLog, only: [capture_log: 1]
+
   setup do
     start_reporter()
     Tower.attach()
@@ -17,10 +19,11 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
-  @tag capture_log: true
   test "reports arithmetic error" do
-    in_unlinked_process(fn ->
-      1 / 0
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        1 / 0
+      end)
     end)
 
     assert_eventually(
@@ -41,10 +44,11 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "reports a raise" do
-    in_unlinked_process(fn ->
-      raise "error inside process"
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        raise "error inside process"
+      end)
     end)
 
     assert_eventually(
@@ -65,10 +69,11 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "reports a thrown string" do
-    in_unlinked_process(fn ->
-      throw("error")
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        throw("error")
+      end)
     end)
 
     assert_eventually(
@@ -89,10 +94,11 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "reports a thrown non-string" do
-    in_unlinked_process(fn ->
-      throw(something: "here")
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        throw(something: "here")
+      end)
     end)
 
     assert_eventually(
@@ -121,10 +127,11 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
-  @tag capture_log: true
   test "reports an abnormal exit" do
-    in_unlinked_process(fn ->
-      exit(:abnormal)
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        exit(:abnormal)
+      end)
     end)
 
     assert_eventually(
@@ -145,10 +152,11 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "reports a kill exit" do
-    in_unlinked_process(fn ->
-      exit(:kill)
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        exit(:kill)
+      end)
     end)
 
     assert_eventually(
@@ -169,23 +177,26 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "doesn't report a Logger.error by default" do
-    in_unlinked_process(fn ->
-      require Logger
-      Logger.error("Something went wrong here")
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        require Logger
+        Logger.error("Something went wrong here")
+      end)
     end)
 
     assert [] = reported_events()
   end
 
-  @tag capture_log: true
   test "reports a Logger.error (if enabled)" do
     put_env(:log_level, :error)
 
     in_unlinked_process(fn ->
       require Logger
-      Logger.error("Something went wrong here")
+
+      capture_log(fn ->
+        Logger.error("Something went wrong here")
+      end)
     end)
 
     assert_eventually(
@@ -205,20 +216,21 @@ defmodule TowerTest do
     assert recent_datetime?(datetime)
   end
 
-  @tag capture_log: true
   test "reports a Logger.error (if enabled) with charlist" do
     put_env(:log_level, :error)
 
     in_unlinked_process(fn ->
       require Logger
 
-      Logger.error([
-        "Postgrex.Protocol",
-        32,
-        40,
-        "#PID<0.2612.0>",
-        ") disconnected: " | "** (DBConnection.ConnectionError) tcp recv (idle): closed"
-      ])
+      capture_log(fn ->
+        Logger.error([
+          "Postgrex.Protocol",
+          32,
+          40,
+          "#PID<0.2612.0>",
+          ") disconnected: " | "** (DBConnection.ConnectionError) tcp recv (idle): closed"
+        ])
+      end)
     end)
 
     assert_eventually(
@@ -239,11 +251,13 @@ defmodule TowerTest do
     assert recent_datetime?(datetime)
   end
 
-  @tag capture_log: true
   test "reports a Logger structured report" do
     in_unlinked_process(fn ->
       require Logger
-      Logger.critical(something: :reported, this: :critical)
+
+      capture_log(fn ->
+        Logger.critical(something: :reported, this: :critical)
+      end)
     end)
 
     assert_eventually(
@@ -340,7 +354,6 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "manually reports a thrown string" do
     in_unlinked_process(fn ->
       try do
@@ -367,7 +380,6 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "manually reports a thrown string (shorthand)" do
     in_unlinked_process(fn ->
       try do
@@ -396,7 +408,6 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "manually reports an abnormal exit" do
     in_unlinked_process(fn ->
       try do
@@ -423,7 +434,6 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "manually reports an abnormal exit (shorthand)" do
     in_unlinked_process(fn ->
       try do

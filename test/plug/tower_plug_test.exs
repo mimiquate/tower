@@ -3,6 +3,8 @@ defmodule TowerPlugTest do
 
   use AssertEventually, timeout: 100, interval: 10
 
+  import ExUnit.CaptureLog, only: [capture_log: 1]
+
   setup do
     start_link_supervised!(Tower.EphemeralReporter)
     Tower.attach()
@@ -12,7 +14,6 @@ defmodule TowerPlugTest do
     end)
   end
 
-  @tag capture_log: true
   test "reports arithmetic error during plug dispatch with Plug.Cowboy" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
@@ -20,7 +21,9 @@ defmodule TowerPlugTest do
 
     start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-    {:ok, _response} = :httpc.request(url)
+    capture_log(fn ->
+      {:ok, _response} = :httpc.request(url)
+    end)
 
     assert_eventually(
       [
@@ -42,7 +45,6 @@ defmodule TowerPlugTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
-  @tag capture_log: true
   test "reports uncaught throw during plug dispatch with Plug.Cowboy" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
@@ -50,7 +52,9 @@ defmodule TowerPlugTest do
 
     start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-    {:ok, _response} = :httpc.request(url)
+    capture_log(fn ->
+      {:ok, _response} = :httpc.request(url)
+    end)
 
     assert_eventually(
       [
@@ -72,7 +76,6 @@ defmodule TowerPlugTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
-  @tag capture_log: true
   test "reports abnormal exit during plug dispatch with Plug.Cowboy" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
@@ -80,7 +83,9 @@ defmodule TowerPlugTest do
 
     start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-    {:ok, _response} = :httpc.request(url)
+    capture_log(fn ->
+      {:ok, _response} = :httpc.request(url)
+    end)
 
     assert_eventually(
       [
@@ -102,15 +107,16 @@ defmodule TowerPlugTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
-  @tag capture_log: true
   test "reports arithmetic error during plug dispatch with Bandit" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/arithmetic-error"
 
-    start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
+    capture_log(fn ->
+      start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-    {:ok, _response} = :httpc.request(url)
+      {:ok, _response} = :httpc.request(url)
+    end)
 
     assert_eventually(
       [
@@ -132,15 +138,16 @@ defmodule TowerPlugTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
-  @tag capture_log: true
   test "reports uncaught throw during plug dispatch with Bandit" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/uncaught-throw"
 
-    start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
+    capture_log(fn ->
+      start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-    {:error, :socket_closed_remotely} = :httpc.request(url)
+      {:error, :socket_closed_remotely} = :httpc.request(url)
+    end)
 
     assert_eventually(
       [
@@ -164,15 +171,16 @@ defmodule TowerPlugTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "reports abnormal exit during plug dispatch with Bandit" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/abnormal-exit"
 
-    start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
+    capture_log(fn ->
+      start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-    {:error, :socket_closed_remotely} = :httpc.request(url)
+      {:error, :socket_closed_remotely} = :httpc.request(url)
+    end)
 
     assert_eventually(
       [

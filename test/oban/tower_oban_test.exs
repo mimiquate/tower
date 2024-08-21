@@ -4,6 +4,8 @@ defmodule TowerObanTest do
 
   use AssertEventually, timeout: 100, interval: 10
 
+  import ExUnit.CaptureLog, only: [capture_log: 1]
+
   setup do
     start_link_supervised!(Tower.EphemeralReporter)
 
@@ -16,7 +18,9 @@ defmodule TowerObanTest do
       {Oban, engine: Oban.Engines.Lite, repo: TestApp.Repo, queues: [default: 10]}
     )
 
-    Ecto.Migrator.up(TestApp.Repo, 0, TestApp.Repo.Migrations.AddOban)
+    capture_log(fn ->
+      Ecto.Migrator.up(TestApp.Repo, 0, TestApp.Repo.Migrations.AddOban)
+    end)
 
     Tower.attach()
 
@@ -25,7 +29,6 @@ defmodule TowerObanTest do
     end)
   end
 
-  @tag capture_log: true
   test "reports raised exception in an Oban worker" do
     TestApp.ArithmeticErrorWorker.new(%{}, max_attempts: 1)
     |> Oban.insert()
@@ -48,7 +51,6 @@ defmodule TowerObanTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "reports uncaught throw generated in an Oban worker" do
     TestApp.UncaughtThrowWorker.new(%{}, max_attempts: 1)
     |> Oban.insert()
@@ -71,7 +73,6 @@ defmodule TowerObanTest do
     assert is_list(stacktrace)
   end
 
-  @tag capture_log: true
   test "reports abnormal exit generated in an Oban worker" do
     TestApp.AbnormalExitWorker.new(%{}, max_attempts: 1)
     |> Oban.insert()
