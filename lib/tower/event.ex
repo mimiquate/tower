@@ -29,6 +29,7 @@ defmodule Tower.Event do
 
   @logger_time_unit :microsecond
 
+  @doc false
   @spec from_caught(Exception.kind(), reason(), Exception.stacktrace()) :: t()
   @spec from_caught(Exception.kind(), reason(), Exception.stacktrace(), Keyword.t()) :: t()
   def from_caught(kind, reason, stacktrace, options \\ [])
@@ -50,6 +51,7 @@ defmodule Tower.Event do
     from_throw(reason, stacktrace, options)
   end
 
+  @doc false
   @spec from_exception(Exception.t(), Exception.stacktrace()) :: t()
   @spec from_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: t()
   def from_exception(exception, stacktrace, options \\ []) do
@@ -68,6 +70,7 @@ defmodule Tower.Event do
     }
   end
 
+  @doc false
   @spec from_exit(term(), Exception.stacktrace()) :: t()
   @spec from_exit(term(), Exception.stacktrace(), Keyword.t()) :: t()
   def from_exit(reason, stacktrace, options \\ []) do
@@ -86,6 +89,7 @@ defmodule Tower.Event do
     }
   end
 
+  @doc false
   @spec from_throw(term(), Exception.stacktrace()) :: t()
   @spec from_throw(term(), Exception.stacktrace(), Keyword.t()) :: t()
   def from_throw(reason, stacktrace, options \\ []) do
@@ -104,6 +108,7 @@ defmodule Tower.Event do
     }
   end
 
+  @doc false
   @spec from_message(:logger.level(), term()) :: t()
   @spec from_message(:logger.level(), term(), Keyword.t()) :: t()
   def from_message(level, message, options \\ []) do
@@ -135,7 +140,7 @@ defmodule Tower.Event do
     :logger.timestamp()
   end
 
-  def new_id do
+  defp new_id do
     Uniq.UUID.uuid7()
   end
 

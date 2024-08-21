@@ -1,4 +1,9 @@
 defmodule Tower.EphemeralReporter do
+  @moduledoc """
+  A very slim and naive built-in reporter, that just stores Tower events as process state.
+
+  Posibly useful for development or testing.
+  """
   @behaviour Tower.Reporter
 
   @default_level :info
@@ -18,6 +23,10 @@ defmodule Tower.EphemeralReporter do
     end
   end
 
+  @doc """
+  Returns the list of all stored events.
+  """
+  @spec events() :: [Tower.Event.t()]
   def events do
     Agent.get(__MODULE__, & &1)
   end

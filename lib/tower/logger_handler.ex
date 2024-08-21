@@ -1,4 +1,6 @@
 defmodule Tower.LoggerHandler do
+  @moduledoc false
+
   @default_log_level :critical
   @handler_id Tower
   @own_logs_domain [:tower, :logger_handler]

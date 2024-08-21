@@ -1,4 +1,6 @@
 defmodule Tower.ObanExceptionHandler do
+  @moduledoc false
+
   require Logger
 
   @handler_id __MODULE__
