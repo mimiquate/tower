@@ -17,10 +17,10 @@ You can either write your own reporter or use any amount of the following report
 - [tower_rollbar](http://github.com/mimiquate/tower_rollbar)
 - [tower_slack](http://github.com/mimiquate/tower_slack)
 
-In case you use any of the above reporters, you don't need to include `tower` as a dependency. It will be a transitive dependency
-of any of the above reporters.
+In case you use any of the above reporters, you don't need to explicitly include `tower` as a dependency.
+It will be a transitive dependency of any of the above reporters.
 
-### Writing a custom reporter
+### Writing a custom reporter yourself
 
 In case you don't want to use pre-built reporters and you want to write your own, first include
 the core `tower` package:
@@ -34,7 +34,7 @@ def deps do
 end
 ```
 
-Implement you custom reporting by implementing `Tower.Reporter` behaviour:
+Define your custom repoerter by implementing the `Tower.Reporter` behaviour:
 
 ```elixir
 # lib/my_app/error_reporter.ex
