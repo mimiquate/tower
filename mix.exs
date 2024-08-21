@@ -15,6 +15,9 @@ defmodule Tower.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       package: package(),
+      dialyzer: [
+        plt_local_path: "plts"
+      ],
 
       # Docs
       name: "Tower",
