@@ -1,10 +1,25 @@
 defmodule Tower.LoggerHandler do
   @default_log_level :critical
   @handler_id Tower
+  @own_logs_domain [:tower, :logger_handler]
+
+  require Logger
 
   @spec attach() :: :ok | {:error, term()}
   def attach do
-    :logger.add_handler(@handler_id, __MODULE__, %{level: :all})
+    :logger.add_handler(
+      @handler_id,
+      __MODULE__,
+      %{
+        level: :all,
+        filters: [
+          own_logs_filter: {
+            &:logger_filters.domain/2,
+            {:stop, :sub, [:elixir | @own_logs_domain]}
+          }
+        ]
+      }
+    )
   end
 
   @spec detach() :: :ok | {:error, term()}
@@ -58,7 +73,7 @@ defmodule Tower.LoggerHandler do
 
   def log(%{level: level} = log_event, _config) do
     log_event_str = inspect(log_event, pretty: true)
-    IO.puts("[Tower.LoggerHandler] UNRECOGNIZED LOG EVENT log_event=#{log_event_str}")
+    safe_log(:warning, "[Tower.LoggerHandler] UNRECOGNIZED LOG EVENT log_event=#{log_event_str}")
 
     if should_handle?(level) do
       Tower.handle_message(
@@ -78,5 +93,9 @@ defmodule Tower.LoggerHandler do
     # This config env can be to any of the 8 levels in https://www.erlang.org/doc/apps/kernel/logger#t:level/0,
     # or special values :all and :none.
     Application.get_env(:tower, :log_level, @default_log_level)
+  end
+
+  defp safe_log(level, message) do
+    Logger.log(level, message, domain: @own_logs_domain)
   end
 end
