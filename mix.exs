@@ -68,7 +68,7 @@ defmodule Tower.MixProject do
   defp docs do
     [
       main: "readme",
-      extras: ["README.md"]
+      extras: ["README.md", "pages/tower.md"]
     ]
   end
 end
