@@ -442,12 +442,43 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
+  test "manually ignores normal exits (shorthand)" do
+    in_unlinked_process(fn ->
+      try do
+        exit(:normal)
+      catch
+        :exit, reason when not Tower.is_normal_exit(reason) ->
+          Tower.handle_exit(reason, __STACKTRACE__)
+      end
+    end)
+
+    in_unlinked_process(fn ->
+      try do
+        exit(:shutdown)
+      catch
+        :exit, reason when not Tower.is_normal_exit(reason) ->
+          Tower.handle_exit(reason, __STACKTRACE__)
+      end
+    end)
+
+    in_unlinked_process(fn ->
+      try do
+        exit({:shutdown, 0})
+      catch
+        :exit, reason when not Tower.is_normal_exit(reason) ->
+          Tower.handle_exit(reason, __STACKTRACE__)
+      end
+    end)
+
+    assert [] = reported_events()
+  end
+
   test "manually reports an abnormal exit (shorthand)" do
     in_unlinked_process(fn ->
       try do
         exit(:abnormal)
       catch
-        :exit, reason ->
+        :exit, reason when not Tower.is_normal_exit(reason) ->
           Tower.handle_exit(reason, __STACKTRACE__)
       end
     end)

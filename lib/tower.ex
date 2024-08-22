@@ -156,7 +156,7 @@ defmodule Tower do
       catch
         :throw, value ->
           Tower.handle_throw(value, __STACKTRACE__)
-        :exit, reason ->
+        :exit, reason when not Tower.is_normal_exit(reason) ->
           Tower.handle_exit(reason, __STACKTRACE__)
       end
 
@@ -219,6 +219,32 @@ defmodule Tower do
   alias Tower.Event
 
   @default_reporters [Tower.EphemeralReporter]
+
+  @doc """
+  Determines if a process exit `reason` is "normal".
+
+  Those are `:normal`, `:shutdown` or `{:shutdown, _}`.
+  Any other value is considered "non-normal" or "abnormal".
+
+  Allowed in guard clauses.
+
+  ## Examples
+
+      iex> Tower.is_normal_exit(:normal)
+      true
+
+      iex> Tower.is_normal_exit(:shutdown)
+      true
+
+      iex> Tower.is_normal_exit({:shutdown, :whatever})
+      true
+
+      iex> Tower.is_normal_exit(:other_reason)
+      false
+  """
+  defguard is_normal_exit(reason)
+           when reason == :normal or reason == :shutdown or
+                  (is_tuple(reason) and tuple_size(reason) == 2 and elem(reason, 0) == :shutdown)
 
   @doc """
   Attaches the necessary handlers to automatically listen for application errors.
@@ -341,9 +367,8 @@ defmodule Tower do
       try do
         # possibly exiting code
       catch
-        # Note this will also catch and handle normal (`:normal` and `:shutdown`) exits
-        :exit, exit_reason ->
-          Tower.handle_exit(exit_reason, __STACKTRACE__)
+        :exit, reason when not Tower.is_normal_exit(reason) ->
+          Tower.handle_exit(reason, __STACKTRACE__)
       end
 
   ## Options
