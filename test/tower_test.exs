@@ -127,6 +127,14 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
+  test "doesn't report an shutdown exit" do
+    in_unlinked_process(fn ->
+      exit(:shutdown)
+    end)
+
+    assert [] = reported_events()
+  end
+
   test "reports an abnormal exit" do
     capture_log(fn ->
       in_unlinked_process(fn ->
