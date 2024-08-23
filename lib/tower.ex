@@ -1,7 +1,68 @@
 defmodule Tower do
   @moduledoc """
-  Tower is an Elixir package that tries to do one job well, **handle** error **events** in an
-  Elixir application **and inform** about them to configured **reporters** (one or many).
+  An automated exception handler for elixir applications.
+
+  It tries to do one job well, **handle** error **events** in an elixir application
+  **and inform** configured **reporters** (one or many) about these events.
+
+      defmodule MyApp.ErrorReporter do
+        @behaviour Tower.Reporter
+
+        @impl true
+        def report_event(%Tower.Event{} = event) do
+          # do something with event
+        end
+      end
+
+      Application.put_env(:tower, :reporters, [MyApp.ErrorReporter])
+
+      Tower.attach()
+
+  `Tower.attach/0` will be responsible for registering the necessary handlers in your application
+  so that any uncaught exception, uncaught throw or abnormal process exit is handled by Tower and
+  passed along to reporters.
+
+  ## Reporters
+
+  You can either write your own reporter or use any amount of the following reporters (separate packages):
+
+    * [tower_email](https://hex.pm/packages/tower_email) ([`TowerEmail.Reporter`](https://hexdocs.pm/tower_email/TowerEmail.Reporter.html))
+    * [tower_rollbar](https://hex.pm/packages/tower_rollbar) ([`TowerRollbar.Reporter`](https://hexdocs.pm/tower_rollbar/TowerRollbar.Reporter.html))
+    * [tower_slack](https://hex.pm/packages/tower_slack) ([`TowerSlack.Reporter`](https://hexdocs.pm/tower_slack/TowerSlack.Reporter.html))
+
+  In case you use any of the above reporters, you don't need to explicitly include `tower` package as a dependency.
+  It should be a transitive dependency of any of the above reporters.
+
+  ### Writing a custom reporter yourself?
+
+  Check out `Tower.Reporter` behvaiour.
+
+  ## Manual handling
+
+  If either, for whatever reason an exception condition is not reaching Tower handling, or you just
+  need or want to manually handle possible errors, you can manually ask Tower to handle exceptions,
+  throws or exits.
+
+      try do
+        # possibly carshing code
+      rescue
+        exception ->
+          Tower.handle_exception(exception, __STACKTRACE__)
+      catch
+        :throw, value ->
+          Tower.handle_throw(value, __STACKTRACE__)
+        :exit, reason ->
+          Tower.handle_exit(reason, __STACKTRACE__)
+      end
+
+  or more generally
+
+      try do
+        # possibly carshing code
+      catch
+        kind, reason ->
+          Tower.handle_caught(kind, reason, __STACKTRACE__)
+      end
   """
 
   alias Tower.Event
@@ -9,13 +70,18 @@ defmodule Tower do
   @default_reporters [Tower.EphemeralReporter]
 
   @doc """
-  Attaches the necessary handlers to capture events.
+  Attaches the necessary handlers to automatically listen for application errors.
 
-  Attaches a [:logger](https://www.erlang.org/doc/apps/kernel/logger) [handler](https://www.erlang.org/doc/apps/kernel/logger_handler), which captures all uncaught events.
+  [Adds](https://www.erlang.org/doc/apps/kernel/logger.html#add_handler/3) a new
+  [`logger_handler`](https://www.erlang.org/doc/apps/kernel/logger_handler), which listens for all
+  uncaught exceptions, uncaught throws, abnormal process exits, among other log events of interest.
 
-  Additionally attaches other handlers specifically tailored for some packages that
+  Additionally adds other handlers specifically tailored for some packages that
   do catch errors and have their own specific error handling and emit events instead
   of letting errors get to the logger handler, like oban or bandit.
+
+  Note that `Tower.attach/0` is not a precondition for `Tower` `handle_*` functions to work
+  properly and inform reporters. They are independent.
   """
   @spec attach() :: :ok
   def attach do
@@ -24,7 +90,13 @@ defmodule Tower do
     :ok = Tower.ObanExceptionHandler.attach()
   end
 
-  @doc "Detaches the handlers."
+  @doc """
+  Detaches the handlers.
+
+  That means it stops the automatic handling of errors.
+  You can still manually call `Tower` `handle_*` functions and reporters will be informed about
+  those events.
+  """
   @spec detach() :: :ok
   def detach do
     :ok = Tower.LoggerHandler.detach()
@@ -37,14 +109,23 @@ defmodule Tower do
 
   ## Example
 
-  ```elixir
-  try do
-    # possibly crashing code
-  catch
-    kind, reason ->
-      Tower.handle_caught(kind, reason, __STACKTRACE__)
-  end
-  ```
+      try do
+        # possibly crashing code
+      catch
+        # Note this will also catch and handle normal (`:normal` and `:shutdown`) exits
+        kind, reason ->
+          Tower.handle_caught(kind, reason, __STACKTRACE__)
+      end
+
+  ## Options
+
+    * `:plug_conn` - a `Plug.Conn` relevant to the event, if available, that may be used
+    by reporters to report useful context information. Be aware that the `Plug.Conn` may contain
+    user and/or system sensitive information, and it's up to each reporter to be cautious about
+    what to report or not.
+    * `:metadata` - a `Map` with additional information you want to provide about the event. It's
+    up to each reporter if and how to handle it.
+
   """
   @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace()) :: :ok
   @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace(), Keyword.t()) ::
@@ -59,14 +140,16 @@ defmodule Tower do
 
   ## Example
 
-  ```elixir
-  try do
-    # possibly crashing code
-  rescue
-    exception ->
-      Tower.handle_exception(exception, __STACKTRACE__)
-  end
-  ```
+      try do
+        # possibly crashing code
+      rescue
+        exception ->
+          Tower.handle_exception(exception, __STACKTRACE__)
+      end
+
+  ## Options
+
+    * Accepts same options as `handle_caught/4#options`.
   """
   @spec handle_exception(Exception.t(), Exception.stacktrace()) :: :ok
   @spec handle_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: :ok
@@ -81,14 +164,16 @@ defmodule Tower do
 
   ## Example
 
-  ```elixir
-  try do
-    # possibly throwing code
-  catch
-    thrown_value ->
-      Tower.handle_throw(thrown_value, __STACKTRACE__)
-  end
-  ```
+      try do
+        # possibly throwing code
+      catch
+        thrown_value ->
+          Tower.handle_throw(thrown_value, __STACKTRACE__)
+      end
+
+  ## Options
+
+    * Accepts same options as `handle_caught/4#options`.
   """
   @spec handle_throw(term(), Exception.stacktrace()) :: :ok
   @spec handle_throw(term(), Exception.stacktrace(), Keyword.t()) :: :ok
@@ -102,14 +187,17 @@ defmodule Tower do
 
   ## Example
 
-  ```elixir
-  try do
-    # possibly exiting code
-  catch
-    :exit, exit_reason ->
-      Tower.handle_exit(exit_reason, __STACKTRACE__)
-  end
-  ```
+      try do
+        # possibly exiting code
+      catch
+        # Note this will also catch and handle normal (`:normal` and `:shutdown`) exits
+        :exit, exit_reason ->
+          Tower.handle_exit(exit_reason, __STACKTRACE__)
+      end
+
+  ## Options
+
+    * Accepts same options as `handle_caught/4#options`.
   """
   @spec handle_exit(term(), Exception.stacktrace()) :: :ok
   @spec handle_exit(term(), Exception.stacktrace(), Keyword.t()) :: :ok
@@ -123,29 +211,41 @@ defmodule Tower do
 
   ## Examples
 
-  ```elixir
-  Tower.handle_message(:emergency, "System is falling apart")
-  ```
-  ```elixir
-  Tower.handle_message(:error, "Unknown error has ocurred", metadata: %{any_key: "here"})
-  ```
-  ```elixir
-  Tower.handle_message(:info, "Just something interesting", metadata: %{interesting: "additional data"})
-  ```
+      Tower.handle_message(:emergency, "System is falling apart")
+
+      Tower.handle_message(:error, "Unknown error has ocurred", metadata: %{any_key: "here"})
+
+      Tower.handle_message(:info, "Just something interesting", metadata: %{interesting: "additional data"})
+
+  ## Options
+
+    * Accepts same options as `handle_caught/4#options`.
   """
-  @spec handle_message(:logger.level(), term()) :: :ok
-  @spec handle_message(:logger.level(), term(), Keyword.t()) :: :ok
+  @spec handle_message(Event.level(), term(), Keyword.t()) :: :ok
   def handle_message(level, message, options \\ []) do
     Event.from_message(level, message, options)
     |> report_event()
   end
 
-  @doc false
+  @doc """
+  Compares event level severity.
+
+  Returns true if `level1` severity is equal or greater than `level2` severity.
+
+  ## Examples
+
+      iex> Tower.equal_or_greater_level?(:emergency, :error)
+      true
+      iex> Tower.equal_or_greater_level?(%Tower.Event{level: :info}, :info)
+      true
+      iex> Tower.equal_or_greater_level?(:warning, :critical)
+      false
+  """
+  @spec equal_or_greater_level?(Event.t() | Event.level(), Event.level()) :: boolean()
   def equal_or_greater_level?(%Event{level: level1}, level2) when is_atom(level2) do
     equal_or_greater_level?(level1, level2)
   end
 
-  @doc false
   def equal_or_greater_level?(level1, level2) when is_atom(level1) and is_atom(level2) do
     :logger.compare_levels(level1, level2) in [:gt, :eq]
   end

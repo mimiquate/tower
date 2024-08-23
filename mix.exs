@@ -67,8 +67,10 @@ defmodule Tower.MixProject do
 
   defp docs do
     [
-      main: "readme",
-      extras: ["README.md"]
+      main: "Tower",
+      extras: [
+        "CHANGELOG.md": [title: "Changelog"]
+      ]
     ]
   end
 end
