@@ -26,7 +26,7 @@ You can either:
 
 def deps do
   [
-    {:tower, "~> 0.5.0"}
+    {:tower, "~> 0.5.1"}
   ]
 end
 ```
