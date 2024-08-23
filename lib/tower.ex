@@ -2,46 +2,31 @@ defmodule Tower do
   @moduledoc """
   An automated exception handler for elixir applications.
 
-  It tries to do one job well, **handle** error **events** in an elixir application
-  **and inform** configured **reporters** (one or many) about these events.
-
-      defmodule MyApp.ErrorReporter do
-        @behaviour Tower.Reporter
-
-        @impl true
-        def report_event(%Tower.Event{} = event) do
-          # do something with event
-        end
-      end
-
-      Application.put_env(:tower, :reporters, [MyApp.ErrorReporter])
-
-      Tower.attach()
-
-  `Tower.attach/0` will be responsible for registering the necessary handlers in your application
-  so that any uncaught exception, uncaught throw or abnormal process exit is handled by Tower and
-  passed along to reporters.
+  It tries to do one job well, **handle** uncaught **error events** in an elixir application
+  **and inform** pre-configured list of **reporters** (one or many) about these events.
 
   ## Reporters
 
-  You can either write your own reporter or use any amount of the following reporters (separate packages):
+  You can either:
+    1. use `tower` package directly and [write your own custom reporter](#module-writing-a-custom-reporter) or;
+    1. use one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
+      * [`TowerEmail`](https://hexdocs.pm/tower_email) ([`tower_email`](https://hex.pm/packages/tower_email))
+      * [`TowerRollbar`](https://hexdocs.pm/tower_rollbar) ([`tower_rollbar`](https://hex.pm/packages/tower_rollbar))
+      * [`TowerSlack`](https://hexdocs.pm/tower_slack) ([`tower_slack`](https://hex.pm/packages/tower_slack))
 
-    * [tower_email](https://hex.pm/packages/tower_email) ([`TowerEmail`](https://hexdocs.pm/tower_email))
-    * [tower_rollbar](https://hex.pm/packages/tower_rollbar) ([`TowerRollbar`](https://hexdocs.pm/tower_rollbar))
-    * [tower_slack](https://hex.pm/packages/tower_slack) ([`TowerSlack`](https://hexdocs.pm/tower_slack))
+  ## Enabling automated exception handling
 
-  In case you use any of the above reporters, you don't need to explicitly include `tower` package as a dependency.
-  It should be a transitive dependency of any of the above reporters.
+      Tower.attach()
 
-  ### Writing a custom reporter yourself?
+  ## Disabling automated exception handling
 
-  Check out `Tower.Reporter` behvaiour.
+      Tower.detach()
 
   ## Manual handling
 
-  If either, for whatever reason an exception condition is not reaching Tower handling, or you just
-  need or want to manually handle possible errors, you can manually ask Tower to handle exceptions,
-  throws or exits.
+  If either, for whatever reason when using automated exception handling, an exception condition is
+  not reaching Tower handling, or you just need or want to manually handle possible errors, you can
+  manually ask Tower to handle exceptions, throws or exits.
 
       try do
         # possibly carshing code
@@ -63,6 +48,27 @@ defmodule Tower do
         kind, reason ->
           Tower.handle_caught(kind, reason, __STACKTRACE__)
       end
+
+  which will in turn call the appropriate function based on the caught `kind` and `reason` values
+
+  ## Writing a custom reporter
+
+      defmodule MyApp.ErrorReporter do
+        @behaviour Tower.Reporter
+
+        @impl true
+        def report_event(%Tower.Event{} = event) do
+          # do something with event
+        end
+      end
+
+      Application.put_env(:tower, :reporters, [MyApp.ErrorReporter])
+
+      Tower.attach()
+
+  `Tower.attach/0` will be responsible for registering the necessary handlers in your application
+  so that any uncaught exception, uncaught throw or abnormal process exit is handled by Tower and
+  passed along to the reporter.
   """
 
   alias Tower.Event
