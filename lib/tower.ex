@@ -26,9 +26,9 @@ defmodule Tower do
 
   You can either write your own reporter or use any amount of the following reporters (separate packages):
 
-    * [tower_email](https://hex.pm/packages/tower_email) ([`TowerEmail.Reporter`](https://hexdocs.pm/tower_email/TowerEmail.Reporter.html))
-    * [tower_rollbar](https://hex.pm/packages/tower_rollbar) ([`TowerRollbar.Reporter`](https://hexdocs.pm/tower_rollbar/TowerRollbar.Reporter.html))
-    * [tower_slack](https://hex.pm/packages/tower_slack) ([`TowerSlack.Reporter`](https://hexdocs.pm/tower_slack/TowerSlack.Reporter.html))
+    * [tower_email](https://hex.pm/packages/tower_email) ([`TowerEmail`](https://hexdocs.pm/tower_email))
+    * [tower_rollbar](https://hex.pm/packages/tower_rollbar) ([`TowerRollbar`](https://hexdocs.pm/tower_rollbar))
+    * [tower_slack](https://hex.pm/packages/tower_slack) ([`TowerSlack`](https://hexdocs.pm/tower_slack))
 
   In case you use any of the above reporters, you don't need to explicitly include `tower` package as a dependency.
   It should be a transitive dependency of any of the above reporters.

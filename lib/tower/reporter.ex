@@ -7,9 +7,9 @@ defmodule Tower.Reporter do
 
   Separate packages that implement this behaviour:
 
-    * [tower_email](https://hex.pm/packages/tower_email) ([`TowerEmail.Reporter`](https://hexdocs.pm/tower_email/TowerEmail.Reporter.html))
-    * [tower_rollbar](https://hex.pm/packages/tower_rollbar) ([`TowerRollbar.Reporter`](https://hexdocs.pm/tower_rollbar/TowerRollbar.Reporter.html))
-    * [tower_slack](https://hex.pm/packages/tower_slack) ([`TowerSlack.Reporter`](https://hexdocs.pm/tower_slack/TowerSlack.Reporter.html))
+    * [tower_email](https://hex.pm/packages/tower_email) ([`TowerEmail`](https://hexdocs.pm/tower_email))
+    * [tower_rollbar](https://hex.pm/packages/tower_rollbar) ([`TowerRollbar`](https://hexdocs.pm/tower_rollbar))
+    * [tower_slack](https://hex.pm/packages/tower_slack) ([`TowerSlack`](https://hexdocs.pm/tower_slack))
   """
 
   @doc """
