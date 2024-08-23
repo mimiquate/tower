@@ -4,29 +4,26 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/tower.svg)](https://hex.pm/packages/tower)
 [![Docs](https://img.shields.io/badge/docs-gray.svg)](https://hexdocs.pm/tower)
 
-Solid and simple **error handling** and **reporting** in Elixir
+> Solid and simple **error handling** and **reporting** in Elixir.
 
-## Usage
+Tower is an automated exception handler for elixir applications.
 
-Tower is an Elixir package that tries to do one job well, **handle** error **events** in an Elixir application
-**and inform** about them to configured **reporters** (one or many).
+It tries to do one job well, **handle** uncaught **error events** in an elixir application
+**and inform** pre-configured list of **reporters** (one or many) about these events.
 
-You can either write your own reporter or use any amount of the following reporters:
+You can either:
 
-- [tower_email](http://github.com/mimiquate/tower_email)
-- [tower_rollbar](http://github.com/mimiquate/tower_rollbar)
-- [tower_slack](http://github.com/mimiquate/tower_slack)
+1. use `tower` package directly and [write your own custom reporter](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter) or;
+1. use one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
+    - [`TowerEmail`](https://hexdocs.pm/tower_email) ([`tower_email`](https://hex.pm/packages/tower_email))
+    - [`TowerRollbar`](https://hexdocs.pm/tower_rollbar) ([`tower_rollbar`](https://hex.pm/packages/tower_rollbar))
+    - [`TowerSlack`](https://hexdocs.pm/tower_slack) ([`tower_slack`](https://hex.pm/packages/tower_slack))
 
-In case you use any of the above reporters, you don't need to explicitly include `tower` as a dependency.
-It will be a transitive dependency of any of the above reporters.
-
-### Writing a custom reporter yourself
-
-In case you don't want to use pre-built reporters and you want to write your own, first include
-the core `tower` package:
+## Installation
 
 ```elixir
 # mix.exs
+
 def deps do
   [
     {:tower, "~> 0.5.0"}
@@ -34,58 +31,9 @@ def deps do
 end
 ```
 
-Define your custom repoerter by implementing the `Tower.Reporter` behaviour:
+## Usage
 
-```elixir
-# lib/my_app/error_reporter.ex
-defmodule MyApp.ErrorReporter do
-  use Tower.Reporter
-
-  @impl true
-  def report_event(%Tower.Event{} = event) do
-    # Do whatever you want with event...
-
-    # A `Tower.Event` is a struct with the following typespec:
-    #
-    # %Tower.Event{
-    #   id: Uniq.UUID.t(),
-    #   datetime: DateTime.t(),
-    #   level: :logger.level(),
-    #   kind: :error | :exit | :throw | :message,
-    #   reason: Exception.t() | term(),
-    #   stacktrace: Exception.stacktrace() | nil,
-    #   log_event: :logger.log_event() | nil,
-    #   plug_conn: struct() | nil,
-    #   metadata: map()
-    # }
-  end
-end
-```
-
-Tell `tower` you want your reporter to be informed about events.
-
-```elixir
-# config/runtime.exs
-
-config :tower, reporters: [MyApp.ErrorReporter]
-```
-
-Finally attach Tower to your application.
-
-```elixir
-# lib/my_app/application.ex
-defmodule MyApp.Application do
-  ...
-
-  def start(_type, _args) do
-    Tower.attach()
-
-    ...
-  end
-
-  ...
-end
-```
+- [Documentation](https://hexdocs.pm/tower)
 
 ## License
 

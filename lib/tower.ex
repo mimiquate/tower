@@ -53,17 +53,34 @@ defmodule Tower do
 
   ## Writing a custom reporter
 
+      # lib/my_app/error_reporter.ex
       defmodule MyApp.ErrorReporter do
         @behaviour Tower.Reporter
 
         @impl true
         def report_event(%Tower.Event{} = event) do
           # do something with event
+
+          # A `Tower.Event` is a struct with the following typespec:
+          #
+          # %Tower.Event{
+          #   id: Uniq.UUID.t(),
+          #   datetime: DateTime.t(),
+          #   level: :logger.level(),
+          #   kind: :error | :exit | :throw | :message,
+          #   reason: Exception.t() | term(),
+          #   stacktrace: Exception.stacktrace() | nil,
+          #   log_event: :logger.log_event() | nil,
+          #   plug_conn: struct() | nil,
+          #   metadata: map()
+          # }
         end
       end
 
-      Application.put_env(:tower, :reporters, [MyApp.ErrorReporter])
+      # in some config/*.exs
+      config :tower, reporters: [MyApp.ErrorReporter]
 
+      # config/application.ex
       Tower.attach()
 
   `Tower.attach/0` will be responsible for registering the necessary handlers in your application
