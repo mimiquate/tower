@@ -2,7 +2,28 @@ defmodule Tower.EphemeralReporter do
   @moduledoc """
   A very slim and naive built-in reporter, that just stores Tower events as process state.
 
-  Posibly useful for development or testing.
+  Possibly useful for development or testing.
+
+  ## Example
+
+      iex> {:ok, pid} = Tower.EphemeralReporter.start_link([])
+      iex> Tower.EphemeralReporter.events()
+      []
+      iex> Application.put_env(:tower, :reporters, [Tower.EphemeralReporter])
+      iex> Tower.attach()
+      :ok
+      iex> spawn(fn -> 1 / 0 end)
+      iex> Process.sleep(200)
+      :ok
+      iex> [event] = Tower.EphemeralReporter.events()
+      iex> event.kind
+      :error
+      iex> event.reason
+      %ArithmeticError{message: "bad argument in arithmetic expression"}
+      iex> Tower.detach()
+      :ok
+      iex> Tower.EphemeralReporter.stop(pid)
+      :ok
   """
   @behaviour Tower.Reporter
 
@@ -14,6 +35,10 @@ defmodule Tower.EphemeralReporter do
 
   def start_link(_opts) do
     Agent.start_link(fn -> [] end, name: __MODULE__)
+  end
+
+  def stop(pid) do
+    Agent.stop(pid)
   end
 
   @impl true
