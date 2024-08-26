@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/mimiquate/tower/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mimiquate/tower/actions?query=branch%3Amain)
 [![Hex.pm](https://img.shields.io/hexpm/v/tower.svg)](https://hex.pm/packages/tower)
-[![Docs](https://img.shields.io/badge/docs-gray.svg)](https://hexdocs.pm/tower)
+[![Documentation](https://img.shields.io/badge/Documentation-purple.svg)](https://hexdocs.pm/tower)
 
 > Solid and simple **error handling** and **reporting** in Elixir.
 
