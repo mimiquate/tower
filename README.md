@@ -4,20 +4,132 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/tower.svg)](https://hex.pm/packages/tower)
 [![Documentation](https://img.shields.io/badge/Documentation-purple.svg)](https://hexdocs.pm/tower)
 
-> Solid and simple **error handling** and **reporting** in Elixir.
+> Decoupled error capturing and error reporting in Elixir.
 
-Tower is an automated exception handler for elixir applications.
+## Motivation
 
-It tries to do one job well, **handle** uncaught **error events** in an elixir application
-**and inform** pre-configured list of **reporters** (one or many) about these events.
+Say you need to add error tracking to your elixir app:
 
-You can either:
+  - You decide what service you will use to send your errors to
+  - You look for a good elixir library for that service
+  - You configure it, deploy and start receiving errors there
 
-1. use `tower` package directly and [write your own custom reporter](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter) or;
-1. use one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
+Normally these libraries have to take care of a few responsibilities:
+
+1. Capturing of errors (specific to language and runtime, i.e. Elixir and BEAM)
+    - Automatic capturing via (at least one of):
+        - Logger backend
+        - Logger handler
+        - Error logger handler
+        - Telemetry event handler
+        - Plugs
+    - Manual captruing by providing a few public API functions the programmer to call if needed
+1. Transform these errors into some format for the remote service (specific to remote service), e.g.
+    - JSON for an HTTP API request
+    - Subject and body for an e-mail message
+1. Make a remote call (e.g. an HTTP request with the payload) to the remote service (specific to remote service)
+
+```mermaid
+flowchart LR;
+  A(Elixir App) --> B(Auto Capturing);
+  A --> C(Manual Capturing);
+  subgraph "ErrorTrackingService<br>Library"
+  B --> D("Transform/Format");
+  C --> D;
+  D --> E("Report/Notify");
+  end
+  E --> F("ErrorTrackingService");
+```
+
+`Tower`, instead, takes care of capturing errors (number 1), giving them a well defined shape (`Tower.Event` struct)
+and pass along this event to pre-configured but seprate reporters which take care of the error reporting steps
+(number 2 and 3) depending on which service or remote system they report to.
+
+```mermaid
+flowchart LR;
+  A(Elixir App) --> B(Auto Capturing);
+  A --> C(Manual Capturing);
+  subgraph Tower
+  B --> Z("Build Tower.Event");
+  C --> Z;
+  end
+  subgraph A Tower.Reporter
+  Z --> D("Transform/Format");
+  D --> E("Report/Notify");
+  end
+  E --> F("ErrorTrackingService");
+```
+
+### Consequences of this approach
+
+#### 1. Capture once, report many
+
+You can capture once and report to as many places as you want.
+
+Possibly most will end up with just one reporter. But that doesn't mean you shouldn't be able to
+easily have many, either temporarily or permantely if you need it.
+
+Maybe you just need to have a backup in case one service goes downs or something unexpected happens.
+
+Maybe you're trying out different providers and you want to report to the two for a while and compare
+how they work, what features they have and how they display the information for you.
+
+Maybe you're planning to switch, and you want to configure the new one without stopping to report to the
+old one, at least for a while.
+
+```mermaid
+flowchart LR;
+  A(Elixir App) --> B(Auto Capturing);
+  A --> C(Manual Capturing);
+  subgraph Tower
+  B --> Z("Build Tower.Event");
+  C --> Z;
+  end
+  subgraph Tower.Reporter 1
+  Z --> D("Transform/Format");
+  D --> E("Report/Notify");
+  end
+  subgraph Tower.Reporter 2
+  Z --> F("Transform/Format");
+  F --> G("Report/Notify");
+  end
+  E --> H("ErrorTrackingService 1");
+  G --> I("ErrorTrackingService 2");
+```
+
+#### 2. Ease of switching services
+
+You can switch from Error Tracking service provider without making any changes to your application error
+capturing configuration or expect any change or regression with respect with capturing behvaior.
+
+You switch the reporter package, but tower still part of your application, and all the configuration specific
+to tower and error captruing tactics is still valid and unchanged.
+
+#### 3. Response to changes in Elixir and BEAM
+
+Necessary future changes caused by deprecations and/or changes in error handling behavior in the BEAM or Elixir can be just
+made in `Tower` without need to change any of the service specific reporters.
+
+## Reporters
+
+As expalained in the Motivation section, any captured errors by `Tower` will be passed along to the list of
+configured reporters, which can be set in
+
+```elixir
+config :tower, :reporters, [...] # Defaults to [Tower.EphemeralReporter]
+```
+
+So, in summary, you can either
+  - Depend on `tower` package directly
+    - play with the default built-in toy reporter `Tower.EphemeralReporter`, useful for dev and test
+    - at some point for production [write your own custom reporter](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
+
+or
+  - depend on one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
     - [`TowerEmail`](https://hexdocs.pm/tower_email) ([`tower_email`](https://hex.pm/packages/tower_email))
     - [`TowerRollbar`](https://hexdocs.pm/tower_rollbar) ([`tower_rollbar`](https://hex.pm/packages/tower_rollbar))
     - [`TowerSlack`](https://hexdocs.pm/tower_slack) ([`tower_slack`](https://hex.pm/packages/tower_slack))
+  - and properly set the `config :tower, :reporters, [...]` configuration key
 
 ## Installation
 
