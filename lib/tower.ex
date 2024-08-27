@@ -41,13 +41,13 @@ defmodule Tower do
   1. Make a remote call (e.g. an HTTP request with the payload) to the remote service (specific to remote service)
 
   ```mermaid
-  flowchart LR;
-    A(Elixir App) --> B(Capturing);
+  flowchart LR
+    A(Elixir App) --> B(Capture)
     subgraph Service Library
-    B --> C("Transform/Format");
-    C --> D("Report/Notify");
+    B --> C("Format")
+    C --> D("Report")
     end
-    D --> E("ErrorTrackingService");
+    D --> E("ErrorTrackingService")
   ```
 
   `Tower`, instead, takes care of capturing errors (number 1), giving them a well defined shape (`Tower.Event` struct)
@@ -55,16 +55,16 @@ defmodule Tower do
   (number 2 and 3) depending on which service or remote system they report to.
 
   ```mermaid
-  flowchart LR;
-    A(Elixir App) --> B(Capturing);
+  flowchart LR
+    A(Elixir App) --> B(Capture)
     subgraph Tower
-    B --> C("Build Tower.Event");
+    B --> C("Build<br />Tower.Event")
     end
     subgraph A Tower.Reporter
-    C --> D("Transform/Format");
-    D --> E("Report/Notify");
+    C --> D("Format")
+    D --> E("Report")
     end
-    E --> F("ErrorTrackingService");
+    E --> F("ErrorTrackingService")
   ```
 
   ### Consequences of this approach
@@ -85,21 +85,21 @@ defmodule Tower do
   old one, at least for a while.
 
   ```mermaid
-  flowchart LR;
-    A(Elixir App) --> B(Capturing);
+  flowchart LR
+    A(Elixir App) --> B(Capture)
     subgraph Tower
-    B --> C("Build Tower.Event");
+    B --> C("Build<br />Tower.Event")
     end
     subgraph Tower.Reporter 1
-    C --> D("Transform/Format");
-    D --> E("Report/Notify");
+    C --> D("Format")
+    D --> E("Report")
     end
     subgraph Tower.Reporter 2
-    C --> F("Transform/Format");
-    F --> G("Report/Notify");
+    C --> F("Format")
+    F --> G("Report")
     end
-    E --> H("ErrorTrackingService 1");
-    G --> I("ErrorTrackingService 2");
+    E --> H("ErrorTrackingService 1")
+    G --> I("ErrorTrackingService 2")
   ```
 
   #### 2. Ease of switching services
