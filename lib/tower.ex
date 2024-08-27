@@ -1,8 +1,23 @@
 defmodule Tower do
   @moduledoc """
-  Decoupled error capturing and error reporting in Elixir.
+  Tower is a flexible error tracker for elixir applications.
+
+  It **listens** for **errors** in an elixir application **and informs** about them to
+  the its configured list of **reporters** (one or many).
+
+  You can either:
+    - include `tower` package directly and [write your own custom reporter(s)](#module-writing-a-custom-reporter)
+
+  Or:
+    - include one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
+      - [`tower_email`](https://hexdocs.pm/tower_email)
+      - [`tower_rollbar`](https://hexdocs.pm/tower_rollbar)
+      - [`tower_slack`](https://hexdocs.pm/tower_slack)
+      - more coming...
 
   ## Motivation
+
+  > Decoupled error capturing and error reporting in Elixir.
 
   Say you need to add error tracking to your elixir app:
 

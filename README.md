@@ -4,9 +4,24 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/tower.svg)](https://hex.pm/packages/tower)
 [![Documentation](https://img.shields.io/badge/Documentation-purple.svg)](https://hexdocs.pm/tower)
 
-> Decoupled error capturing and error reporting in Elixir.
+Tower is a flexible error tracker for elixir applications.
+
+It **listens** for **errors** in an elixir application **and informs** about them to
+the its configured list of **reporters** (one or many).
+
+You can either:
+  - include `tower` package directly and [write your own custom reporter(s)](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
+
+Or:
+  - include one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
+    - [`tower_email`](https://github.com/mimiquate/tower_email)
+    - [`tower_rollbar`](https://github.com/mimiquate/tower_rollbar)
+    - [`tower_slack`](https://github.com/mimiquate/tower_slack)
+    - more coming...
 
 ## Motivation
+
+> Decoupled error capturing and error reporting in Elixir.
 
 Say you need to add error tracking to your elixir app:
 
