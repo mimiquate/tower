@@ -27,14 +27,12 @@ defmodule Tower do
 
   ```mermaid
   flowchart LR;
-    A(Elixir App) --> B(Auto Capturing);
-    A --> C(Manual Capturing);
-    subgraph "ErrorTrackingService<br>Library"
-    B --> D("Transform/Format");
-    C --> D;
-    D --> E("Report/Notify");
+    A(Elixir App) --> B(Capturing);
+    subgraph Service Library
+    B --> C("Transform/Format");
+    C --> D("Report/Notify");
     end
-    E --> F("ErrorTrackingService");
+    D --> E("ErrorTrackingService");
   ```
 
   `Tower`, instead, takes care of capturing errors (number 1), giving them a well defined shape (`Tower.Event` struct)
@@ -43,14 +41,12 @@ defmodule Tower do
 
   ```mermaid
   flowchart LR;
-    A(Elixir App) --> B(Auto Capturing);
-    A --> C(Manual Capturing);
+    A(Elixir App) --> B(Capturing);
     subgraph Tower
-    B --> Z("Build Tower.Event");
-    C --> Z;
+    B --> C("Build Tower.Event");
     end
     subgraph A Tower.Reporter
-    Z --> D("Transform/Format");
+    C --> D("Transform/Format");
     D --> E("Report/Notify");
     end
     E --> F("ErrorTrackingService");
@@ -75,18 +71,16 @@ defmodule Tower do
 
   ```mermaid
   flowchart LR;
-    A(Elixir App) --> B(Auto Capturing);
-    A --> C(Manual Capturing);
+    A(Elixir App) --> B(Capturing);
     subgraph Tower
-    B --> Z("Build Tower.Event");
-    C --> Z;
+    B --> C("Build Tower.Event");
     end
     subgraph Tower.Reporter 1
-    Z --> D("Transform/Format");
+    C --> D("Transform/Format");
     D --> E("Report/Notify");
     end
     subgraph Tower.Reporter 2
-    Z --> F("Transform/Format");
+    C --> F("Transform/Format");
     F --> G("Report/Notify");
     end
     E --> H("ErrorTrackingService 1");
