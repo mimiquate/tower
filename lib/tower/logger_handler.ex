@@ -39,41 +39,48 @@ defmodule Tower.LoggerHandler do
     :ok
   end
 
-  def log(%{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event, _config)
-      when is_exception(exception) and is_list(stacktrace) do
+  def log(log_event, _config) do
+    handle_log_event(log_event)
+  end
+
+  defp handle_log_event(
+         %{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event
+       )
+       when is_exception(exception) and is_list(stacktrace) do
     Tower.handle_exception(exception, stacktrace, log_event: log_event)
   end
 
-  def log(
-        %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event,
-        _config
-      )
-      when is_list(stacktrace) do
+  defp handle_log_event(
+         %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event
+       )
+       when is_list(stacktrace) do
     Tower.handle_throw(reason, stacktrace, log_event: log_event)
   end
 
-  def log(%{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event, _config)
-      when is_list(stacktrace) do
+  defp handle_log_event(
+         %{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event
+       )
+       when is_list(stacktrace) do
     Tower.handle_exit(exit_reason, stacktrace, log_event: log_event)
   end
 
-  def log(%{level: :error, meta: %{crash_reason: exit_reason}} = log_event, _config) do
+  defp handle_log_event(%{level: :error, meta: %{crash_reason: exit_reason}} = log_event) do
     Tower.handle_exit(exit_reason, [], log_event: log_event)
   end
 
-  def log(%{level: level, msg: {:string, reason_chardata}} = log_event, _config) do
+  defp handle_log_event(%{level: level, msg: {:string, reason_chardata}} = log_event) do
     if should_handle?(level) do
       Tower.handle_message(level, IO.chardata_to_string(reason_chardata), log_event: log_event)
     end
   end
 
-  def log(%{level: level, msg: {:report, report}} = log_event, _config) do
+  defp handle_log_event(%{level: level, msg: {:report, report}} = log_event) do
     if should_handle?(level) do
       Tower.handle_message(level, report, log_event: log_event)
     end
   end
 
-  def log(%{level: level} = log_event, _config) do
+  defp handle_log_event(%{level: level} = log_event) do
     log_event_str = inspect(log_event, pretty: true)
     safe_log(:warning, "[Tower.LoggerHandler] UNRECOGNIZED LOG EVENT log_event=#{log_event_str}")
 
