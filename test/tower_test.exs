@@ -470,6 +470,57 @@ defmodule TowerTest do
     assert is_list(stacktrace)
   end
 
+  test "bug in one reporter doesn't affect other reporters" do
+    defmodule BuggyReporter do
+      @behaviour Tower.Reporter
+
+      @impl true
+      def report_event(_event) do
+        raise "I have a bug"
+      end
+    end
+
+    put_env(:reporters, [BuggyReporter, Tower.EphemeralReporter])
+
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        1 / 0
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id1,
+          datetime: datetime1,
+          level: :error,
+          kind: :error,
+          reason: %Tower.ReportEventError{
+            reporter: BuggyReporter,
+            original_exception: %RuntimeError{message: "I have a bug"}
+          },
+          stacktrace: stacktrace1
+        },
+        %{
+          id: id2,
+          datetime: datetime2,
+          level: :error,
+          kind: :error,
+          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          stacktrace: stacktrace2
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id1) == 36
+    assert recent_datetime?(datetime1)
+    assert is_list(stacktrace1)
+    assert String.length(id2) == 36
+    assert recent_datetime?(datetime2)
+    assert is_list(stacktrace2)
+    assert datetime1 > datetime2
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 

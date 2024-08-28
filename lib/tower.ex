@@ -208,6 +208,14 @@ defmodule Tower do
   passed along to the reporter.
   """
 
+  defmodule ReportEventError do
+    defexception [:original_exception, :reporter]
+
+    def message(%__MODULE__{reporter: reporter}) do
+      "An error occurred while trying to report an event with reporter #{reporter}"
+    end
+  end
+
   alias Tower.Event
 
   @default_reporters [Tower.EphemeralReporter]
@@ -396,9 +404,23 @@ defmodule Tower do
   defp report_event(%Event{} = event) do
     reporters()
     |> Enum.each(fn reporter ->
-      async(fn ->
+      report_event(reporter, event)
+    end)
+  end
+
+  defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}) do
+    # Ignore so we don't enter in a loop trying to report to the same buggy reporter
+    :ignore
+  end
+
+  defp report_event(reporter, event) do
+    async(fn ->
+      try do
         reporter.report_event(event)
-      end)
+      rescue
+        exception ->
+          raise ReportEventError, reporter: reporter, original_exception: exception
+      end
     end)
   end
 
