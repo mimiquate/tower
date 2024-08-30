@@ -270,6 +270,17 @@ defmodule Tower do
 
   Note that `Tower.attach/0` is not a precondition for `Tower` `handle_*` functions to work
   properly and inform reporters. They are independent.
+
+  ## Example
+
+      # lib/your_app/application.ex
+      defmodule YourApp.Application do
+
+        def start(_type, _args) do
+          Tower.attach()
+
+          # rest of your code
+        end
   """
   @spec attach() :: :ok
   def attach do

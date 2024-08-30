@@ -9,26 +9,44 @@ Tower is a flexible error tracker for elixir applications.
 It **listens** for **errors** in an elixir application **and informs** about them to
 the configured list of **reporters** (one or many).
 
-### How to listen?
+## Usage
 
-Just call `Tower.attach()` when starting your application to capture errors automatically.
-That's it.
+### I want a baked solution
 
-More about [capturing](https://hexdocs.pm/tower/Tower.html#module-capturing).
+Don't use `tower` package directly, instead:
 
-### How to report?
-
-By default `Tower` reports to the `Tower.EphemeralReporter`, useful for `dev` and `test`.
-
-For `prod` you can either:
-  - install only `tower` package and [write your own custom reporter(s)](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
-
-Or:
-  - install one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
+  - install one (or many) of the following packages that build on top of and depend on `tower`:
     - [`tower_email`](https://github.com/mimiquate/tower_email)
     - [`tower_rollbar`](https://github.com/mimiquate/tower_rollbar)
     - [`tower_slack`](https://github.com/mimiquate/tower_slack)
     - more coming...
+
+### I want to write a reporter myself
+
+#### Installation
+
+```elixir
+# mix.exs
+
+def deps do
+  [
+    {:tower, "~> 0.5.1"}
+  ]
+end
+```
+
+#### Capturing
+
+Just call [`Tower.attach()`](https://hexdocs.pm/tower/Tower.html#attach/0) when starting your application to capture errors automatically.
+That's it.
+
+More about [capturing](https://hexdocs.pm/tower/Tower.html#module-capturing).
+
+#### Reporting
+
+By default `Tower` reports to the built-in `Tower.EphemeralReporter`, useful for `dev` and `test`.
+
+For `prod`, you probably want to write your own [custom reporter(s)](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
 
 ## Motivation
 
@@ -132,6 +150,10 @@ made in `Tower` without need to change any of the service specific reporters.
 
 ## How it works
 
+### Capturing
+
+The only thing you need to add to your application to automatically capture errors is `Tower.attach`.
+
 `Tower.attach` adds a few handlers/listeners to your application and that's it. You don't need to write any other custom code
 in your application, not add any `plug`.
 
@@ -150,7 +172,7 @@ automatically captures and report those for you.
 Errors happening inside `oban`'s job perform do not land on the `logger` handler but are emitted as telemetry events. `Tower` automatically
 captures and reports those for you.
 
-## Reporters
+## Configuration
 
 As explained in the Motivation section, any captured errors by `Tower` will be passed along to the list of
 configured reporters, which can be set in
@@ -158,34 +180,6 @@ configured reporters, which can be set in
 ```elixir
 config :tower, :reporters, [...] # Defaults to [Tower.EphemeralReporter]
 ```
-
-So, in summary, you can either
-  - Depend on `tower` package directly
-    - play with the default built-in toy reporter `Tower.EphemeralReporter`, useful for dev and test
-    - at some point for production [write your own custom reporter](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
-
-or
-  - depend on one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
-    - [`TowerEmail`](https://hexdocs.pm/tower_email) ([`tower_email`](https://hex.pm/packages/tower_email))
-    - [`TowerRollbar`](https://hexdocs.pm/tower_rollbar) ([`tower_rollbar`](https://hex.pm/packages/tower_rollbar))
-    - [`TowerSlack`](https://hexdocs.pm/tower_slack) ([`tower_slack`](https://hex.pm/packages/tower_slack))
-  - and properly set the `config :tower, :reporters, [...]` configuration key
-
-## Installation
-
-```elixir
-# mix.exs
-
-def deps do
-  [
-    {:tower, "~> 0.5.1"}
-  ]
-end
-```
-
-## Usage
-
-- [Documentation](https://hexdocs.pm/tower)
 
 ## License
 
