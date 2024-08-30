@@ -9,11 +9,22 @@ Tower is a flexible error tracker for elixir applications.
 It **listens** for **errors** in an elixir application **and informs** about them to
 the configured list of **reporters** (one or many).
 
-You can either:
-  - include `tower` package directly and [write your own custom reporter(s)](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
+### How to listen?
+
+Just call `Tower.attach()` when starting your application to capture errors automatically.
+That's it.
+
+More about [capturing](https://hexdocs.pm/tower/Tower.html#module-capturing).
+
+### How to report?
+
+By default `Tower` reports to the `Tower.EphemeralReporter`, useful for `dev` and `test`.
+
+For `prod` you can either:
+  - install only `tower` package and [write your own custom reporter(s)](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
 
 Or:
-  - include one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
+  - install one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
     - [`tower_email`](https://github.com/mimiquate/tower_email)
     - [`tower_rollbar`](https://github.com/mimiquate/tower_rollbar)
     - [`tower_slack`](https://github.com/mimiquate/tower_slack)
