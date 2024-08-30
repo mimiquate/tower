@@ -38,7 +38,7 @@ Normally these libraries have to take care of a few responsibilities:
         - Error logger handler
         - Telemetry event handler
         - Plugs
-    - Manual captruing by providing a few public API functions the programmer to call if needed
+    - Manual capturing by providing a few public API functions the programmer to call if needed
 1. Transform these errors into some format for the remote service (specific to remote service), e.g.
     - JSON for an HTTP API request
     - Subject and body for an e-mail message
@@ -55,7 +55,7 @@ flowchart LR
 ```
 
 `Tower`, instead, takes care of capturing errors (number 1), giving them a well defined shape (`Tower.Event` struct)
-and pass along this event to pre-configured but seprate reporters which take care of the error reporting steps
+and pass along this event to pre-configured but separate reporters which take care of the error reporting steps
 (number 2 and 3) depending on which service or remote system they report to.
 
 ```mermaid
@@ -78,7 +78,7 @@ flowchart LR
 You can capture once and report to as many places as you want.
 
 Possibly most will end up with just one reporter. But that doesn't mean you shouldn't be able to
-easily have many, either temporarily or permantely if you need it.
+easily have many, either temporarily or permanently if you need it.
 
 Maybe you just need to have a backup in case one service goes downs or something unexpected happens.
 
@@ -109,10 +109,10 @@ flowchart LR
 #### 2. Ease of switching services
 
 You can switch from Error Tracking service provider without making any changes to your application error
-capturing configuration or expect any change or regression with respect with capturing behvaior.
+capturing configuration or expect any change or regression with respect with capturing behavior.
 
 You switch the reporter package, but tower still part of your application, and all the configuration specific
-to tower and error captruing tactics is still valid and unchanged.
+to tower and error capturing tactics is still valid and unchanged.
 
 #### 3. Response to changes in Elixir and BEAM
 
@@ -121,7 +121,7 @@ made in `Tower` without need to change any of the service specific reporters.
 
 ## Reporters
 
-As expalained in the Motivation section, any captured errors by `Tower` will be passed along to the list of
+As explained in the Motivation section, any captured errors by `Tower` will be passed along to the list of
 configured reporters, which can be set in
 
 ```elixir
