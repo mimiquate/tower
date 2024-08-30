@@ -119,6 +119,26 @@ to tower and error capturing tactics is still valid and unchanged.
 Necessary future changes caused by deprecations and/or changes in error handling behavior in the BEAM or Elixir can be just
 made in `Tower` without need to change any of the service specific reporters.
 
+## How it works
+
+`Tower.attach` adds a few handlers/listeners to your application and that's it. You don't need to write any other custom code
+in your application, not add any `plug`.
+
+After that `Tower` captures any exceptions, throws and abnormal exits that makes its way to the `logger` handlers, which should
+be all the errors and crashes in your appliacation.
+
+For packages that intentionally catch errors and prevents them from landing on the `logger`, we try to provide automatic integration.
+
+### Bandit
+
+Errors happening inside `bandit`'s (>= v1.5) plug call do not land on the `logger` handler but are emitted as telemetry events. `Tower`
+automatically captures and report those for you.
+
+### Oban
+
+Errors happening inside `oban`'s job perform do not land on the `logger` handler but are emitted as telemetry events. `Tower` automatically
+captures and reports those for you.
+
 ## Reporters
 
 As explained in the Motivation section, any captured errors by `Tower` will be passed along to the list of
