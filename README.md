@@ -7,7 +7,7 @@
 Tower is a flexible error tracker for elixir applications.
 
 It **listens** for **errors** in an elixir application **and informs** about them to
-the its configured list of **reporters** (one or many).
+the configured list of **reporters** (one or many).
 
 You can either:
   - include `tower` package directly and [write your own custom reporter(s)](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
