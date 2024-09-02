@@ -142,14 +142,6 @@ defmodule Tower do
       - [`TowerSlack`](https://hexdocs.pm/tower_slack) ([`tower_slack`](https://hex.pm/packages/tower_slack))
     - and properly set the `config :tower, :reporters, [...]` configuration key
 
-  ## Enabling automated exception handling
-
-      Tower.attach()
-
-  ## Disabling automated exception handling
-
-      Tower.detach()
-
   ## Manual handling
 
   If either, for whatever reason when using automated exception handling, an exception condition is
@@ -207,13 +199,6 @@ defmodule Tower do
 
       # in some config/*.exs
       config :tower, reporters: [MyApp.ErrorReporter]
-
-      # config/application.ex
-      Tower.attach()
-
-  `Tower.attach/0` will be responsible for registering the necessary handlers in your application
-  so that any uncaught exception, uncaught throw or abnormal process exit is handled by Tower and
-  passed along to the reporter.
   """
 
   defmodule ReportEventError do
@@ -267,6 +252,8 @@ defmodule Tower do
   @doc """
   Attaches the necessary handlers to automatically listen for application errors.
 
+  It is automatically called during application start.
+
   [Adds](https://www.erlang.org/doc/apps/kernel/logger.html#add_handler/3) a new
   [`logger_handler`](https://www.erlang.org/doc/apps/kernel/logger_handler), which listens for all
   uncaught exceptions, uncaught throws, abnormal process exits, among other log events of interest.
@@ -274,15 +261,14 @@ defmodule Tower do
   Additionally adds other handlers specifically tailored for some packages that
   do catch errors and have their own specific error handling and emit events instead
   of letting errors get to the logger handler, like oban or bandit.
-
-  Note that `Tower.attach/0` is not a precondition for `Tower` `handle_*` functions to work
-  properly and inform reporters. They are independent.
   """
-  @spec attach() :: :ok
+  @spec attach() :: :ok | {:error, reason :: term()}
   def attach do
-    :ok = Tower.LoggerHandler.attach()
-    :ok = Tower.BanditExceptionHandler.attach()
-    :ok = Tower.ObanExceptionHandler.attach()
+    with :ok <- Tower.LoggerHandler.attach(),
+         :ok <- Tower.BanditExceptionHandler.attach(),
+         :ok <- Tower.ObanExceptionHandler.attach() do
+      :ok
+    end
   end
 
   @doc """
@@ -292,11 +278,13 @@ defmodule Tower do
   You can still manually call `Tower` `handle_*` functions and reporters will be informed about
   those events.
   """
-  @spec detach() :: :ok
+  @spec detach() :: :ok | {:error, reason :: term()}
   def detach do
-    :ok = Tower.LoggerHandler.detach()
-    :ok = Tower.BanditExceptionHandler.detach()
-    :ok = Tower.ObanExceptionHandler.detach()
+    with :ok <- Tower.LoggerHandler.detach(),
+         :ok <- Tower.BanditExceptionHandler.detach(),
+         :ok <- Tower.ObanExceptionHandler.detach() do
+      :ok
+    end
   end
 
   @doc """

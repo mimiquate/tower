@@ -13,8 +13,6 @@ defmodule Tower.EphemeralReporter do
       iex> Tower.EphemeralReporter.events()
       []
       iex> Application.put_env(:tower, :reporters, [Tower.EphemeralReporter])
-      iex> Tower.attach()
-      :ok
       iex> spawn(fn -> 1 / 0 end)
       iex> Process.sleep(200)
       :ok
@@ -23,8 +21,6 @@ defmodule Tower.EphemeralReporter do
       :error
       iex> event.reason
       %ArithmeticError{message: "bad argument in arithmetic expression"}
-      iex> Tower.detach()
-      :ok
   """
   @behaviour Tower.Reporter
 

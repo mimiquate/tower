@@ -20,10 +20,7 @@ defmodule TowerObanTest do
       Ecto.Migrator.up(TestApp.Repo, 0, TestApp.Repo.Migrations.AddOban)
     end)
 
-    Tower.attach()
-
     on_exit(fn ->
-      Tower.detach()
       Tower.EphemeralReporter.reset()
     end)
   end
