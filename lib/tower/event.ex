@@ -67,68 +67,66 @@ defmodule Tower.Event do
   @doc false
   @spec from_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: t()
   def from_exception(exception, stacktrace, options \\ []) do
-    log_event = Keyword.get(options, :log_event)
-
-    %__MODULE__{
-      id: new_id(),
-      datetime: event_datetime(log_event),
+    %{
       level: :error,
       kind: :error,
       reason: exception,
-      stacktrace: stacktrace,
-      log_event: log_event,
-      plug_conn: plug_conn(options),
-      metadata: Keyword.get(options, :metadata, %{})
+      stacktrace: stacktrace
     }
+    |> from_map(options)
   end
 
   @doc false
   @spec from_exit(term(), Exception.stacktrace(), Keyword.t()) :: t()
   def from_exit(reason, stacktrace, options \\ []) do
-    log_event = Keyword.get(options, :log_event)
-
-    %__MODULE__{
-      id: new_id(),
-      datetime: event_datetime(log_event),
+    %{
       level: :error,
       kind: :exit,
       reason: reason,
-      stacktrace: stacktrace,
-      log_event: log_event,
-      plug_conn: plug_conn(options),
-      metadata: Keyword.get(options, :metadata, %{})
+      stacktrace: stacktrace
     }
+    |> from_map(options)
   end
 
   @doc false
   @spec from_throw(term(), Exception.stacktrace(), Keyword.t()) :: t()
   def from_throw(reason, stacktrace, options \\ []) do
-    log_event = Keyword.get(options, :log_event)
-
-    %__MODULE__{
-      id: new_id(),
-      datetime: event_datetime(log_event),
+    %{
       level: :error,
       kind: :throw,
       reason: reason,
-      stacktrace: stacktrace,
-      log_event: log_event,
-      plug_conn: plug_conn(options),
-      metadata: Keyword.get(options, :metadata, %{})
+      stacktrace: stacktrace
     }
+    |> from_map(options)
   end
 
   @doc false
   @spec from_message(level(), term(), Keyword.t()) :: t()
   def from_message(level, message, options \\ []) do
-    log_event = Keyword.get(options, :log_event)
-
-    %__MODULE__{
-      id: new_id(),
-      datetime: event_datetime(log_event),
+    %{
       level: level,
       kind: :message,
-      reason: message,
+      reason: message
+    }
+    |> from_map(options)
+  end
+
+  defp from_map(map, options) when is_map(map) do
+    attributes_from_options(options)
+
+    struct!(
+      __MODULE__,
+      %{id: Uniq.UUID.uuid7()}
+      |> Map.merge(map)
+      |> Map.merge(attributes_from_options(options))
+    )
+  end
+
+  defp attributes_from_options(options) do
+    log_event = Keyword.get(options, :log_event)
+
+    %{
+      datetime: event_datetime(log_event),
       log_event: log_event,
       plug_conn: plug_conn(options),
       metadata: Keyword.get(options, :metadata, %{})
@@ -147,10 +145,6 @@ defmodule Tower.Event do
 
   defp event_timestamp(_) do
     :logger.timestamp()
-  end
-
-  defp new_id do
-    Uniq.UUID.uuid7()
   end
 
   defp plug_conn(options) do
