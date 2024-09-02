@@ -9,7 +9,8 @@ defmodule Tower.Application do
   def start(_type, _args) do
     Supervisor.start_link(
       [
-        {Task.Supervisor, name: Tower.TaskSupervisor}
+        {Task.Supervisor, name: Tower.TaskSupervisor},
+        Tower.KeyCounter
       ],
       strategy: :one_for_one,
       name: Tower.Supervisor

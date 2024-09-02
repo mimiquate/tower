@@ -428,11 +428,22 @@ defmodule Tower do
     :logger.compare_levels(level1, level2) in [:gt, :eq]
   end
 
-  defp report_event(%Event{} = event) do
-    reporters()
-    |> Enum.each(fn reporter ->
-      report_event(reporter, event)
-    end)
+  defp report_event(%Event{similarity_id: similarity_id} = event) do
+    Tower.KeyCounter.increment(similarity_id)
+
+    Tower.KeyCounter.get_count(similarity_id)
+    |> case do
+      1 ->
+        reporters()
+        |> Enum.each(fn reporter ->
+          report_event(reporter, event)
+        end)
+
+      amount ->
+        IO.puts(
+          "Ignoring repeated event with similarity_id=#{similarity_id}. Seen #{amount} times."
+        )
+    end
   end
 
   defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}) do

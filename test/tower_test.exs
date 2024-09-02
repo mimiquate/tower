@@ -554,7 +554,7 @@ defmodule TowerTest do
 
   test "protects reporters from repeated events" do
     capture_log(fn ->
-      for _ <- 1..2 do
+      for _ <- 1..10 do
         in_unlinked_process(fn ->
           1 / 0
         end)
@@ -572,12 +572,6 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "something else"}
-        },
-        %{
-          similarity_id: similarity_id,
-          level: :error,
-          kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"}
         },
         %{
           similarity_id: similarity_id,
