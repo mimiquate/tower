@@ -41,7 +41,7 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -72,7 +72,7 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -103,7 +103,8 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    # Plug.Cowboy doesn't provide stacktrace for exits
+    assert [] = stacktrace
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -134,7 +135,7 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -168,7 +169,9 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    # Bandit doesn't provide the stacktrace for throws
+    # assert [_ | _] = stacktrace
+    assert [] = stacktrace
   end
 
   test "reports abnormal exit during plug dispatch with Bandit" do
@@ -199,7 +202,7 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "reports message plug_conn manually" do

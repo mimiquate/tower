@@ -41,7 +41,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "reports a raise" do
@@ -66,7 +66,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "reports a thrown string" do
@@ -91,7 +91,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "reports a thrown non-string" do
@@ -116,7 +116,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "doesn't report an normal exit" do
@@ -157,7 +157,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "reports a kill exit" do
@@ -182,7 +182,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "doesn't report a Logger.error by default" do
@@ -331,7 +331,7 @@ defmodule TowerTest do
     )
 
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "reports Exception manually (shorthand)" do
@@ -359,7 +359,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "manually reports a thrown string" do
@@ -385,7 +385,7 @@ defmodule TowerTest do
     )
 
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "manually reports a thrown string (shorthand)" do
@@ -413,7 +413,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "manually reports an abnormal exit" do
@@ -439,7 +439,7 @@ defmodule TowerTest do
     )
 
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "manually ignores normal exits (shorthand)" do
@@ -498,7 +498,7 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   test "bug in one reporter doesn't affect other reporters" do

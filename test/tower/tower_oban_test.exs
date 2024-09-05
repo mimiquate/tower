@@ -45,7 +45,7 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   @tag capture_log: true
@@ -68,7 +68,7 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   @tag capture_log: true
@@ -91,7 +91,7 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert is_list(stacktrace)
+    assert [_ | _] = stacktrace
   end
 
   defp recent_datetime?(datetime) do
