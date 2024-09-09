@@ -552,6 +552,45 @@ defmodule TowerTest do
     assert datetime1 > datetime2
   end
 
+  test "protects reporters from repeated events" do
+    capture_log(fn ->
+      for _ <- 1..2 do
+        in_unlinked_process(fn ->
+          1 / 0
+        end)
+      end
+
+      in_unlinked_process(fn ->
+        raise "something else"
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          similarity_id: other_similarity_id,
+          level: :error,
+          kind: :error,
+          reason: %RuntimeError{message: "something else"}
+        },
+        %{
+          similarity_id: similarity_id,
+          level: :error,
+          kind: :error,
+          reason: %ArithmeticError{message: "bad argument in arithmetic expression"}
+        },
+        %{
+          similarity_id: similarity_id,
+          level: :error,
+          kind: :error,
+          reason: %ArithmeticError{message: "bad argument in arithmetic expression"}
+        }
+      ] = reported_events()
+    )
+
+    assert similarity_id != other_similarity_id
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 

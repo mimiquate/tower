@@ -8,6 +8,7 @@ defmodule Tower.Event do
 
   defstruct [
     :id,
+    :similarity_id,
     :datetime,
     :level,
     :kind,
@@ -31,6 +32,7 @@ defmodule Tower.Event do
   """
   @type t :: %__MODULE__{
           id: Uniq.UUID.t(),
+          similarity_id: non_neg_integer(),
           datetime: DateTime.t(),
           level: level(),
           kind: error_kind() | non_error_kind(),
@@ -41,6 +43,7 @@ defmodule Tower.Event do
           metadata: map()
         }
 
+  @similarity_source_attributes [:level, :kind, :reason, :stacktrace, :metadata]
   @logger_time_unit :microsecond
 
   @doc false
@@ -120,6 +123,7 @@ defmodule Tower.Event do
       |> Map.merge(map)
       |> Map.merge(attributes_from_options(options))
     )
+    |> put_similarity_id()
   end
 
   defp attributes_from_options(options) do
@@ -149,5 +153,9 @@ defmodule Tower.Event do
 
   defp plug_conn(options) do
     Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
+  end
+
+  defp put_similarity_id(%__MODULE__{} = event) do
+    struct!(event, similarity_id: :erlang.phash2(Map.take(event, @similarity_source_attributes)))
   end
 end
