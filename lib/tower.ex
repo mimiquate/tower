@@ -5,11 +5,22 @@ defmodule Tower do
   It **listens** for **errors** in an elixir application **and informs** about them to
   the configured list of **reporters** (one or many).
 
-  You can either:
-    - include `tower` package directly and [write your own custom reporter(s)](#module-writing-a-custom-reporter)
+  ### How to listen?
+
+  Just call `Tower.attach()` when starting your application to capture errors automatically.
+  That's it.
+
+  More about [capturing](https://hexdocs.pm/tower/Tower.html#module-capturing).
+
+  ### How to report?
+
+  By default `Tower` reports to the `Tower.EphemeralReporter`, useful for `dev` and `test`.
+
+  For `prod` you can either:
+    - install only `tower` package and [write your own custom reporter(s)](#module-writing-a-custom-reporter)
 
   Or:
-    - include one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
+    - install one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
       - [`tower_email`](https://hexdocs.pm/tower_email)
       - [`tower_rollbar`](https://hexdocs.pm/tower_rollbar)
       - [`tower_slack`](https://hexdocs.pm/tower_slack)
@@ -257,6 +268,17 @@ defmodule Tower do
 
   Note that `Tower.attach/0` is not a precondition for `Tower` `handle_*` functions to work
   properly and inform reporters. They are independent.
+
+  ## Example
+
+      # lib/your_app/application.ex
+      defmodule YourApp.Application do
+
+        def start(_type, _args) do
+          Tower.attach()
+
+          # rest of your code
+        end
   """
   @spec attach() :: :ok
   def attach do
