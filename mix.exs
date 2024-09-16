@@ -3,7 +3,7 @@ defmodule Tower.MixProject do
 
   @description "Solid error handling and reporting"
   @source_url "https://github.com/mimiquate/tower"
-  @version "0.5.1"
+  @version "0.5.2"
 
   def project do
     [
