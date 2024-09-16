@@ -528,7 +528,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %Tower.ReportEventError{
             reporter: BuggyReporter,
-            original_exception: %RuntimeError{message: "I have a bug"}
+            original: {:error, %RuntimeError{message: "I have a bug"}, [_ | _]}
           },
           stacktrace: stacktrace1
         },

@@ -211,10 +211,14 @@ defmodule Tower do
   """
 
   defmodule ReportEventError do
-    defexception [:original_exception, :reporter]
+    defexception [:original, :reporter]
 
-    def message(%__MODULE__{reporter: reporter}) do
-      "An error occurred while trying to report an event with reporter #{reporter}"
+    def message(%__MODULE__{reporter: reporter, original: {kind, reason, stacktrace}}) do
+      """
+      The following error occurred while trying to report an event with reporter #{reporter}:
+
+      #{Exception.format(kind, reason, stacktrace)}
+      """
     end
   end
 
@@ -446,7 +450,9 @@ defmodule Tower do
         reporter.report_event(event)
       rescue
         exception ->
-          raise ReportEventError, reporter: reporter, original_exception: exception
+          raise ReportEventError,
+            reporter: reporter,
+            original: {:error, exception, __STACKTRACE__}
       end
     end)
   end
