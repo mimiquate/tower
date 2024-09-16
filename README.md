@@ -16,6 +16,7 @@ Or:
   - include one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
     - [`tower_email`](https://github.com/mimiquate/tower_email)
     - [`tower_rollbar`](https://github.com/mimiquate/tower_rollbar)
+    - [`tower_sentry`](https://github.com/mimiquate/tower_sentry)
     - [`tower_slack`](https://github.com/mimiquate/tower_slack)
     - more coming...
 
@@ -137,6 +138,7 @@ or
   - depend on one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
     - [`TowerEmail`](https://hexdocs.pm/tower_email) ([`tower_email`](https://hex.pm/packages/tower_email))
     - [`TowerRollbar`](https://hexdocs.pm/tower_rollbar) ([`tower_rollbar`](https://hex.pm/packages/tower_rollbar))
+    - [`TowerSentry`](https://hexdocs.pm/tower_sentry) ([`tower_sentry`](https://hex.pm/packages/tower_sentry))
     - [`TowerSlack`](https://hexdocs.pm/tower_slack) ([`tower_slack`](https://hex.pm/packages/tower_slack))
   - and properly set the `config :tower, :reporters, [...]` configuration key
 
