@@ -1,7 +1,7 @@
 defmodule Tower.MixProject do
   use Mix.Project
 
-  @description "Solid error handling and reporting"
+  @description "Flexible error tracking and reporting in Elixir"
   @source_url "https://github.com/mimiquate/tower"
   @version "0.5.2"
 
