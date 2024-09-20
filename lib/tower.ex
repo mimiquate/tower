@@ -268,11 +268,12 @@ defmodule Tower do
   Note that `Tower.attach/0` is not a precondition for `Tower` `handle_*` functions to work
   properly and inform reporters. They are independent.
   """
-  @spec attach() :: :ok
-  def attach do
-    :ok = Tower.LoggerHandler.attach()
-    :ok = Tower.BanditExceptionHandler.attach()
-    :ok = Tower.ObanExceptionHandler.attach()
+  @spec attach(atom()) :: :ok
+  def attach(opts \\ []) do
+    {:ok, config} = Tower.Config.from_opts(opts)
+    :ok = Tower.LoggerHandler.attach(Module.concat(name, :LoggerHandler))
+    :ok = Tower.BanditExceptionHandler.attach(Module.concat(name, :BanditExceptionHandler))
+    :ok = Tower.ObanExceptionHandler.attach(Module.concat(name, :ObanExceptionHandler))
   end
 
   @doc """

@@ -3,19 +3,19 @@ defmodule Tower.BanditExceptionHandler do
 
   require Logger
 
-  @handler_id __MODULE__
+  @default_handler_id __MODULE__
 
-  def attach do
+  def attach(handler_id \\ @default_handler_id) do
     :telemetry.attach(
-      @handler_id,
+      handler_id,
       [:bandit, :request, :exception],
       &__MODULE__.handle_event/4,
       _handler_config = []
     )
   end
 
-  def detach do
-    :telemetry.detach(@handler_id)
+  def detach(handler_id \\ @default_handler_id) do
+    :telemetry.detach(handler_id)
   end
 
   def handle_event(

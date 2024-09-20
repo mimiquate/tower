@@ -52,7 +52,7 @@ defmodule Tower.EphemeralReporter do
   Returns the list of all stored events.
   """
   @spec events() :: [Tower.Event.t()]
-  def events do
-    Agent.get(__MODULE__, & &1)
+  def events(agent \\ __MODULE__) do
+    Agent.get(agent, & &1)
   end
 end

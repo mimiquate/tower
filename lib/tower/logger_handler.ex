@@ -1,15 +1,15 @@
 defmodule Tower.LoggerHandler do
   @moduledoc false
 
-  @handler_id Tower
+  @default_handler_id __MODULE__
   @own_logs_domain [:tower, :logger_handler]
 
   require Logger
 
   @spec attach() :: :ok | {:error, term()}
-  def attach do
+  def attach(handler_id \\ @default_handler_id) do
     :logger.add_handler(
-      @handler_id,
+      handler_id,
       __MODULE__,
       %{
         level: :all,
@@ -24,8 +24,8 @@ defmodule Tower.LoggerHandler do
   end
 
   @spec detach() :: :ok | {:error, term()}
-  def detach do
-    :logger.remove_handler(@handler_id)
+  def detach(handler_id \\ @default_handler_id) do
+    :logger.remove_handler(handler_id)
   end
 
   # :logger callbacks
