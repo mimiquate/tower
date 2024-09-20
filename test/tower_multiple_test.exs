@@ -27,13 +27,13 @@ defmodule TowerMultipleTest do
     assert [_event] = Tower.EphemeralReporter.events(ephemeral_reporter_1)
     assert [_event] = Tower.EphemeralReporter.events(ephemeral_reporter_2)
 
-    # :ok = Tower.detach(Tower1)
-    #
-    # spawn(fn -> 1 / 0 end)
-    # Process.sleep(200)
-    #
-    # assert [_event] = Tower.EphemeralReporter.events(ephemeral_reporter_1)
-    # assert [_event1, _event2] = Tower.EphemeralReporter.events(ephemeral_reporter_2)
+    :ok = Tower.stop(Tower1)
+
+    spawn(fn -> 1 / 0 end)
+    Process.sleep(200)
+
+    assert [_event] = Tower.EphemeralReporter.events(ephemeral_reporter_1)
+    assert [_event1, _event2] = Tower.EphemeralReporter.events(ephemeral_reporter_2)
     # :ok = Tower.EphemeralReporter.stop(ephemeral_reporter_1)
   end
 end

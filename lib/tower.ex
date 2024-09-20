@@ -270,18 +270,12 @@ defmodule Tower do
     Agent.get(name, &Keyword.get(&1, :reporters, global_reporters()))
   end
 
-  @doc """
-  Detaches the handlers.
+  def stop(name \\ __MODULE__) do
+    :ok = Agent.stop(name)
 
-  That means it stops the automatic handling of errors.
-  You can still manually call `Tower` `handle_*` functions and reporters will be informed about
-  those events.
-  """
-  @spec detach() :: :ok
-  def detach do
-    :ok = Tower.LoggerHandler.detach()
-    :ok = Tower.BanditExceptionHandler.detach()
-    :ok = Tower.ObanExceptionHandler.detach()
+    :ok = Tower.LoggerHandler.detach(name)
+    # :ok = Tower.BanditExceptionHandler.detach()
+    # :ok = Tower.ObanExceptionHandler.detach()
   end
 
   @doc """
