@@ -33,8 +33,8 @@ defmodule Tower.EphemeralReporter do
 
   alias Tower.Event
 
-  def start_link(_opts) do
-    Agent.start_link(fn -> [] end, name: __MODULE__)
+  def start_link(opts \\ []) do
+    Agent.start_link(fn -> [] end, name: Keyword.get(opts, :name, __MODULE__))
   end
 
   def stop(pid) do
@@ -45,6 +45,12 @@ defmodule Tower.EphemeralReporter do
   def report_event(%Event{level: level} = event) do
     if Tower.equal_or_greater_level?(level, @default_level) do
       Agent.update(__MODULE__, fn events -> [event | events] end)
+    end
+  end
+
+  def report_event(pid, %Event{level: level} = event) do
+    if Tower.equal_or_greater_level?(level, @default_level) do
+      Agent.update(pid, fn events -> [event | events] end)
     end
   end
 

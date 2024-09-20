@@ -254,26 +254,20 @@ defmodule Tower do
            when reason == :normal or reason == :shutdown or
                   (is_tuple(reason) and tuple_size(reason) == 2 and elem(reason, 0) == :shutdown)
 
-  @doc """
-  Attaches the necessary handlers to automatically listen for application errors.
+  use Agent
 
-  [Adds](https://www.erlang.org/doc/apps/kernel/logger.html#add_handler/3) a new
-  [`logger_handler`](https://www.erlang.org/doc/apps/kernel/logger_handler), which listens for all
-  uncaught exceptions, uncaught throws, abnormal process exits, among other log events of interest.
+  def start_link(opts) do
+    name = Keyword.get(opts, :name, __MODULE__)
 
-  Additionally adds other handlers specifically tailored for some packages that
-  do catch errors and have their own specific error handling and emit events instead
-  of letting errors get to the logger handler, like oban or bandit.
-
-  Note that `Tower.attach/0` is not a precondition for `Tower` `handle_*` functions to work
-  properly and inform reporters. They are independent.
-  """
-  @spec attach(atom()) :: :ok
-  def attach(opts \\ []) do
-    {:ok, config} = Tower.Config.from_opts(opts)
-    :ok = Tower.LoggerHandler.attach(Module.concat(name, :LoggerHandler))
+    :ok = Tower.LoggerHandler.attach(name)
     :ok = Tower.BanditExceptionHandler.attach(Module.concat(name, :BanditExceptionHandler))
     :ok = Tower.ObanExceptionHandler.attach(Module.concat(name, :ObanExceptionHandler))
+
+    Agent.start_link(fn -> opts end, name: name)
+  end
+
+  def reporters(name \\ __MODULE__) do
+    Agent.get(name, &Keyword.get(&1, :reporters, global_reporters()))
   end
 
   @doc """
@@ -433,8 +427,8 @@ defmodule Tower do
     :logger.compare_levels(level1, level2) in [:gt, :eq]
   end
 
-  defp report_event(%Event{} = event) do
-    reporters()
+  defp report_event(%Event{tower: tower} = event) do
+    reporters(tower)
     |> Enum.each(fn reporter ->
       report_event(reporter, event)
     end)
@@ -443,6 +437,19 @@ defmodule Tower do
   defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}) do
     # Ignore so we don't enter in a loop trying to report to the same buggy reporter
     :ignore
+  end
+
+  defp report_event({reporter_module, pid}, event) do
+    async(fn ->
+      try do
+        reporter_module.report_event(pid, event)
+      rescue
+        exception ->
+          raise ReportEventError,
+            reporter: reporter_module,
+            original: {:error, exception, __STACKTRACE__}
+      end
+    end)
   end
 
   defp report_event(reporter, event) do
@@ -458,7 +465,7 @@ defmodule Tower do
     end)
   end
 
-  defp reporters do
+  defp global_reporters do
     Application.fetch_env!(:tower, :reporters)
   end
 

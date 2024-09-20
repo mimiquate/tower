@@ -1,15 +1,14 @@
 defmodule Tower.LoggerHandler do
   @moduledoc false
 
-  @default_handler_id __MODULE__
   @own_logs_domain [:tower, :logger_handler]
 
   require Logger
 
   @spec attach() :: :ok | {:error, term()}
-  def attach(handler_id \\ @default_handler_id) do
+  def attach(name \\ Tower) do
     :logger.add_handler(
-      handler_id,
+      handler_id(name),
       __MODULE__,
       %{
         level: :all,
@@ -18,14 +17,15 @@ defmodule Tower.LoggerHandler do
             &:logger_filters.domain/2,
             {:stop, :sub, [:elixir | @own_logs_domain]}
           }
-        ]
+        ],
+        config: [name: name]
       }
     )
   end
 
   @spec detach() :: :ok | {:error, term()}
-  def detach(handler_id \\ @default_handler_id) do
-    :logger.remove_handler(handler_id)
+  def detach(name \\ Tower) do
+    :logger.remove_handler(handler_id(name))
   end
 
   # :logger callbacks
@@ -38,18 +38,20 @@ defmodule Tower.LoggerHandler do
     :ok
   end
 
-  def log(log_event, _config) do
-    handle_log_event(log_event)
+  def log(log_event, %{config: [name: name]}) do
+    handle_log_event(name, log_event)
   end
 
   defp handle_log_event(
+         name,
          %{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event
        )
        when is_exception(exception) and is_list(stacktrace) do
-    Tower.handle_exception(exception, stacktrace, log_event: log_event)
+    Tower.handle_exception(exception, stacktrace, log_event: log_event, tower: name)
   end
 
   defp handle_log_event(
+         _name,
          %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event
        )
        when is_list(stacktrace) do
@@ -57,23 +59,24 @@ defmodule Tower.LoggerHandler do
   end
 
   defp handle_log_event(
+         _name,
          %{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event
        )
        when is_list(stacktrace) do
     Tower.handle_exit(exit_reason, stacktrace, log_event: log_event)
   end
 
-  defp handle_log_event(%{level: :error, meta: %{crash_reason: exit_reason}} = log_event) do
+  defp handle_log_event(_name, %{level: :error, meta: %{crash_reason: exit_reason}} = log_event) do
     Tower.handle_exit(exit_reason, [], log_event: log_event)
   end
 
-  defp handle_log_event(%{level: level, msg: {:string, reason_chardata}} = log_event) do
+  defp handle_log_event(_name, %{level: level, msg: {:string, reason_chardata}} = log_event) do
     if should_handle?(level) do
       Tower.handle_message(level, IO.chardata_to_string(reason_chardata), log_event: log_event)
     end
   end
 
-  defp handle_log_event(%{level: level, msg: {:report, report}} = log_event) do
+  defp handle_log_event(_name, %{level: level, msg: {:report, report}} = log_event) do
     if should_handle?(level) do
       Tower.handle_message(level, report, log_event: log_event)
     end
@@ -105,5 +108,9 @@ defmodule Tower.LoggerHandler do
 
   defp safe_log(level, message) do
     Logger.log(level, message, domain: @own_logs_domain)
+  end
+
+  defp handler_id(name \\ Tower) do
+    Module.concat(name, :LoggerHandler)
   end
 end
