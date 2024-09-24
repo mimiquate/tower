@@ -151,7 +151,7 @@ or
 
 def deps do
   [
-    {:tower, "~> 0.5.2"}
+    {:tower, "~> 0.5.3"}
   ]
 end
 ```
