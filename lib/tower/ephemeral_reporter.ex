@@ -11,7 +11,7 @@ defmodule Tower.EphemeralReporter do
       iex> Application.put_env(:tower, :reporters, [Tower.EphemeralReporter])
       iex> Tower.attach()
       :ok
-      iex> spawn(fn -> 1 / 0 end)
+      iex> Task.start(fn -> 1 / 0 end)
       iex> Process.sleep(200)
       :ok
       iex> [event] = Tower.EphemeralReporter.events()

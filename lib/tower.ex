@@ -230,6 +230,8 @@ defmodule Tower do
 
   alias Tower.Event
 
+  @type handle_result :: [Task.t()]
+
   @doc """
   Determines if a process exit `reason` is "normal".
 
@@ -315,7 +317,7 @@ defmodule Tower do
 
   """
   @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace(), Keyword.t()) ::
-          :ok
+          handle_result()
   def handle_caught(kind, reason, stacktrace, options \\ []) do
     Event.from_caught(kind, reason, stacktrace, options)
     |> report_event()
@@ -337,7 +339,7 @@ defmodule Tower do
 
     * Accepts same options as `handle_caught/4#options`.
   """
-  @spec handle_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: :ok
+  @spec handle_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: handle_result()
   def handle_exception(exception, stacktrace, options \\ [])
       when is_exception(exception) and is_list(stacktrace) do
     unless exception.__struct__ in ignored_exceptions() do
@@ -362,7 +364,7 @@ defmodule Tower do
 
     * Accepts same options as `handle_caught/4#options`.
   """
-  @spec handle_throw(term(), Exception.stacktrace(), Keyword.t()) :: :ok
+  @spec handle_throw(term(), Exception.stacktrace(), Keyword.t()) :: handle_result()
   def handle_throw(reason, stacktrace, options \\ []) do
     Event.from_throw(reason, stacktrace, options)
     |> report_event()
@@ -384,7 +386,7 @@ defmodule Tower do
 
     * Accepts same options as `handle_caught/4#options`.
   """
-  @spec handle_exit(term(), Exception.stacktrace(), Keyword.t()) :: :ok
+  @spec handle_exit(term(), Exception.stacktrace(), Keyword.t()) :: handle_result()
   def handle_exit(reason, stacktrace, options \\ []) do
     Event.from_exit(reason, stacktrace, options)
     |> report_event()
@@ -405,7 +407,7 @@ defmodule Tower do
 
     * Accepts same options as `handle_caught/4#options`.
   """
-  @spec handle_message(Event.level(), term(), Keyword.t()) :: :ok
+  @spec handle_message(Event.level(), term(), Keyword.t()) :: handle_result()
   def handle_message(level, message, options \\ []) do
     Event.from_message(level, message, options)
     |> report_event()
@@ -434,11 +436,28 @@ defmodule Tower do
     :logger.compare_levels(level1, level2) in [:gt, :eq]
   end
 
+  @doc """
+  Generates a runtime exception and lets Tower handle it.
+
+  Useful for testing Tower is well configuring and reporting errors during development.
+  """
+  @spec test() :: :ok
+  def test do
+    try do
+      raise "this is a test exception to check Tower is well configured"
+    rescue
+      e ->
+        handle_exception(e, __STACKTRACE__, metadata: %{test: true})
+        |> Task.yield_many()
+
+        :ok
+    end
+  end
+
   defp report_event(%Event{} = event) do
     reporters()
-    |> Enum.each(fn reporter ->
-      report_event(reporter, event)
-    end)
+    |> Enum.map(fn reporter -> report_event(reporter, event) end)
+    |> Enum.reject(fn result -> result == :ignore end)
   end
 
   defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}) do
@@ -465,7 +484,7 @@ defmodule Tower do
 
   defp async(fun) do
     Tower.TaskSupervisor
-    |> Task.Supervisor.start_child(fun)
+    |> Task.Supervisor.async_nolink(fun)
   end
 
   defp ignored_exceptions do

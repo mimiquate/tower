@@ -16,6 +16,7 @@ defmodule Tower.MixProject do
       deps: deps(),
       package: package(),
       dialyzer: [
+        plt_add_apps: [:mix],
         plt_local_path: "plts"
       ],
 
