@@ -15,6 +15,7 @@ You can either:
 Or:
   - include one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
     - [`tower_email`](https://github.com/mimiquate/tower_email)
+    - [`tower_error_tracker`](https://github.com/mimiquate/tower_error_tracker)
     - [`tower_honeybadger`](https://github.com/mimiquate/tower_honeybadger)
     - [`tower_rollbar`](https://github.com/mimiquate/tower_rollbar)
     - [`tower_sentry`](https://github.com/mimiquate/tower_sentry)
@@ -138,6 +139,7 @@ So, in summary, you can either
 or
   - depend on one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
     - [`TowerEmail`](https://hexdocs.pm/tower_email) ([`tower_email`](https://hex.pm/packages/tower_email))
+    - [`TowerErrorTracker`](https://hexdocs.pm/tower_error_tracker) ([`tower_error_tracker`](https://hex.pm/packages/tower_error_tracker))
     - [`TowerHoneybadger`](https://hexdocs.pm/tower_honeybadger) ([`tower_honeybadger`](https://hex.pm/packages/tower_honeybadger))
     - [`TowerRollbar`](https://hexdocs.pm/tower_rollbar) ([`tower_rollbar`](https://hex.pm/packages/tower_rollbar))
     - [`TowerSentry`](https://hexdocs.pm/tower_sentry) ([`tower_sentry`](https://hex.pm/packages/tower_sentry))

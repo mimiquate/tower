@@ -8,6 +8,7 @@ defmodule Tower.Reporter do
   Separate packages that implement this behaviour:
 
     * [tower_email](https://hex.pm/packages/tower_email) ([`TowerEmail`](https://hexdocs.pm/tower_email))
+    * [tower_error_tracker](https://hex.pm/packages/tower_error_tracker) ([`TowerErrorTracker`](https://hexdocs.pm/tower_error_tracker))
     * [tower_honeybadger](https://hex.pm/packages/tower_honeybadger) ([`TowerHoneybadger`](https://hexdocs.pm/tower_honeybadger))
     * [tower_rollbar](https://hex.pm/packages/tower_rollbar) ([`TowerRollbar`](https://hexdocs.pm/tower_rollbar))
     * [tower_sentry](https://hex.pm/packages/tower_sentry) ([`TowerSentry`](https://hexdocs.pm/tower_sentry))
