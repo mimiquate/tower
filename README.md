@@ -9,18 +9,27 @@ Tower is a flexible error tracker for elixir applications.
 It **listens** for **errors** in an elixir application **and informs** about them to
 the configured list of **reporters** (one or many).
 
-You can either:
-  - include `tower` package directly and [write your own custom reporter(s)](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
+## Reporters
 
-Or:
-  - include one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
-    - [`tower_email`](https://github.com/mimiquate/tower_email)
-    - [`tower_error_tracker`](https://github.com/mimiquate/tower_error_tracker)
-    - [`tower_honeybadger`](https://github.com/mimiquate/tower_honeybadger)
-    - [`tower_rollbar`](https://github.com/mimiquate/tower_rollbar)
-    - [`tower_sentry`](https://github.com/mimiquate/tower_sentry)
-    - [`tower_slack`](https://github.com/mimiquate/tower_slack)
-    - more coming...
+Any captured errors by `Tower` will be passed along to the list of
+configured reporters, which can be set using the `:reporters` config key. For example:
+
+```elixir
+config :tower, :reporters, [TowerEmail.Reporter]
+```
+
+In the example above, Tower will report errors using the email reporter. You can pick any of the following reporters
+or [build your own](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter).
+
+- [`TowerEmail`](https://github.com/mimiquate/tower_email)
+- [`TowerErrorTracker`](https://github.com/mimiquate/tower_error_tracker)
+- [`TowerHoneybadger`](https://github.com/mimiquate/tower_honeybadger)
+- [`TowerRollbar`](https://github.com/mimiquate/tower_rollbar)
+- [`TowerSentry`](https://github.com/mimiquate/tower_sentry)
+- [`TowerSlack`](https://github.com/mimiquate/tower_slack)
+- [`Tower.EphemeralReporter`](https://github.com/mimiquate/tower/blob/main/lib/tower/ephemeral_reporter.ex)
+
+Follow each reporter's README to get `Tower` installed and configured properly.
 
 ## Motivation
 
@@ -122,41 +131,6 @@ to tower and error capturing tactics is still valid and unchanged.
 Necessary future changes caused by deprecations and/or changes in error handling behavior in the BEAM or Elixir can be just
 made in `Tower` without need to change any of the service specific reporters.
 
-## Reporters
-
-As explained in the Motivation section, any captured errors by `Tower` will be passed along to the list of
-configured reporters, which can be set in
-
-```elixir
-config :tower, :reporters, [...] # Defaults to [Tower.EphemeralReporter]
-```
-
-So, in summary, you can either
-  - Depend on `tower` package directly
-    - play with the default built-in toy reporter `Tower.EphemeralReporter`, useful for dev and test
-    - at some point for production [write your own custom reporter](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter)
-
-or
-  - depend on one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
-    - [`TowerEmail`](https://hexdocs.pm/tower_email) ([`tower_email`](https://hex.pm/packages/tower_email))
-    - [`TowerErrorTracker`](https://hexdocs.pm/tower_error_tracker) ([`tower_error_tracker`](https://hex.pm/packages/tower_error_tracker))
-    - [`TowerHoneybadger`](https://hexdocs.pm/tower_honeybadger) ([`tower_honeybadger`](https://hex.pm/packages/tower_honeybadger))
-    - [`TowerRollbar`](https://hexdocs.pm/tower_rollbar) ([`tower_rollbar`](https://hex.pm/packages/tower_rollbar))
-    - [`TowerSentry`](https://hexdocs.pm/tower_sentry) ([`tower_sentry`](https://hex.pm/packages/tower_sentry))
-    - [`TowerSlack`](https://hexdocs.pm/tower_slack) ([`tower_slack`](https://hex.pm/packages/tower_slack))
-  - and properly set the `config :tower, :reporters, [...]` configuration key
-
-## Installation
-
-```elixir
-# mix.exs
-
-def deps do
-  [
-    {:tower, "~> 0.5.3"}
-  ]
-end
-```
 
 ## Usage
 
