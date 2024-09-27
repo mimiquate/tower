@@ -312,7 +312,6 @@ defmodule Tower do
     up to each reporter if and how to handle it.
 
   """
-  @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace()) :: :ok
   @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace(), Keyword.t()) ::
           :ok
   def handle_caught(kind, reason, stacktrace, options \\ []) do
@@ -336,7 +335,6 @@ defmodule Tower do
 
     * Accepts same options as `handle_caught/4#options`.
   """
-  @spec handle_exception(Exception.t(), Exception.stacktrace()) :: :ok
   @spec handle_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: :ok
   def handle_exception(exception, stacktrace, options \\ [])
       when is_exception(exception) and is_list(stacktrace) do
@@ -362,7 +360,6 @@ defmodule Tower do
 
     * Accepts same options as `handle_caught/4#options`.
   """
-  @spec handle_throw(term(), Exception.stacktrace()) :: :ok
   @spec handle_throw(term(), Exception.stacktrace(), Keyword.t()) :: :ok
   def handle_throw(reason, stacktrace, options \\ []) do
     Event.from_throw(reason, stacktrace, options)
@@ -385,7 +382,6 @@ defmodule Tower do
 
     * Accepts same options as `handle_caught/4#options`.
   """
-  @spec handle_exit(term(), Exception.stacktrace()) :: :ok
   @spec handle_exit(term(), Exception.stacktrace(), Keyword.t()) :: :ok
   def handle_exit(reason, stacktrace, options \\ []) do
     Event.from_exit(reason, stacktrace, options)
