@@ -18,8 +18,7 @@ configured reporters, which can be set using the `:reporters` config key. For ex
 config :tower, :reporters, [TowerEmail.Reporter]
 ```
 
-In the example above, Tower will report errors using the email reporter. You can pick any of the following reporters
-or [build your own](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter).
+You can pick any of the following reporters or [build your own](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter).
 
 - [`TowerEmail`](https://github.com/mimiquate/tower_email)
 - [`TowerErrorTracker`](https://github.com/mimiquate/tower_error_tracker)
@@ -130,11 +129,6 @@ to tower and error capturing tactics is still valid and unchanged.
 
 Necessary future changes caused by deprecations and/or changes in error handling behavior in the BEAM or Elixir can be just
 made in `Tower` without need to change any of the service specific reporters.
-
-
-## Usage
-
-- [Documentation](https://hexdocs.pm/tower)
 
 ## License
 
