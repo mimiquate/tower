@@ -9,8 +9,6 @@ Tower is a flexible error tracker for elixir applications.
 It **listens** for **errors** in an elixir application **and informs** about them to
 the configured list of **reporters** (one or many).
 
-## Reporters
-
 Any captured errors by `Tower` will be passed along to the list of
 configured reporters, which can be set using the `:reporters` config key. For example:
 
