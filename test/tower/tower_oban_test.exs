@@ -29,7 +29,7 @@ defmodule TowerObanTest do
   end
 
   test "reports raised exception in an Oban worker" do
-    TestApp.ArithmeticErrorWorker.new(%{}, max_attempts: 1)
+    TestApp.RuntimeErrorWorker.new(%{}, max_attempts: 1)
     |> Oban.insert()
 
     assert_eventually(

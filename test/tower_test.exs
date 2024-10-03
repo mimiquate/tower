@@ -19,10 +19,10 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
-  test "reports arithmetic error" do
+  test "reports runtime error" do
     capture_log(fn ->
       in_unlinked_process(fn ->
-        1 / 0
+        raise "an error"
       end)
     end)
 
@@ -33,7 +33,7 @@ defmodule TowerTest do
           datetime: datetime,
           level: :error,
           kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace
         }
       ] = reported_events()
@@ -311,7 +311,7 @@ defmodule TowerTest do
   test "reports Exception manually" do
     in_unlinked_process(fn ->
       try do
-        1 / 0
+        raise "an error"
       catch
         kind, reason ->
           Tower.handle_caught(kind, reason, __STACKTRACE__)
@@ -324,7 +324,7 @@ defmodule TowerTest do
           datetime: datetime,
           level: :error,
           kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace
         }
       ] = reported_events()
@@ -337,7 +337,7 @@ defmodule TowerTest do
   test "reports Exception manually (shorthand)" do
     in_unlinked_process(fn ->
       try do
-        1 / 0
+        raise "an error"
       rescue
         e ->
           Tower.handle_exception(e, __STACKTRACE__)
@@ -351,7 +351,7 @@ defmodule TowerTest do
           datetime: datetime,
           level: :error,
           kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace
         }
       ] = reported_events()
@@ -515,7 +515,7 @@ defmodule TowerTest do
 
     capture_log(fn ->
       in_unlinked_process(fn ->
-        1 / 0
+        raise "an error"
       end)
     end)
 
@@ -537,7 +537,7 @@ defmodule TowerTest do
           datetime: datetime2,
           level: :error,
           kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace2
         }
       ] = reported_events()
@@ -556,7 +556,7 @@ defmodule TowerTest do
     capture_log(fn ->
       for _ <- 1..2 do
         in_unlinked_process(fn ->
-          1 / 0
+          raise "an error"
         end)
       end
 
@@ -577,13 +577,13 @@ defmodule TowerTest do
           similarity_id: similarity_id,
           level: :error,
           kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"}
+          reason: %RuntimeError{message: "an error"}
         },
         %{
           similarity_id: similarity_id,
           level: :error,
           kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"}
+          reason: %RuntimeError{message: "an error"}
         }
       ] = reported_events()
     )

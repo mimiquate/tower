@@ -14,10 +14,10 @@ defmodule TowerPlugTest do
     end)
   end
 
-  test "reports arithmetic error during plug dispatch with Plug.Cowboy" do
+  test "reports runtime error during plug dispatch with Plug.Cowboy" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
-    url = "http://127.0.0.1:#{plug_port}/arithmetic-error"
+    url = "http://127.0.0.1:#{plug_port}/runtime-error"
 
     start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
@@ -32,7 +32,7 @@ defmodule TowerPlugTest do
           datetime: datetime,
           level: :error,
           kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
           plug_conn: %Plug.Conn{} = plug_conn
         }
@@ -108,10 +108,10 @@ defmodule TowerPlugTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
-  test "reports arithmetic error during plug dispatch with Bandit" do
+  test "reports runtime error during plug dispatch with Bandit" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
-    url = "http://127.0.0.1:#{plug_port}/arithmetic-error"
+    url = "http://127.0.0.1:#{plug_port}/runtime-error"
 
     capture_log(fn ->
       start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
@@ -126,7 +126,7 @@ defmodule TowerPlugTest do
           datetime: datetime,
           level: :error,
           kind: :error,
-          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
           plug_conn: %Plug.Conn{} = plug_conn
         }

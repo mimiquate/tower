@@ -20,7 +20,7 @@ defmodule TestApp.AbnormalExitWorker do
   end
 end
 
-defmodule TestApp.ArithmeticErrorWorker do
+defmodule TestApp.RuntimeErrorWorker do
   use Oban.Worker
 
   @impl Oban.Worker

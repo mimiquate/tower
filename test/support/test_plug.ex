@@ -4,8 +4,8 @@ defmodule Tower.TestPlug do
   plug(:match)
   plug(:dispatch)
 
-  get "/arithmetic-error" do
-    1 / 0
+  get "/runtime-error" do
+    raise "an error"
 
     send_resp(conn, 200, "OK")
   end
