@@ -1,6 +1,10 @@
 defmodule Tower.EphemeralReporter do
+  @max_events 50
+
   @moduledoc """
   A very slim and naive built-in reporter, that just stores Tower events as process state.
+
+  It keeps only the last #{@max_events} events.
 
   Possibly useful for development or testing.
 
@@ -25,14 +29,13 @@ defmodule Tower.EphemeralReporter do
   @behaviour Tower.Reporter
 
   @default_level :info
+  @empty_events {:queue.new(), 0}
 
   use Agent
 
   require Logger
 
   alias Tower.Event
-
-  @empty_events []
 
   def start_link(_opts) do
     Agent.start_link(fn -> @empty_events end, name: __MODULE__)
@@ -59,7 +62,16 @@ defmodule Tower.EphemeralReporter do
   @impl true
   def report_event(%Event{level: level} = event) do
     if Tower.equal_or_greater_level?(level, @default_level) do
-      Agent.update(__MODULE__, fn events -> [event | events] end)
+      Agent.update(
+        __MODULE__,
+        fn
+          {q, count} when count >= @max_events ->
+            {:queue.in(event, :queue.drop(q)), count}
+
+          {q, count} ->
+            {:queue.in(event, q), count + 1}
+        end
+      )
     end
   end
 
@@ -68,7 +80,14 @@ defmodule Tower.EphemeralReporter do
   """
   @spec events() :: [Tower.Event.t()]
   def events do
-    Agent.get(__MODULE__, & &1)
+    Agent.get(
+      __MODULE__,
+      fn {q, _} ->
+        q
+        |> :queue.reverse()
+        |> :queue.to_list()
+      end
+    )
   end
 
   @spec reset() :: :ok
