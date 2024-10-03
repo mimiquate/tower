@@ -7,6 +7,7 @@ defmodule Tower.Reporter do
 
   Separate packages that implement this behaviour:
 
+    * [tower_bugsnag](https://hex.pm/packages/tower_bugsnag) ([`TowerBugsnag`](https://hexdocs.pm/tower_bugsnag))
     * [tower_email](https://hex.pm/packages/tower_email) ([`TowerEmail`](https://hexdocs.pm/tower_email))
     * [tower_error_tracker](https://hex.pm/packages/tower_error_tracker) ([`TowerErrorTracker`](https://hexdocs.pm/tower_error_tracker))
     * [tower_honeybadger](https://hex.pm/packages/tower_honeybadger) ([`TowerHoneybadger`](https://hexdocs.pm/tower_honeybadger))

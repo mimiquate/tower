@@ -18,6 +18,7 @@ config :tower, :reporters, [TowerEmail.Reporter]
 
 You can pick any of the following reporters or [build your own](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter).
 
+- [`TowerBugsnag`](https://github.com/mimiquate/tower_bugsnag)
 - [`TowerEmail`](https://github.com/mimiquate/tower_email)
 - [`TowerErrorTracker`](https://github.com/mimiquate/tower_error_tracker)
 - [`TowerHoneybadger`](https://github.com/mimiquate/tower_honeybadger)

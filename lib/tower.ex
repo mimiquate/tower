@@ -10,6 +10,7 @@ defmodule Tower do
 
   Or:
     - include one (or many) of the following reporters (separate packages) that build on top of and depend on `tower`:
+      - [`tower_bugsnag`](https://hexdocs.pm/tower_bugsnag)
       - [`tower_email`](https://hexdocs.pm/tower_email)
       - [`tower_error_tracker`](https://hexdocs.pm/tower_error_tracker)
       - [`tower_honeybadger`](https://hexdocs.pm/tower_honeybadger)
@@ -132,6 +133,7 @@ defmodule Tower do
 
   or
     - depend on one (or many) of the following reporters (separate packages) that build on top and depend on `tower`:
+      - [`TowerBugsnag`](https://hexdocs.pm/tower_bugsnag) ([`tower_bugsnag`](https://hex.pm/packages/tower_bugsnag))
       - [`TowerEmail`](https://hexdocs.pm/tower_email) ([`tower_email`](https://hex.pm/packages/tower_email))
       - [`TowerErrorTracker`](https://hexdocs.pm/tower_error_tracker) ([`tower_error_tracker`](https://hex.pm/packages/tower_error_tracker))
       - [`TowerHoneybadger`](https://hexdocs.pm/tower_honeybadger) ([`tower_honeybadger`](https://hex.pm/packages/tower_honeybadger))
