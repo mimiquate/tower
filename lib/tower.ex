@@ -228,6 +228,14 @@ defmodule Tower do
     end
   end
 
+  defmodule TestException do
+    defexception [:message]
+
+    def message(_) do
+      "This is Tower forcing a test exception. You seeing this should be a good thing."
+    end
+  end
+
   alias Tower.Event
 
   @doc """
@@ -434,28 +442,52 @@ defmodule Tower do
     :logger.compare_levels(level1, level2) in [:gt, :eq]
   end
 
-  defp report_event(%Event{} = event) do
+  @doc """
+  Generates an exception and lets Tower handle it.
+
+  Useful for testing Tower is well configuring and reporting errors during development.
+  """
+  @spec test() :: :ok
+  def test do
+    try do
+      raise TestException
+    rescue
+      e ->
+        Event.from_exception(e, __STACKTRACE__, metadata: %{test: true})
+        |> report_event(async: false)
+
+        :ok
+    end
+  end
+
+  defp report_event(%Event{} = event, options \\ []) do
+    async = Keyword.get(options, :async, true)
+
     reporters()
     |> Enum.each(fn reporter ->
-      report_event(reporter, event)
+      report_event(reporter, event, async)
     end)
   end
 
-  defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}) do
+  defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}, _) do
     # Ignore so we don't enter in a loop trying to report to the same buggy reporter
     :ignore
   end
 
-  defp report_event(reporter, event) do
+  defp report_event(reporter, event, false) do
+    try do
+      reporter.report_event(event)
+    rescue
+      exception ->
+        raise ReportEventError,
+          reporter: reporter,
+          original: {:error, exception, __STACKTRACE__}
+    end
+  end
+
+  defp report_event(reporter, event, true) do
     async(fn ->
-      try do
-        reporter.report_event(event)
-      rescue
-        exception ->
-          raise ReportEventError,
-            reporter: reporter,
-            original: {:error, exception, __STACKTRACE__}
-      end
+      report_event(reporter, event, false)
     end)
   end
 
