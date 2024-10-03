@@ -7,8 +7,6 @@ defmodule TowerObanTest do
   import ExUnit.CaptureLog, only: [capture_log: 1]
 
   setup do
-    start_link_supervised!(Tower.EphemeralReporter)
-
     start_link_supervised!({
       TestApp.Repo,
       database: "tmp/test-#{:rand.uniform(10_000)}.db", journal_mode: :memory
@@ -26,6 +24,7 @@ defmodule TowerObanTest do
 
     on_exit(fn ->
       Tower.detach()
+      Tower.EphemeralReporter.reset()
     end)
   end
 

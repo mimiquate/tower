@@ -9,6 +9,7 @@ defmodule Tower.Application do
   def start(_type, _args) do
     Supervisor.start_link(
       [
+        Tower.EphemeralReporter,
         {Task.Supervisor, name: Tower.TaskSupervisor}
       ],
       strategy: :one_for_one,

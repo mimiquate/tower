@@ -7,11 +7,11 @@ defmodule TowerTest do
   import ExUnit.CaptureLog, only: [capture_log: 1]
 
   setup do
-    start_reporter()
     Tower.attach()
 
     on_exit(fn ->
       Tower.detach()
+      Tower.EphemeralReporter.reset()
     end)
   end
 
@@ -620,10 +620,6 @@ defmodule TowerTest do
     pid
     |> Task.Supervisor.async_nolink(fun)
     |> Task.yield()
-  end
-
-  defp start_reporter do
-    Tower.EphemeralReporter.start_link([])
   end
 
   defp reported_events do

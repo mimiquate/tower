@@ -6,7 +6,6 @@ defmodule Tower.EphemeralReporter do
 
   ## Example
 
-      iex> {:ok, pid} = Tower.EphemeralReporter.start_link([])
       iex> Tower.EphemeralReporter.events()
       []
       iex> Application.put_env(:tower, :reporters, [Tower.EphemeralReporter])
@@ -22,8 +21,6 @@ defmodule Tower.EphemeralReporter do
       %ArithmeticError{message: "bad argument in arithmetic expression"}
       iex> Tower.detach()
       :ok
-      iex> Tower.EphemeralReporter.stop(pid)
-      :ok
   """
   @behaviour Tower.Reporter
 
@@ -31,10 +28,28 @@ defmodule Tower.EphemeralReporter do
 
   use Agent
 
+  require Logger
+
   alias Tower.Event
 
+  @empty_events []
+
   def start_link(_opts) do
-    Agent.start_link(fn -> [] end, name: __MODULE__)
+    Agent.start_link(fn -> @empty_events end, name: __MODULE__)
+    |> case do
+      {:error, {:already_started, existing_pid}} ->
+        Logger.warning("""
+        An attempt to start Tower.EphemeralReporter when it is already started was ignored.
+
+        If you are manually starting Tower.EphemeralReporter, you can safely stop doing it given
+        it is automatically started by Tower.
+        """)
+
+        {:ok, existing_pid}
+
+      on_start ->
+        on_start
+    end
   end
 
   def stop(pid) do
@@ -54,5 +69,10 @@ defmodule Tower.EphemeralReporter do
   @spec events() :: [Tower.Event.t()]
   def events do
     Agent.get(__MODULE__, & &1)
+  end
+
+  @spec reset() :: :ok
+  def reset do
+    Agent.update(__MODULE__, fn _events -> @empty_events end)
   end
 end

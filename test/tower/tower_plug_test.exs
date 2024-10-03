@@ -6,11 +6,11 @@ defmodule TowerPlugTest do
   import ExUnit.CaptureLog, only: [capture_log: 1]
 
   setup do
-    start_link_supervised!(Tower.EphemeralReporter)
     Tower.attach()
 
     on_exit(fn ->
       Tower.detach()
+      Tower.EphemeralReporter.reset()
     end)
   end
 
