@@ -13,7 +13,7 @@ Any captured errors by `Tower` will be passed along to the list of
 configured reporters, which can be set using the `:reporters` config key. For example:
 
 ```elixir
-config :tower, :reporters, [TowerEmail.Reporter]
+config :tower, :reporters, [TowerEmail]
 ```
 
 You can pick any of the following reporters or [build your own](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter).
