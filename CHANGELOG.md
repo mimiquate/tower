@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2024-10-04
+
+### Added
+
+- New utility to test `:tower` is well configured and working. Either by invoking mix task `mix tower.test` or
+directly calling function `Tower.test/0`. It will generate a test exception and report it to whichever reporters
+you have configured.
+
+### Changed
+
+- `Tower.EphemeralReporter` is now automatically started as a child of `Tower.Supervisor`. If you were including it as
+a child of your application supervisor, you can safely remove it.
+- `Tower.EphemeralReporter` now keeps only the 50 most recent events to be light on resource consumption, as initially
+intened.
+- `Tower.attach()` is now automatically called during `Tower` start. You no longer need to manually call it as part of
+your application `start` function. Keeping it won't fail but it is a no-operation. You can safely remove it.
+
 ## [0.5.3] - 2024-09-24
 
 ### Added
@@ -85,6 +102,7 @@ is the main way `tower` handles errors. Keep elixir 1.15+ for now.
 
 - Reporters (those implementing `Tower.Reporter` behaviour) can now handle events with just one callback: `report_event/1`, in replacement of `report_exception/2,3`, `report_exit/2,3`, `report_throw/2,3` and `report_message/2,3` callbacks.
 
+[0.6.0]: https://github.com/mimiquate/tower/compare/v0.5.3...v0.6.0/
 [0.5.3]: https://github.com/mimiquate/tower/compare/v0.5.2...v0.5.3/
 [0.5.2]: https://github.com/mimiquate/tower/compare/v0.5.1...v0.5.2/
 [0.5.1]: https://github.com/mimiquate/tower/compare/v0.5.0...v0.5.1/
