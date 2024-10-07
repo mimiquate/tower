@@ -27,6 +27,10 @@ You can pick any of the following reporters or [build your own](https://hexdocs.
 - [`TowerSlack`](https://github.com/mimiquate/tower_slack)
 - [`Tower.EphemeralReporter`](https://github.com/mimiquate/tower/blob/main/lib/tower/ephemeral_reporter.ex)
 
+Community supported:
+
+- [`ivanhercaz/tower_telegram`](https://github.com/ivanhercaz/tower_telegram)
+
 Follow each reporter's README to get `Tower` installed and configured properly.
 
 ## Motivation
