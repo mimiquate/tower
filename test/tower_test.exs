@@ -157,6 +157,32 @@ defmodule TowerTest do
     assert [_ | _] = stacktrace
   end
 
+  test "reports an abnormal exit caused by exit signal" do
+    {:ok, pid} =
+      Task.start(fn ->
+        Process.sleep(:infinity)
+      end)
+
+    Process.exit(pid, :abnormal)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          kind: :exit,
+          reason: :abnormal,
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+    assert [_ | _] = stacktrace
+  end
+
   test "reports a kill exit" do
     capture_log(fn ->
       in_unlinked_process(fn ->
