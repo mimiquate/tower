@@ -309,7 +309,7 @@ defmodule TowerTest do
   end
 
   test "reports message manually" do
-    Tower.handle_message(:info, "Something interesting", metadata: %{something: "else"})
+    Tower.report_message(:info, "Something interesting", metadata: %{something: "else"})
 
     assert_eventually(
       [
@@ -337,7 +337,7 @@ defmodule TowerTest do
         raise "an error"
       catch
         kind, reason ->
-          Tower.handle_caught(kind, reason, __STACKTRACE__)
+          Tower.report(kind, reason, __STACKTRACE__)
       end
     end)
 
@@ -363,7 +363,7 @@ defmodule TowerTest do
         raise "an error"
       rescue
         e ->
-          Tower.handle_exception(e, __STACKTRACE__)
+          Tower.report_exception(e, __STACKTRACE__)
       end
     end)
 
@@ -391,7 +391,7 @@ defmodule TowerTest do
         throw("error")
       catch
         kind, reason ->
-          Tower.handle_caught(kind, reason, __STACKTRACE__)
+          Tower.report(kind, reason, __STACKTRACE__)
       end
     end)
 
@@ -417,7 +417,7 @@ defmodule TowerTest do
         throw("error")
       catch
         x ->
-          Tower.handle_throw(x, __STACKTRACE__)
+          Tower.report_throw(x, __STACKTRACE__)
       end
     end)
 
@@ -445,7 +445,7 @@ defmodule TowerTest do
         exit(:abnormal)
       catch
         kind, reason ->
-          Tower.handle_caught(kind, reason, __STACKTRACE__)
+          Tower.report(kind, reason, __STACKTRACE__)
       end
     end)
 
@@ -471,7 +471,7 @@ defmodule TowerTest do
         exit(:normal)
       catch
         :exit, reason when not Tower.is_normal_exit(reason) ->
-          Tower.handle_exit(reason, __STACKTRACE__)
+          Tower.report_exit(reason, __STACKTRACE__)
       end
     end)
 
@@ -480,7 +480,7 @@ defmodule TowerTest do
         exit(:shutdown)
       catch
         :exit, reason when not Tower.is_normal_exit(reason) ->
-          Tower.handle_exit(reason, __STACKTRACE__)
+          Tower.report_exit(reason, __STACKTRACE__)
       end
     end)
 
@@ -489,7 +489,7 @@ defmodule TowerTest do
         exit({:shutdown, 0})
       catch
         :exit, reason when not Tower.is_normal_exit(reason) ->
-          Tower.handle_exit(reason, __STACKTRACE__)
+          Tower.report_exit(reason, __STACKTRACE__)
       end
     end)
 
@@ -502,7 +502,7 @@ defmodule TowerTest do
         exit(:abnormal)
       catch
         :exit, reason when not Tower.is_normal_exit(reason) ->
-          Tower.handle_exit(reason, __STACKTRACE__)
+          Tower.report_exit(reason, __STACKTRACE__)
       end
     end)
 

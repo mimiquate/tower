@@ -142,22 +142,22 @@ defmodule Tower do
       - [`TowerSlack`](https://hexdocs.pm/tower_slack) ([`tower_slack`](https://hex.pm/packages/tower_slack))
     - and properly set the `config :tower, :reporters, [...]` configuration key
 
-  ## Manual handling
+  ## Manual reporting
 
   If either, for whatever reason when using automated exception handling, an exception condition is
-  not reaching Tower handling, or you just need or want to manually handle possible errors, you can
-  manually ask Tower to handle exceptions, throws or exits.
+  not reaching Tower handling, or you just need or want to manually handle and report errors, you can
+  manually ask Tower to report exceptions, throws or exits.
 
       try do
         # possibly crashing code
       rescue
         exception ->
-          Tower.handle_exception(exception, __STACKTRACE__)
+          Tower.report_exception(exception, __STACKTRACE__)
       catch
         :throw, value ->
-          Tower.handle_throw(value, __STACKTRACE__)
+          Tower.report_throw(value, __STACKTRACE__)
         :exit, reason when not Tower.is_normal_exit(reason) ->
-          Tower.handle_exit(reason, __STACKTRACE__)
+          Tower.report_exit(reason, __STACKTRACE__)
       end
 
   or more generally
@@ -166,7 +166,7 @@ defmodule Tower do
         # possibly crashing code
       catch
         kind, reason ->
-          Tower.handle_caught(kind, reason, __STACKTRACE__)
+          Tower.report(kind, reason, __STACKTRACE__)
       end
 
   which will in turn call the appropriate function based on the caught `kind` and `reason` values
@@ -273,7 +273,7 @@ defmodule Tower do
   Detaches the handlers.
 
   That means it stops the automatic handling of errors.
-  You can still manually call `Tower` `handle_*` functions and reporters will be informed about
+  You can still manually call `Tower` `report_*` functions and reporters will be informed about
   those events.
   """
   @spec detach() :: :ok | {:error, reason :: term()}
@@ -286,7 +286,7 @@ defmodule Tower do
   end
 
   @doc """
-  Asks Tower to handle a manually caught error.
+  Asks Tower to report a manually handled error.
 
   ## Example
 
@@ -295,7 +295,7 @@ defmodule Tower do
       catch
         # Note this will also catch and handle normal (`:normal` and `:shutdown`) exits
         kind, reason ->
-          Tower.handle_caught(kind, reason, __STACKTRACE__)
+          Tower.report(kind, reason, __STACKTRACE__)
       end
 
   ## Options
@@ -308,15 +308,18 @@ defmodule Tower do
     up to each reporter if and how to handle it.
 
   """
-  @spec handle_caught(Exception.kind(), Event.reason(), Exception.stacktrace(), Keyword.t()) ::
+  @spec report(Exception.kind(), Event.reason(), Exception.stacktrace(), Keyword.t()) ::
           :ok
-  def handle_caught(kind, reason, stacktrace, options \\ []) do
+  def report(kind, reason, stacktrace, options \\ []) do
     Event.from_caught(kind, reason, stacktrace, options)
     |> report_event()
   end
 
+  @deprecated "Use Tower.report/3,4 instead."
+  defdelegate handle_caught(kind, reason, stacktrace, options \\ []), to: __MODULE__, as: :report
+
   @doc """
-  Asks Tower to handle a manually caught exception.
+  Asks Tower to report a manually handled exception.
 
   ## Example
 
@@ -324,15 +327,15 @@ defmodule Tower do
         # possibly crashing code
       rescue
         exception ->
-          Tower.handle_exception(exception, __STACKTRACE__)
+          Tower.report_exception(exception, __STACKTRACE__)
       end
 
   ## Options
 
-    * Accepts same options as `handle_caught/4#options`.
+    * Accepts same options as `report/4#options`.
   """
-  @spec handle_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: :ok
-  def handle_exception(exception, stacktrace, options \\ [])
+  @spec report_exception(Exception.t(), Exception.stacktrace(), Keyword.t()) :: :ok
+  def report_exception(exception, stacktrace, options \\ [])
       when is_exception(exception) and is_list(stacktrace) do
     unless exception.__struct__ in ignored_exceptions() do
       Event.from_exception(exception, stacktrace, options)
@@ -340,8 +343,13 @@ defmodule Tower do
     end
   end
 
+  @deprecated "Use Tower.report_exception/2,3 instead."
+  defdelegate handle_exception(exception, stacktrace, options \\ []),
+    to: __MODULE__,
+    as: :report_exception
+
   @doc """
-  Asks Tower to handle a manually caught throw.
+  Asks Tower to report a manually handled throw.
 
   ## Example
 
@@ -349,21 +357,24 @@ defmodule Tower do
         # possibly throwing code
       catch
         thrown_value ->
-          Tower.handle_throw(thrown_value, __STACKTRACE__)
+          Tower.report_throw(thrown_value, __STACKTRACE__)
       end
 
   ## Options
 
-    * Accepts same options as `handle_caught/4#options`.
+    * Accepts same options as `report/4#options`.
   """
-  @spec handle_throw(term(), Exception.stacktrace(), Keyword.t()) :: :ok
-  def handle_throw(reason, stacktrace, options \\ []) do
+  @spec report_throw(term(), Exception.stacktrace(), Keyword.t()) :: :ok
+  def report_throw(reason, stacktrace, options \\ []) do
     Event.from_throw(reason, stacktrace, options)
     |> report_event()
   end
 
+  @deprecated "Use Tower.report_throw/2,3 instead."
+  defdelegate handle_throw(reason, stacktrace, options \\ []), to: __MODULE__, as: :report_throw
+
   @doc """
-  Asks Tower to handle a manually caught exit.
+  Asks Tower to report a manually handled exit.
 
   ## Example
 
@@ -371,39 +382,45 @@ defmodule Tower do
         # possibly exiting code
       catch
         :exit, reason when not Tower.is_normal_exit(reason) ->
-          Tower.handle_exit(reason, __STACKTRACE__)
+          Tower.report_exit(reason, __STACKTRACE__)
       end
 
   ## Options
 
-    * Accepts same options as `handle_caught/4#options`.
+    * Accepts same options as `report/4#options`.
   """
-  @spec handle_exit(term(), Exception.stacktrace(), Keyword.t()) :: :ok
-  def handle_exit(reason, stacktrace, options \\ []) do
+  @spec report_exit(term(), Exception.stacktrace(), Keyword.t()) :: :ok
+  def report_exit(reason, stacktrace, options \\ []) do
     Event.from_exit(reason, stacktrace, options)
     |> report_event()
   end
 
+  @deprecated "Use Tower.report_exit/2,3 instead."
+  defdelegate handle_exit(reason, stacktrace, options \\ []), to: __MODULE__, as: :report_exit
+
   @doc """
-  Asks Tower to handle a message of certain level.
+  Asks Tower to report a message of certain level.
 
   ## Examples
 
-      Tower.handle_message(:emergency, "System is falling apart")
+      Tower.report_message(:emergency, "System is falling apart")
 
-      Tower.handle_message(:error, "Unknown error has occurred", metadata: %{any_key: "here"})
+      Tower.report_message(:error, "Unknown error has occurred", metadata: %{any_key: "here"})
 
-      Tower.handle_message(:info, "Just something interesting", metadata: %{interesting: "additional data"})
+      Tower.report_message(:info, "Just something interesting", metadata: %{interesting: "additional data"})
 
   ## Options
 
-    * Accepts same options as `handle_caught/4#options`.
+    * Accepts same options as `report/4#options`.
   """
-  @spec handle_message(Event.level(), term(), Keyword.t()) :: :ok
-  def handle_message(level, message, options \\ []) do
+  @spec report_message(Event.level(), term(), Keyword.t()) :: :ok
+  def report_message(level, message, options \\ []) do
     Event.from_message(level, message, options)
     |> report_event()
   end
+
+  @deprecated "Use Tower.report_message/2,3 instead."
+  defdelegate handle_message(level, message, options \\ []), to: __MODULE__, as: :report_message
 
   @doc """
   Compares event level severity.

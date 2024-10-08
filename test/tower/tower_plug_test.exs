@@ -203,7 +203,7 @@ defmodule TowerPlugTest do
   end
 
   test "reports message plug_conn manually" do
-    Tower.handle_message(
+    Tower.report_message(
       :info,
       "Something interesting",
       plug_conn: Plug.Conn.assign(%Plug.Conn{}, :hello, "world")
