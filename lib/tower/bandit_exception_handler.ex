@@ -40,7 +40,7 @@ defmodule Tower.BanditExceptionHandler do
          stacktrace: stacktrace
        }) do
     Exception.normalize(:error, reason, stacktrace)
-    |> Tower.handle_exception(stacktrace, plug_conn: conn)
+    |> Tower.report_exception(stacktrace, plug_conn: conn)
   end
 
   defp handle_event_metadata(event_metadata) do

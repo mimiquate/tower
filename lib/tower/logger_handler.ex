@@ -46,42 +46,42 @@ defmodule Tower.LoggerHandler do
          %{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event
        )
        when is_exception(exception) and is_list(stacktrace) do
-    Tower.handle_exception(exception, stacktrace, log_event: log_event)
+    Tower.report_exception(exception, stacktrace, log_event: log_event)
   end
 
   defp handle_log_event(
          %{level: :error, meta: %{crash_reason: {{:nocatch, reason}, stacktrace}}} = log_event
        )
        when is_list(stacktrace) do
-    Tower.handle_throw(reason, stacktrace, log_event: log_event)
+    Tower.report_throw(reason, stacktrace, log_event: log_event)
   end
 
   defp handle_log_event(
          %{level: :error, meta: %{crash_reason: {exit_reason, stacktrace}}} = log_event
        )
        when is_list(stacktrace) do
-    Tower.handle_exit(exit_reason, stacktrace, log_event: log_event)
+    Tower.report_exit(exit_reason, stacktrace, log_event: log_event)
   end
 
   defp handle_log_event(%{level: :error, meta: %{crash_reason: exit_reason}} = log_event) do
-    Tower.handle_exit(exit_reason, [], log_event: log_event)
+    Tower.report_exit(exit_reason, [], log_event: log_event)
   end
 
   defp handle_log_event(%{level: level, msg: {:string, reason_chardata}} = log_event) do
     if should_handle?(level) do
-      Tower.handle_message(level, IO.chardata_to_string(reason_chardata), log_event: log_event)
+      Tower.report_message(level, IO.chardata_to_string(reason_chardata), log_event: log_event)
     end
   end
 
   defp handle_log_event(%{level: level, msg: {:report, report}} = log_event) do
     if should_handle?(level) do
-      Tower.handle_message(level, report, log_event: log_event)
+      Tower.report_message(level, report, log_event: log_event)
     end
   end
 
   defp handle_log_event(%{level: level, msg: {format, args}} = log_event) when is_list(args) do
     if should_handle?(level) do
-      Tower.handle_message(level, formatted_message(format, args), log_event: log_event)
+      Tower.report_message(level, formatted_message(format, args), log_event: log_event)
     end
   end
 
@@ -90,7 +90,7 @@ defmodule Tower.LoggerHandler do
     safe_log(:warning, "[Tower.LoggerHandler] UNRECOGNIZED LOG EVENT log_event=#{log_event_str}")
 
     if should_handle?(level) do
-      Tower.handle_message(
+      Tower.report_message(
         level,
         "Unrecognized log event",
         log_event: log_event,
