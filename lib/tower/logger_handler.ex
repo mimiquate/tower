@@ -79,6 +79,12 @@ defmodule Tower.LoggerHandler do
     end
   end
 
+  defp handle_log_event(%{level: level, msg: {format, args}} = log_event) when is_list(args) do
+    if should_handle?(level) do
+      Tower.handle_message(level, formatted_message(format, args), log_event: log_event)
+    end
+  end
+
   defp handle_log_event(%{level: level} = log_event) do
     log_event_str = inspect(log_event, pretty: true)
     safe_log(:warning, "[Tower.LoggerHandler] UNRECOGNIZED LOG EVENT log_event=#{log_event_str}")
@@ -105,5 +111,19 @@ defmodule Tower.LoggerHandler do
 
   defp safe_log(level, message) do
     Logger.log(level, message, domain: @own_logs_domain)
+  end
+
+  defp formatted_message(format, args) do
+    # Borrowed from Elixir's Logger.Formatter:
+    # https://github.com/elixir-lang/elixir/blob/a4adaa871f1b65a166bce5d007ed5f34fd231fb9/lib/logger/lib/logger/formatter.ex#L273-L278
+
+    format
+    |> Logger.Utils.scan_inspect(args, log_messages_max_bytes())
+    |> :io_lib.build_text()
+    |> IO.chardata_to_string()
+  end
+
+  defp log_messages_max_bytes do
+    Application.get_env(:logger, :truncate, 2048)
   end
 end

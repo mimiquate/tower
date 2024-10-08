@@ -282,6 +282,32 @@ defmodule TowerTest do
     assert recent_datetime?(datetime)
   end
 
+  test "reports a Logger format/args message" do
+    in_unlinked_process(fn ->
+      require Logger
+
+      capture_log(fn ->
+        :logger.critical(~c"This is a format with ~b ~p", [2, :args])
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :critical,
+          kind: :message,
+          reason: "This is a format with 2 :args",
+          stacktrace: nil
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+  end
+
   test "reports message manually" do
     Tower.handle_message(:info, "Something interesting", metadata: %{something: "else"})
 
