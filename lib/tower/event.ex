@@ -16,7 +16,8 @@ defmodule Tower.Event do
     :stacktrace,
     :log_event,
     :plug_conn,
-    :metadata
+    :metadata,
+    :handled
   ]
 
   @type error_kind :: :error | :exit | :throw
@@ -40,7 +41,8 @@ defmodule Tower.Event do
           stacktrace: Exception.stacktrace() | nil,
           log_event: :logger.log_event() | nil,
           plug_conn: struct() | nil,
-          metadata: map()
+          metadata: map(),
+          handled: boolean()
         }
 
   @similarity_source_attributes [:level, :kind, :reason, :stacktrace, :metadata]
@@ -117,7 +119,7 @@ defmodule Tower.Event do
   defp from_map(map, options) when is_map(map) do
     struct!(
       __MODULE__,
-      %{id: Uniq.UUID.uuid7()}
+      %{id: Uniq.UUID.uuid7(), handled: true}
       |> Map.merge(map)
       |> Map.merge(attributes_from_options(options))
     )
