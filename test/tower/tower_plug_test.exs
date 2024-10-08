@@ -31,7 +31,8 @@ defmodule TowerPlugTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
-          plug_conn: %Plug.Conn{} = plug_conn
+          plug_conn: %Plug.Conn{} = plug_conn,
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -62,7 +63,8 @@ defmodule TowerPlugTest do
           kind: :throw,
           reason: "something",
           stacktrace: stacktrace,
-          plug_conn: %Plug.Conn{} = plug_conn
+          plug_conn: %Plug.Conn{} = plug_conn,
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -93,7 +95,8 @@ defmodule TowerPlugTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: stacktrace,
-          plug_conn: %Plug.Conn{} = plug_conn
+          plug_conn: %Plug.Conn{} = plug_conn,
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -125,7 +128,8 @@ defmodule TowerPlugTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
-          plug_conn: %Plug.Conn{} = plug_conn
+          plug_conn: %Plug.Conn{} = plug_conn,
+          by: Tower.BanditExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -159,7 +163,8 @@ defmodule TowerPlugTest do
           reason: {:bad_return_value, "something"},
           stacktrace: stacktrace,
           # Bandit doesn't handle uncaught throws so it doesn't provide the conn in the metadata
-          plug_conn: nil
+          plug_conn: nil,
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -192,7 +197,8 @@ defmodule TowerPlugTest do
           reason: :abnormal,
           stacktrace: stacktrace,
           # Bandit doesn't handle exits so it doesn't provide the conn in the metadata
-          plug_conn: nil
+          plug_conn: nil,
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -215,7 +221,8 @@ defmodule TowerPlugTest do
           level: :info,
           kind: :message,
           reason: "Something interesting",
-          plug_conn: %Plug.Conn{assigns: %{hello: "world"}}
+          plug_conn: %Plug.Conn{assigns: %{hello: "world"}},
+          by: nil
         }
       ] = Tower.EphemeralReporter.events()
     )

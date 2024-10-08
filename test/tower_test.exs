@@ -31,7 +31,8 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -108,7 +109,8 @@ defmodule TowerTest do
           level: :error,
           kind: :throw,
           reason: "error",
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -174,7 +176,8 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -199,7 +202,8 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :kill,
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -239,7 +243,8 @@ defmodule TowerTest do
           level: :error,
           kind: :message,
           reason: "Something went wrong here",
-          stacktrace: nil
+          stacktrace: nil,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -274,7 +279,8 @@ defmodule TowerTest do
           kind: :message,
           reason:
             "Postgrex.Protocol (#PID<0.2612.0>) disconnected: ** (DBConnection.ConnectionError) tcp recv (idle): closed",
-          stacktrace: nil
+          stacktrace: nil,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -300,7 +306,8 @@ defmodule TowerTest do
           level: :critical,
           kind: :message,
           reason: [something: :reported, this: :critical],
-          stacktrace: nil
+          stacktrace: nil,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -326,7 +333,8 @@ defmodule TowerTest do
           level: :critical,
           kind: :message,
           reason: "This is a format with 2 :args",
-          stacktrace: nil
+          stacktrace: nil,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -349,7 +357,8 @@ defmodule TowerTest do
           stacktrace: nil,
           metadata: %{
             something: "else"
-          }
+          },
+          by: nil
         }
       ] = reported_events()
     )
@@ -375,7 +384,8 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: nil
         }
       ] = reported_events()
     )
@@ -402,7 +412,8 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: nil
         }
       ] = reported_events()
     )
@@ -429,7 +440,8 @@ defmodule TowerTest do
           level: :error,
           kind: :throw,
           reason: "error",
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: nil
         }
       ] = reported_events()
     )
@@ -456,7 +468,8 @@ defmodule TowerTest do
           level: :error,
           kind: :throw,
           reason: "error",
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: nil
         }
       ] = reported_events()
     )
@@ -483,7 +496,8 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: nil
         }
       ] = reported_events()
     )
@@ -541,7 +555,8 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace
+          stacktrace: stacktrace,
+          by: nil
         }
       ] = reported_events()
     )
@@ -580,7 +595,8 @@ defmodule TowerTest do
             reporter: BuggyReporter,
             original: {:error, %RuntimeError{message: "I have a bug"}, [_ | _]}
           },
-          stacktrace: stacktrace1
+          stacktrace: stacktrace1,
+          by: Tower.LoggerHandler
         },
         %{
           id: id2,
@@ -588,7 +604,8 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace2
+          stacktrace: stacktrace2,
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )

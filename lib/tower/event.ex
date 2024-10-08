@@ -16,7 +16,8 @@ defmodule Tower.Event do
     :stacktrace,
     :log_event,
     :plug_conn,
-    :metadata
+    :metadata,
+    :by
   ]
 
   @type error_kind :: :error | :exit | :throw
@@ -40,7 +41,8 @@ defmodule Tower.Event do
           stacktrace: Exception.stacktrace() | nil,
           log_event: :logger.log_event() | nil,
           plug_conn: struct() | nil,
-          metadata: map()
+          metadata: map(),
+          by: atom() | nil
         }
 
   @similarity_source_attributes [:level, :kind, :reason, :stacktrace, :metadata]
@@ -131,7 +133,8 @@ defmodule Tower.Event do
       datetime: event_datetime(log_event),
       log_event: log_event,
       plug_conn: plug_conn(options),
-      metadata: Keyword.get(options, :metadata, %{})
+      metadata: Keyword.get(options, :metadata, %{}),
+      by: Keyword.get(options, :by)
     }
   end
 

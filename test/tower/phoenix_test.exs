@@ -52,7 +52,8 @@ defmodule TowerPhoenixTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
-          plug_conn: %Plug.Conn{} = plug_conn
+          plug_conn: %Plug.Conn{} = plug_conn,
+          by: Tower.BanditExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -83,7 +84,8 @@ defmodule TowerPhoenixTest do
           reason: {:bad_return_value, "something"},
           stacktrace: stacktrace,
           # Bandit doesn't handle uncaught throws so it doesn't provide the conn in the metadata
-          plug_conn: nil
+          plug_conn: nil,
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -111,7 +113,8 @@ defmodule TowerPhoenixTest do
           reason: :abnormal,
           stacktrace: stacktrace,
           # Bandit doesn't handle exits so it doesn't provide the conn in the metadata
-          plug_conn: nil
+          plug_conn: nil,
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )

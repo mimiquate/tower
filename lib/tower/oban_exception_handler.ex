@@ -24,7 +24,7 @@ defmodule Tower.ObanExceptionHandler do
         %{kind: kind, reason: reason, stacktrace: stacktrace},
         _handler_config
       ) do
-    Tower.report(kind, reason, stacktrace)
+    Tower.report(kind, reason, stacktrace, by: __MODULE__)
   end
 
   def handle_event(

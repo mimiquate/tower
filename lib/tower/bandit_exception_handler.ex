@@ -42,7 +42,7 @@ defmodule Tower.BanditExceptionHandler do
     exception = Exception.normalize(:error, reason, stacktrace)
 
     if report?(exception) do
-      Tower.report_exception(exception, stacktrace, plug_conn: conn)
+      Tower.report_exception(exception, stacktrace, plug_conn: conn, by: __MODULE__)
     end
   end
 
@@ -56,7 +56,7 @@ defmodule Tower.BanditExceptionHandler do
     exception = Exception.normalize(:error, reason, stacktrace)
 
     if report?(exception) do
-      Tower.report_exception(exception, stacktrace, plug_conn: conn)
+      Tower.report_exception(exception, stacktrace, plug_conn: conn, by: __MODULE__)
     end
   end
 
