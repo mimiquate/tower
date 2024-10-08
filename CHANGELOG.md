@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2024-10-08
+
+### Fixed
+
+- Properly report (don't ignore) messages that should be reported per their log level that have the
+`:logger` format of `{format, format_args}`, sometimes coming from Erlang/OTP code, when using log
+functions that pass format and arguments instead of strings (see https://www.erlang.org/doc/apps/kernel/logger.html#log/3).
+
 ## [0.6.0] - 2024-10-04
 
 ### Added
@@ -102,6 +110,7 @@ is the main way `tower` handles errors. Keep elixir 1.15+ for now.
 
 - Reporters (those implementing `Tower.Reporter` behaviour) can now handle events with just one callback: `report_event/1`, in replacement of `report_exception/2,3`, `report_exit/2,3`, `report_throw/2,3` and `report_message/2,3` callbacks.
 
+[0.6.1]: https://github.com/mimiquate/tower/compare/v0.6.0...v0.6.1/
 [0.6.0]: https://github.com/mimiquate/tower/compare/v0.5.3...v0.6.0/
 [0.5.3]: https://github.com/mimiquate/tower/compare/v0.5.2...v0.5.3/
 [0.5.2]: https://github.com/mimiquate/tower/compare/v0.5.1...v0.5.2/
