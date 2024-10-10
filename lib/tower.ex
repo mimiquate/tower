@@ -214,11 +214,9 @@ defmodule Tower do
   end
 
   defmodule TestException do
-    defexception []
-    @message "This is Tower forcing a test exception. You seeing this should be a good thing."
-
-    @impl true
-    def message(_), do: @message
+    defexception(
+      message: "This is Tower forcing a test exception. You seeing this should be a good thing."
+    )
   end
 
   alias Tower.Event
