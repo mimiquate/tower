@@ -115,8 +115,6 @@ defmodule Tower.Event do
   end
 
   defp from_map(map, options) when is_map(map) do
-    attributes_from_options(options)
-
     struct!(
       __MODULE__,
       %{id: Uniq.UUID.uuid7()}
