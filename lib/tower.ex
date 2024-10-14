@@ -316,7 +316,7 @@ defmodule Tower do
   end
 
   def report_caught(kind, reason, stacktrace, options \\ []) do
-    Event.from_caught(kind, reason, stacktrace, Keyword.merge([manual: true], options))
+    Event.from_caught(kind, reason, stacktrace, options)
     |> report_event()
   end
 
@@ -347,7 +347,7 @@ defmodule Tower do
 
   def report_exception(exception, stacktrace, options \\ [])
       when is_exception(exception) and is_list(stacktrace) do
-    Event.from_exception(exception, stacktrace, Keyword.merge([manual: true], options))
+    Event.from_exception(exception, stacktrace, options)
     |> report_event()
   end
 
@@ -374,7 +374,7 @@ defmodule Tower do
   end
 
   def report_throw(reason, stacktrace, options \\ []) do
-    Event.from_throw(reason, stacktrace, Keyword.merge([manual: true], options))
+    Event.from_throw(reason, stacktrace, options)
     |> report_event()
   end
 
@@ -401,7 +401,7 @@ defmodule Tower do
   end
 
   def report_exit(reason, stacktrace, options \\ []) do
-    Event.from_exit(reason, stacktrace, Keyword.merge([manual: true], options))
+    Event.from_exit(reason, stacktrace, options)
     |> report_event()
   end
 
@@ -427,7 +427,7 @@ defmodule Tower do
   end
 
   def report_message(level, message, options \\ []) do
-    Event.from_message(level, message, Keyword.merge([manual: true], options))
+    Event.from_message(level, message, options)
     |> report_event()
   end
 

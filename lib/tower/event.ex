@@ -17,7 +17,7 @@ defmodule Tower.Event do
     :log_event,
     :plug_conn,
     :metadata,
-    :manual
+    :captured_by
   ]
 
   @type error_kind :: :error | :exit | :throw
@@ -42,7 +42,7 @@ defmodule Tower.Event do
           log_event: :logger.log_event() | nil,
           plug_conn: struct() | nil,
           metadata: map(),
-          manual: boolean()
+          captured_by: atom()
         }
 
   @similarity_source_attributes [:level, :kind, :reason, :stacktrace, :metadata]
@@ -134,7 +134,7 @@ defmodule Tower.Event do
       log_event: log_event,
       plug_conn: plug_conn(options),
       metadata: Keyword.get(options, :metadata, %{}),
-      manual: Keyword.get(options, :manual, false)
+      captured_by: Keyword.get(options, :captured_by)
     }
   end
 
