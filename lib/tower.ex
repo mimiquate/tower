@@ -315,6 +315,11 @@ defmodule Tower do
     |> report_event()
   end
 
+  def report_caught(kind, reason, stacktrace, options \\ []) do
+    Event.from_caught(kind, reason, stacktrace, Keyword.merge([manual: true], options))
+    |> report_event()
+  end
+
   @doc """
   Asks Tower to handle a manually caught exception.
 
@@ -340,6 +345,12 @@ defmodule Tower do
     end
   end
 
+  def report_exception(exception, stacktrace, options \\ [])
+      when is_exception(exception) and is_list(stacktrace) do
+    Event.from_exception(exception, stacktrace, Keyword.merge([manual: true], options))
+    |> report_event()
+  end
+
   @doc """
   Asks Tower to handle a manually caught throw.
 
@@ -359,6 +370,11 @@ defmodule Tower do
   @spec handle_throw(term(), Exception.stacktrace(), Keyword.t()) :: :ok
   def handle_throw(reason, stacktrace, options \\ []) do
     Event.from_throw(reason, stacktrace, options)
+    |> report_event()
+  end
+
+  def report_throw(reason, stacktrace, options \\ []) do
+    Event.from_throw(reason, stacktrace, Keyword.merge([manual: true], options))
     |> report_event()
   end
 
@@ -384,6 +400,11 @@ defmodule Tower do
     |> report_event()
   end
 
+  def report_exit(reason, stacktrace, options \\ []) do
+    Event.from_exit(reason, stacktrace, Keyword.merge([manual: true], options))
+    |> report_event()
+  end
+
   @doc """
   Asks Tower to handle a message of certain level.
 
@@ -402,6 +423,11 @@ defmodule Tower do
   @spec handle_message(Event.level(), term(), Keyword.t()) :: :ok
   def handle_message(level, message, options \\ []) do
     Event.from_message(level, message, options)
+    |> report_event()
+  end
+
+  def report_message(level, message, options \\ []) do
+    Event.from_message(level, message, Keyword.merge([manual: true], options))
     |> report_event()
   end
 

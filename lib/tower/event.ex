@@ -17,7 +17,7 @@ defmodule Tower.Event do
     :log_event,
     :plug_conn,
     :metadata,
-    :handled
+    :manual
   ]
 
   @type error_kind :: :error | :exit | :throw
@@ -42,7 +42,7 @@ defmodule Tower.Event do
           log_event: :logger.log_event() | nil,
           plug_conn: struct() | nil,
           metadata: map(),
-          handled: boolean()
+          manual: boolean()
         }
 
   @similarity_source_attributes [:level, :kind, :reason, :stacktrace, :metadata]
@@ -119,7 +119,7 @@ defmodule Tower.Event do
   defp from_map(map, options) when is_map(map) do
     struct!(
       __MODULE__,
-      %{id: Uniq.UUID.uuid7(), handled: true}
+      %{id: Uniq.UUID.uuid7()}
       |> Map.merge(map)
       |> Map.merge(attributes_from_options(options))
     )
@@ -133,7 +133,8 @@ defmodule Tower.Event do
       datetime: event_datetime(log_event),
       log_event: log_event,
       plug_conn: plug_conn(options),
-      metadata: Keyword.get(options, :metadata, %{})
+      metadata: Keyword.get(options, :metadata, %{}),
+      manual: Keyword.get(options, :manual, false)
     }
   end
 
