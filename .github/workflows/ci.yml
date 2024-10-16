@@ -15,9 +15,9 @@ jobs:
             erlang: '27.0'
             lint: true
           - elixir: '1.16'
-            erlang: '26.2.5'
+            erlang: '26.2.5.4'
           - elixir: '1.15'
-            erlang: '25.3.2.12'
+            erlang: '25.3.2.15'
           - elixir: '1.15'
             erlang: '24.3.4.17'
     steps:
