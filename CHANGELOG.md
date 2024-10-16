@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] - 2024-10-16
+
+### Changed
+
+- Renamed functions:
+  - `Tower.handle_exception/2,3` to `Tower.report_exception/2,3`
+  - `Tower.handle_exit/2,3` to `Tower.report_exit/2,3`
+  - `Tower.handle_throw/2,3` to `Tower.report_throw/2,3`
+  - `Tower.handle_caught/3,4` to `Tower.report/3,4`
+
+Non-breaking change. Original functions still work, but deprecated.
+
 ## [0.6.1] - 2024-10-08
 
 ### Fixed
@@ -110,6 +122,7 @@ is the main way `tower` handles errors. Keep elixir 1.15+ for now.
 
 - Reporters (those implementing `Tower.Reporter` behaviour) can now handle events with just one callback: `report_event/1`, in replacement of `report_exception/2,3`, `report_exit/2,3`, `report_throw/2,3` and `report_message/2,3` callbacks.
 
+[0.6.2]: https://github.com/mimiquate/tower/compare/v0.6.1...v0.6.2/
 [0.6.1]: https://github.com/mimiquate/tower/compare/v0.6.0...v0.6.1/
 [0.6.0]: https://github.com/mimiquate/tower/compare/v0.5.3...v0.6.0/
 [0.5.3]: https://github.com/mimiquate/tower/compare/v0.5.2...v0.5.3/
