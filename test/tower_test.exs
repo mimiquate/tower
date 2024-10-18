@@ -41,10 +41,10 @@ defmodule TowerTest do
     assert [_ | _] = stacktrace
   end
 
-  test "reports a raise" do
+  test "reports as an :error an Erlang error Elixir can normalize" do
     capture_log(fn ->
       in_unlinked_process(fn ->
-        raise "error inside process"
+        :erlang.error(:badarith)
       end)
     end)
 
@@ -55,7 +55,34 @@ defmodule TowerTest do
           datetime: datetime,
           level: :error,
           kind: :error,
-          reason: %RuntimeError{message: "error inside process"},
+          reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
+          stacktrace: stacktrace
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+    assert [_ | _] = stacktrace
+  end
+
+  test "reports as an :exit an Erlang error Elixir cannot normalize" do
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        :erlang.error("a naked erlang error")
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          # Why ends up as exit?
+          # https://github.com/elixir-lang/elixir/blob/78f63d08313677a680868685701ae79a2459dcc1/lib/logger/lib/logger/translator.ex#L663-L665
+          kind: :exit,
+          reason: "a naked erlang error",
           stacktrace: stacktrace
         }
       ] = reported_events()
