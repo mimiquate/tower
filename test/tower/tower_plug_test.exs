@@ -19,7 +19,7 @@ defmodule TowerPlugTest do
     start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
     capture_log(fn ->
-      {:ok, _response} = :httpc.request(url)
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
     assert_eventually(
@@ -50,7 +50,7 @@ defmodule TowerPlugTest do
     start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
     capture_log(fn ->
-      {:ok, _response} = :httpc.request(url)
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
     assert_eventually(
@@ -81,7 +81,7 @@ defmodule TowerPlugTest do
     start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
     capture_log(fn ->
-      {:ok, _response} = :httpc.request(url)
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
     assert_eventually(
@@ -113,7 +113,7 @@ defmodule TowerPlugTest do
     capture_log(fn ->
       start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-      {:ok, _response} = :httpc.request(url)
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
     assert_eventually(
