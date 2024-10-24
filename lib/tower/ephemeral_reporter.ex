@@ -21,6 +21,7 @@ defmodule Tower.EphemeralReporter do
       :error
       iex> event.reason
       %ArithmeticError{message: "bad argument in arithmetic expression"}
+      iex> Tower.EphemeralReporter.reset()
   """
   @behaviour Tower.Reporter
 
