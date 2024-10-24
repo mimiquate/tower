@@ -58,6 +58,8 @@ defmodule Tower.MixProject do
       {:assert_eventually, "~> 1.0", only: :test},
       {:plug_cowboy, "~> 2.7", only: :test},
       {:bandit, "~> 1.5", only: :test},
+      {:phoenix, "~> 1.7", only: :test},
+      {:phoenix_html, "~> 4.1", only: :test},
       {:oban, "~> 2.18", only: :test},
       {:ecto_sqlite3, "~> 0.17.0", only: :test}
     ]

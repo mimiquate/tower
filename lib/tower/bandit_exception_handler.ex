@@ -43,6 +43,17 @@ defmodule Tower.BanditExceptionHandler do
     |> Tower.report_exception(stacktrace, plug_conn: conn)
   end
 
+  defp handle_event_metadata(%{
+         kind: :exit,
+         exception: reason,
+         stacktrace: stacktrace,
+         conn: conn
+       })
+       when is_exception(reason) do
+    Exception.normalize(:error, reason, stacktrace)
+    |> Tower.report_exception(stacktrace, plug_conn: conn)
+  end
+
   defp handle_event_metadata(event_metadata) do
     Logger.warning(
       "UNHANDLED BANDIT REQUEST EXCEPTION with event_metadata=#{inspect(event_metadata, pretty: true)}"
