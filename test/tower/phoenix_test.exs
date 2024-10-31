@@ -5,7 +5,7 @@ defmodule TowerPhoenixTest do
 
   import ExUnit.CaptureLog, only: [capture_log: 1]
 
-  setup do
+  setup context do
     on_exit(fn ->
       Tower.EphemeralReporter.reset()
     end)
@@ -17,7 +17,11 @@ defmodule TowerPhoenixTest do
     Application.put_env(
       :phoenix_app,
       Tower.PhoenixApp.Endpoint,
-      adapter: Bandit.PhoenixAdapter,
+      adapter:
+        case context[:adapter] do
+          :bandit -> Bandit.PhoenixAdapter
+          :cowboy -> Phoenix.Endpoint.Cowboy2Adapter
+        end,
       server: true,
       http: [port: port],
       url: [scheme: "http", port: port, host: host],
@@ -31,6 +35,7 @@ defmodule TowerPhoenixTest do
     %{base_url: "http://#{host}:#{port}"}
   end
 
+  @tag adapter: :bandit
   test "reports runtime error during Phoenix.Endpoint dispatch with Bandit", %{base_url: base_url} do
     url = base_url <> "/runtime-error"
 
@@ -58,6 +63,7 @@ defmodule TowerPhoenixTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
+  @tag adapter: :bandit
   test "reports uncaught throw during Phoenix.Endpoint dispatch with Bandit", %{
     base_url: base_url
   } do
@@ -89,6 +95,7 @@ defmodule TowerPhoenixTest do
     assert [] = stacktrace
   end
 
+  @tag adapter: :bandit
   test "reports abnormal exit during Phoenix.Endpoint dispatch with Bandit", %{base_url: base_url} do
     capture_log(fn ->
       {:ok, {{_, 500, _}, _, _}} = :httpc.request(base_url <> "/abnormal-exit")
@@ -112,6 +119,30 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+  end
+
+  @tag adapter: :cowboy
+  test "doesn't report exceptions that return 4xx status codes with Cowboy", %{base_url: base_url} do
+    # Forcing Phoenix.ActionClauseError
+    url = base_url <> "/show?param=invalid"
+
+    capture_log(fn ->
+      {:ok, {{_, 400, _}, _, _}} = :httpc.request(url)
+    end)
+
+    assert [] = Tower.EphemeralReporter.events()
+  end
+
+  @tag adapter: :bandit
+  test "doesn't report exceptions that return 4xx status codes with Bandit", %{base_url: base_url} do
+    # Forcing Phoenix.ActionClauseError
+    url = base_url <> "/show?param=invalid"
+
+    capture_log(fn ->
+      {:ok, {{_, 400, _}, _, _}} = :httpc.request(url)
+    end)
+
+    assert [] = Tower.EphemeralReporter.events()
   end
 
   defp recent_datetime?(datetime) do

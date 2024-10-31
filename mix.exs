@@ -50,6 +50,9 @@ defmodule Tower.MixProject do
       {:uniq, "~> 0.6.0"},
       {:telemetry, "~> 1.1"},
 
+      # Optional
+      {:plug, "~> 1.0", optional: true},
+
       # Dev
       {:ex_doc, "~> 0.34.0", only: :dev, runtime: false},
       {:dialyxir, "~> 1.4", only: :dev, runtime: false},

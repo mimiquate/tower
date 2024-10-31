@@ -39,8 +39,11 @@ defmodule Tower.BanditExceptionHandler do
          },
          stacktrace: stacktrace
        }) do
-    Exception.normalize(:error, reason, stacktrace)
-    |> Tower.report_exception(stacktrace, plug_conn: conn)
+    exception = Exception.normalize(:error, reason, stacktrace)
+
+    if report?(exception) do
+      Tower.report_exception(exception, stacktrace, plug_conn: conn)
+    end
   end
 
   defp handle_event_metadata(%{
@@ -50,8 +53,11 @@ defmodule Tower.BanditExceptionHandler do
          conn: conn
        })
        when is_exception(reason) do
-    Exception.normalize(:error, reason, stacktrace)
-    |> Tower.report_exception(stacktrace, plug_conn: conn)
+    exception = Exception.normalize(:error, reason, stacktrace)
+
+    if report?(exception) do
+      Tower.report_exception(exception, stacktrace, plug_conn: conn)
+    end
   end
 
   defp handle_event_metadata(event_metadata) do
@@ -60,5 +66,9 @@ defmodule Tower.BanditExceptionHandler do
     )
 
     :ignored
+  end
+
+  defp report?(exception) do
+    Plug.Exception.status(exception) in 500..599
   end
 end
