@@ -42,6 +42,26 @@ defmodule Tower.LoggerHandler do
     handle_log_event(log_event)
   end
 
+  # For Bandit which doesn't unwrap Plug.Conn.WrapperError
+  defp handle_log_event(
+         %{
+           level: :error,
+           meta: %{
+             crash_reason: {
+               %Plug.Conn.WrapperError{
+                 kind: :error,
+                 reason: exception,
+                 stack: stacktrace,
+                 conn: conn
+               },
+               stacktrace
+             }
+           }
+         } = log_event
+       ) do
+    Tower.report_exception(exception, stacktrace, log_event: log_event, plug_conn: conn)
+  end
+
   defp handle_log_event(
          %{level: :error, meta: %{crash_reason: {exception, stacktrace}}} = log_event
        )
