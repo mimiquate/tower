@@ -27,8 +27,47 @@ defmodule Tower.BanditExceptionHandler do
     handle_event_metadata(event_metadata)
   end
 
+  # Next Bandit
+
   defp handle_event_metadata(%{
-         # Not sure why bandit sends all exception with kind: :exit
+         kind: :error,
+         reason: %{
+           __struct__: Plug.Conn.WrapperError,
+           kind: :error,
+           reason: reason,
+           stack: stacktrace,
+           conn: conn
+         },
+         stacktrace: stacktrace
+       }) do
+    exception = Exception.normalize(:error, reason, stacktrace)
+
+    if report?(exception) do
+      Tower.report_exception(exception, stacktrace, plug_conn: conn)
+    end
+  end
+
+  defp handle_event_metadata(%{
+         kind: :error,
+         exception: reason,
+         stacktrace: stacktrace,
+         conn: conn
+       })
+       when is_exception(reason) do
+    exception = Exception.normalize(:error, reason, stacktrace)
+
+    if report?(exception) do
+      Tower.report_exception(exception, stacktrace, plug_conn: conn)
+    end
+  end
+
+  defp handle_event_metadata(%{kind: :throw, reason: value, stacktrace: stacktrace, conn: conn}) do
+    Tower.report_throw(value, stacktrace, plug_conn: conn)
+  end
+
+  # Bandit 1.5
+
+  defp handle_event_metadata(%{
          kind: :exit,
          exception: %{
            __struct__: Plug.Conn.WrapperError,
