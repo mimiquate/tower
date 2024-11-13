@@ -52,7 +52,8 @@ defmodule TowerPhoenixTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
-          plug_conn: %Plug.Conn{} = plug_conn
+          # Bandit doesn't provide the conn in the metadata
+          plug_conn: nil
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -60,7 +61,6 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert Plug.Conn.request_url(plug_conn) == url
   end
 
   @tag adapter: :bandit
@@ -77,12 +77,10 @@ defmodule TowerPhoenixTest do
           id: id,
           datetime: datetime,
           level: :error,
-          # Bandit doesn't handle uncaught throws inside plug call so it becomes a gen server exit.
-          # We have no control over this kind.
-          kind: :exit,
-          reason: {:bad_return_value, "something"},
+          kind: :throw,
+          reason: "something",
           stacktrace: stacktrace,
-          # Bandit doesn't handle uncaught throws so it doesn't provide the conn in the metadata
+          # Bandit doesn't provide the conn in the metadata
           plug_conn: nil
         }
       ] = Tower.EphemeralReporter.events()
@@ -90,9 +88,7 @@ defmodule TowerPhoenixTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    # Bandit doesn't provide the stacktrace for throws
-    # assert [_ | _] = stacktrace
-    assert [] = stacktrace
+    assert [_ | _] = stacktrace
   end
 
   @tag adapter: :bandit

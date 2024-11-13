@@ -144,7 +144,7 @@ defmodule TowerPlugTest do
     capture_log(fn ->
       start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-      {:error, :socket_closed_remotely} = :httpc.request(url)
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
     assert_eventually(
@@ -153,10 +153,8 @@ defmodule TowerPlugTest do
           id: id,
           datetime: datetime,
           level: :error,
-          # Bandit doesn't handle uncaught throws inside plug call so it becomes a gen server exit.
-          # We have no control over this kind.
-          kind: :exit,
-          reason: {:bad_return_value, "something"},
+          kind: :throw,
+          reason: "something",
           stacktrace: stacktrace,
           # Bandit doesn't handle uncaught throws so it doesn't provide the conn in the metadata
           plug_conn: nil
@@ -166,9 +164,7 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    # Bandit doesn't provide the stacktrace for throws
-    # assert [_ | _] = stacktrace
-    assert [] = stacktrace
+    assert [_ | _] = stacktrace
   end
 
   test "reports abnormal exit during plug dispatch with Bandit" do

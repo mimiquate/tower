@@ -69,6 +69,8 @@ defmodule Tower.BanditExceptionHandler do
   end
 
   defp report?(exception) do
-    Plug.Exception.status(exception) in 500..599
+    # TODO: Check bandit version =< 1.5.7 ?
+    false &&
+      Plug.Exception.status(exception) in 500..599
   end
 end
