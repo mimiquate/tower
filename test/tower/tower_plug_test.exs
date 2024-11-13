@@ -156,8 +156,7 @@ defmodule TowerPlugTest do
           kind: :throw,
           reason: "something",
           stacktrace: stacktrace,
-          # Bandit doesn't handle uncaught throws so it doesn't provide the conn in the metadata
-          plug_conn: nil
+          plug_conn: %Plug.Conn{} = plug_conn
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -165,6 +164,7 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert Plug.Conn.request_url(plug_conn) == url
   end
 
   test "reports abnormal exit during plug dispatch with Bandit" do

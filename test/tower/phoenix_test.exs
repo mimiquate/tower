@@ -52,8 +52,7 @@ defmodule TowerPhoenixTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
-          # Bandit doesn't provide the conn in the metadata
-          plug_conn: nil
+          plug_conn: %Plug.Conn{} = plug_conn
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -61,14 +60,17 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert Plug.Conn.request_url(plug_conn) == url
   end
 
   @tag adapter: :bandit
   test "reports uncaught throw during Phoenix.Endpoint dispatch with Bandit", %{
     base_url: base_url
   } do
+    url = base_url <> "/uncaught-throw"
+
     capture_log(fn ->
-      {:ok, {{_, 500, _}, _, _}} = :httpc.request(base_url <> "/uncaught-throw")
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
     assert_eventually(
@@ -80,8 +82,7 @@ defmodule TowerPhoenixTest do
           kind: :throw,
           reason: "something",
           stacktrace: stacktrace,
-          # Bandit doesn't provide the conn in the metadata
-          plug_conn: nil
+          plug_conn: %Plug.Conn{} = plug_conn
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -89,6 +90,7 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert Plug.Conn.request_url(plug_conn) == url
   end
 
   @tag adapter: :bandit
