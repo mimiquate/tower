@@ -52,7 +52,7 @@ defmodule Tower.MixProject do
 
       # Optional
       {:plug, "~> 1.0", optional: true},
-      {:bandit, "~> 1.5.0", optional: true},
+      {:bandit, "~> 1.6", optional: true},
 
       # Dev
       {:ex_doc, "~> 0.34.0", only: :dev, runtime: false},

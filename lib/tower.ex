@@ -263,7 +263,6 @@ defmodule Tower do
   @spec attach() :: :ok | {:error, reason :: term()}
   def attach do
     with :ok <- Tower.LoggerHandler.attach(),
-         :ok <- Tower.BanditExceptionHandler.attach(),
          :ok <- Tower.ObanExceptionHandler.attach() do
       :ok
     end
@@ -279,7 +278,6 @@ defmodule Tower do
   @spec detach() :: :ok | {:error, reason :: term()}
   def detach do
     with :ok <- Tower.LoggerHandler.detach(),
-         :ok <- Tower.BanditExceptionHandler.detach(),
          :ok <- Tower.ObanExceptionHandler.detach() do
       :ok
     end
