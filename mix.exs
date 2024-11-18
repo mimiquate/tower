@@ -52,6 +52,7 @@ defmodule Tower.MixProject do
 
       # Optional
       {:plug, "~> 1.0", optional: true},
+      {:bandit, "~> 1.5.0", optional: true},
 
       # Dev
       {:ex_doc, "~> 0.34.0", only: :dev, runtime: false},
@@ -60,7 +61,6 @@ defmodule Tower.MixProject do
       # Test
       {:assert_eventually, "~> 1.0", only: :test},
       {:plug_cowboy, "~> 2.7", only: :test},
-      {:bandit, "~> 1.5", only: :test},
       {:phoenix, "~> 1.7", only: :test},
       {:phoenix_html, "~> 4.1", only: :test},
       {:oban, "~> 2.18", only: :test},
