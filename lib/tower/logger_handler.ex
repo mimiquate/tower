@@ -48,7 +48,7 @@ defmodule Tower.LoggerHandler do
            level: :error,
            meta: %{
              crash_reason: {
-               %Plug.Conn.WrapperError{
+               %{
                  kind: :error,
                  reason: reason,
                  stack: stacktrace,
