@@ -50,7 +50,7 @@ defmodule Tower.LoggerHandler do
              crash_reason: {
                %Plug.Conn.WrapperError{
                  kind: :error,
-                 reason: exception,
+                 reason: reason,
                  stack: stacktrace,
                  conn: conn
                },
@@ -60,7 +60,7 @@ defmodule Tower.LoggerHandler do
          } = log_event
        ) do
     Tower.report_exception(
-      exception,
+      Exception.normalize(:error, reason, stacktrace),
       stacktrace,
       log_event: log_event,
       plug_conn: conn,
