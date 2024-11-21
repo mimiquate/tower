@@ -455,50 +455,46 @@ defmodule Tower do
     rescue
       e ->
         Event.from_exception(e, __STACKTRACE__, metadata: %{test: true})
-        |> report_event(async: false)
+        |> report_event()
 
         :ok
     end
   end
 
-  defp report_event(%Event{} = event, options \\ []) do
-    async = Keyword.get(options, :async, true)
-
+  defp report_event(%Event{} = event) do
     reporters()
     |> Enum.each(fn reporter ->
-      report_event(reporter, event, async)
+      report_event(reporter, event)
     end)
   end
 
-  defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}, _) do
+  defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}) do
     # Ignore so we don't enter in a loop trying to report to the same buggy reporter
     :ignore
   end
 
-  defp report_event(reporter, event, false) do
+  defp report_event(reporter, event) do
     try do
       reporter.report_event(event)
     rescue
       exception ->
-        raise ReportEventError,
-          reporter: reporter,
-          original: {:error, exception, __STACKTRACE__}
-    end
-  end
+        require Logger
 
-  defp report_event(reporter, event, true) do
-    async(fn ->
-      report_event(reporter, event, false)
-    end)
+        Logger.error(
+          "Failed to report event",
+          crash_reason: {
+            ReportEventError.exception(
+              reporter: reporter,
+              original: {:error, exception, __STACKTRACE__}
+            ),
+            __STACKTRACE__
+          }
+        )
+    end
   end
 
   defp reporters do
     Application.fetch_env!(:tower, :reporters)
-  end
-
-  defp async(fun) do
-    Tower.TaskSupervisor
-    |> Task.Supervisor.start_child(fun)
   end
 
   defp ignored_exceptions do

@@ -591,10 +591,7 @@ defmodule TowerTest do
           datetime: datetime1,
           level: :error,
           kind: :error,
-          reason: %Tower.ReportEventError{
-            reporter: BuggyReporter,
-            original: {:error, %RuntimeError{message: "I have a bug"}, [_ | _]}
-          },
+          reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace1,
           by: Tower.LoggerHandler
         },
@@ -603,7 +600,10 @@ defmodule TowerTest do
           datetime: datetime2,
           level: :error,
           kind: :error,
-          reason: %RuntimeError{message: "an error"},
+          reason: %Tower.ReportEventError{
+            reporter: BuggyReporter,
+            original: {:error, %RuntimeError{message: "I have a bug"}, [_ | _]}
+          },
           stacktrace: stacktrace2,
           by: Tower.LoggerHandler
         }
@@ -616,7 +616,7 @@ defmodule TowerTest do
     assert String.length(id2) == 36
     assert recent_datetime?(datetime2)
     assert is_list(stacktrace2)
-    assert datetime1 > datetime2
+    assert datetime1 < datetime2
   end
 
   test "protects reporters from repeated events" do
