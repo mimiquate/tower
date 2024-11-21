@@ -487,8 +487,27 @@ defmodule Tower do
   end
 
   defp report_event(reporter, event, true) do
+    dict = get_dict()
+
     async(fn ->
+      put_dict(dict)
+
       report_event(reporter, event, false)
+    end)
+  end
+
+  defp get_dict do
+    Process.info(self())[:dictionary]
+    |> Keyword.reject(fn {key, _value} ->
+      to_string(key)
+      |> String.starts_with?("$")
+    end)
+  end
+
+  def put_dict(dict) do
+    dict
+    |> Enum.each(fn {key, value} ->
+      Process.put(key, value)
     end)
   end
 
