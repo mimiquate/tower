@@ -486,6 +486,18 @@ defmodule Tower do
     end
   end
 
+  # Not beautiful that tower needs to know about something specific to tower_error_tracker.
+  # We may refactor this to be configurable by reporters or it can change once we support
+  # something like `Tower.set_context`.
+  defp report_event(reporter = TowerErrorTracker, event, true) do
+    value = Process.get(:error_tracker_context, %{})
+
+    async(fn ->
+      Process.put(:error_tracker_context, value)
+      report_event(reporter, event, false)
+    end)
+  end
+
   defp report_event(reporter, event, true) do
     async(fn ->
       report_event(reporter, event, false)
