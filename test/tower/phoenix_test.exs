@@ -53,6 +53,7 @@ defmodule TowerPhoenixTest do
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
           plug_conn: %Plug.Conn{} = plug_conn,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -84,6 +85,7 @@ defmodule TowerPhoenixTest do
           reason: "something",
           stacktrace: stacktrace,
           plug_conn: %Plug.Conn{} = plug_conn,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -112,6 +114,7 @@ defmodule TowerPhoenixTest do
           stacktrace: stacktrace,
           # Bandit doesn't handle exits so it doesn't provide the conn in the metadata
           plug_conn: nil,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()

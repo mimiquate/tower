@@ -19,6 +19,8 @@ defmodule TowerTest do
   test "reports runtime error" do
     capture_log(fn ->
       in_unlinked_process(fn ->
+        Tower.context(%{user_id: 123})
+
         raise "an error"
       end)
     end)
@@ -32,6 +34,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -97,6 +100,8 @@ defmodule TowerTest do
   test "reports a thrown string" do
     capture_log(fn ->
       in_unlinked_process(fn ->
+        Tower.context(%{user_id: 123})
+
         throw("error")
       end)
     end)
@@ -110,6 +115,7 @@ defmodule TowerTest do
           kind: :throw,
           reason: "error",
           stacktrace: stacktrace,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -164,6 +170,8 @@ defmodule TowerTest do
   test "reports an abnormal exit" do
     capture_log(fn ->
       in_unlinked_process(fn ->
+        Tower.context(%{user_id: 123})
+
         exit(:abnormal)
       end)
     end)
@@ -177,6 +185,7 @@ defmodule TowerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: stacktrace,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -228,6 +237,8 @@ defmodule TowerTest do
     put_env(:log_level, :error)
 
     in_unlinked_process(fn ->
+      Tower.context(%{user_id: 123})
+
       require Logger
 
       capture_log(fn ->
@@ -244,6 +255,7 @@ defmodule TowerTest do
           kind: :message,
           reason: "Something went wrong here",
           stacktrace: nil,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -369,6 +381,8 @@ defmodule TowerTest do
 
   test "reports Exception manually" do
     in_unlinked_process(fn ->
+      Tower.context(%{user_id: 123})
+
       try do
         raise "an error"
       catch
@@ -385,6 +399,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
+          metadata: %{user_id: 123},
           by: nil
         }
       ] = reported_events()

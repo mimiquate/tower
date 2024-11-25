@@ -221,6 +221,8 @@ defmodule Tower do
 
   alias Tower.Event
 
+  @context_key :tower_context
+
   @doc """
   Determines if a process exit `reason` is "normal".
 
@@ -419,6 +421,17 @@ defmodule Tower do
 
   @deprecated "Use Tower.report_message/2,3 instead."
   defdelegate handle_message(level, message, options \\ []), to: __MODULE__, as: :report_message
+
+  @spec context(map()) :: :ok
+  def context(new_context) when is_map(new_context) do
+    Process.put(@context_key, Map.merge(context(), new_context))
+
+    :ok
+  end
+
+  def context do
+    Process.get(@context_key, %{})
+  end
 
   @doc """
   Compares event level severity.
