@@ -133,7 +133,7 @@ defmodule Tower.Event do
       datetime: event_datetime(log_event),
       log_event: log_event,
       plug_conn: plug_conn(options),
-      metadata: Keyword.get(options, :metadata, %{}),
+      metadata: Map.merge(logger_metadata(log_event), Keyword.get(options, :metadata, %{})),
       by: Keyword.get(options, :by)
     }
   end
@@ -154,6 +154,14 @@ defmodule Tower.Event do
 
   defp plug_conn(options) do
     Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
+  end
+
+  defp logger_metadata(log_event) do
+    Map.take(log_event[:meta] || %{}, logger_metadata_keys())
+  end
+
+  defp logger_metadata_keys do
+    Application.fetch_env!(:tower, :logger_metadata)
   end
 
   defp put_similarity_id(%__MODULE__{} = event) do

@@ -681,6 +681,31 @@ defmodule TowerTest do
     )
   end
 
+  test "reports logger metadata" do
+    put_env(:logger_metadata, [:user_id])
+
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        Logger.metadata(%{user_id: 123})
+        Logger.metadata(%{secret: "secret"})
+
+        raise "an error"
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          kind: :error,
+          reason: %RuntimeError{message: "an error"},
+          metadata: metadata
+        }
+      ] = reported_events()
+    )
+
+    assert metadata == %{user_id: 123}
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 
