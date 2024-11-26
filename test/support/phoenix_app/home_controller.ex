@@ -6,18 +6,24 @@ defmodule Tower.PhoenixApp.HomeController do
   end
 
   def runtime_error(conn, _params) do
+    Logger.metadata(user_id: 123)
+
     raise "an error"
 
     Plug.Conn.send_resp(conn, 200, "OK")
   end
 
   def abnormal_exit(conn, _params) do
+    Logger.metadata(user_id: 123)
+
     exit(:abnormal)
 
     Plug.Conn.send_resp(conn, 200, "OK")
   end
 
   def uncaught_throw(conn, _params) do
+    Logger.metadata(user_id: 123)
+
     throw("something")
 
     Plug.Conn.send_resp(conn, 200, "OK")

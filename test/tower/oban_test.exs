@@ -26,6 +26,8 @@ defmodule TowerObanTest do
   end
 
   test "reports raised exception in an Oban worker" do
+    put_env(:logger_metadata, [:user_id])
+
     TestApp.RuntimeErrorWorker.new(%{}, max_attempts: 1)
     |> Oban.insert()
 
@@ -38,6 +40,7 @@ defmodule TowerObanTest do
           kind: :error,
           reason: %RuntimeError{message: "error from an Oban worker"},
           stacktrace: stacktrace,
+          metadata: metadata,
           by: Tower.ObanExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -46,9 +49,12 @@ defmodule TowerObanTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
   end
 
   test "reports uncaught throw generated in an Oban worker" do
+    put_env(:logger_metadata, [:user_id])
+
     TestApp.UncaughtThrowWorker.new(%{}, max_attempts: 1)
     |> Oban.insert()
 
@@ -61,6 +67,7 @@ defmodule TowerObanTest do
           kind: :error,
           reason: %Oban.CrashError{reason: "something"},
           stacktrace: stacktrace,
+          metadata: metadata,
           by: Tower.ObanExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -69,9 +76,12 @@ defmodule TowerObanTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
   end
 
   test "reports abnormal exit generated in an Oban worker" do
+    put_env(:logger_metadata, [:user_id])
+
     TestApp.AbnormalExitWorker.new(%{}, max_attempts: 1)
     |> Oban.insert()
 
@@ -84,6 +94,7 @@ defmodule TowerObanTest do
           kind: :error,
           reason: %Oban.CrashError{reason: :abnormal},
           stacktrace: stacktrace,
+          metadata: metadata,
           by: Tower.ObanExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -92,6 +103,20 @@ defmodule TowerObanTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
+  end
+
+  defp put_env(key, value) do
+    original_value = Application.get_env(:tower, key)
+    Application.put_env(:tower, key, value)
+
+    on_exit(fn ->
+      if original_value == nil do
+        Application.delete_env(:tower, key)
+      else
+        Application.put_env(:tower, key, original_value)
+      end
+    end)
   end
 
   defp recent_datetime?(datetime) do

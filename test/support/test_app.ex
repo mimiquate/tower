@@ -3,6 +3,8 @@ defmodule TestApp.UncaughtThrowWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
+    Logger.metadata(user_id: 123, secret: "secret")
+
     throw("something")
 
     :ok
@@ -14,6 +16,8 @@ defmodule TestApp.AbnormalExitWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
+    Logger.metadata(user_id: 123, secret: "secret")
+
     exit(:abnormal)
 
     :ok
@@ -25,6 +29,8 @@ defmodule TestApp.RuntimeErrorWorker do
 
   @impl Oban.Worker
   def perform(%Oban.Job{}) do
+    Logger.metadata(user_id: 123, secret: "secret")
+
     raise "error from an Oban worker"
 
     :ok

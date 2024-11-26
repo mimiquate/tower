@@ -37,6 +37,8 @@ defmodule TowerPhoenixTest do
 
   @tag adapter: :bandit
   test "reports runtime error during Phoenix.Endpoint dispatch with Bandit", %{base_url: base_url} do
+    put_env(:logger_metadata, [:user_id])
+
     url = base_url <> "/runtime-error"
 
     capture_log(fn ->
@@ -52,6 +54,7 @@ defmodule TowerPhoenixTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
+          metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -61,6 +64,7 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -68,6 +72,8 @@ defmodule TowerPhoenixTest do
   test "reports uncaught throw during Phoenix.Endpoint dispatch with Bandit", %{
     base_url: base_url
   } do
+    put_env(:logger_metadata, [:user_id])
+
     url = base_url <> "/uncaught-throw"
 
     capture_log(fn ->
@@ -83,6 +89,7 @@ defmodule TowerPhoenixTest do
           kind: :throw,
           reason: "something",
           stacktrace: stacktrace,
+          metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -92,11 +99,14 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
   @tag adapter: :bandit
   test "reports abnormal exit during Phoenix.Endpoint dispatch with Bandit", %{base_url: base_url} do
+    put_env(:logger_metadata, [:user_id])
+
     capture_log(fn ->
       {:ok, {{_, 500, _}, _, _}} = :httpc.request(base_url <> "/abnormal-exit")
     end)
@@ -110,6 +120,7 @@ defmodule TowerPhoenixTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: stacktrace,
+          metadata: metadata,
           # Bandit doesn't handle exits so it doesn't provide the conn in the metadata
           plug_conn: nil,
           by: Tower.LoggerHandler
@@ -120,6 +131,7 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
   end
 
   @tag adapter: :cowboy
@@ -144,6 +156,19 @@ defmodule TowerPhoenixTest do
     end)
 
     assert [] = Tower.EphemeralReporter.events()
+  end
+
+  defp put_env(key, value) do
+    original_value = Application.get_env(:tower, key)
+    Application.put_env(:tower, key, value)
+
+    on_exit(fn ->
+      if original_value == nil do
+        Application.delete_env(:tower, key)
+      else
+        Application.put_env(:tower, key, original_value)
+      end
+    end)
   end
 
   defp recent_datetime?(datetime) do
