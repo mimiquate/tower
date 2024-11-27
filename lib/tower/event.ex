@@ -157,7 +157,9 @@ defmodule Tower.Event do
   end
 
   defp logger_metadata(log_event) do
-    Map.take(log_event[:meta] || %{}, logger_metadata_keys())
+    (log_event[:meta] || %{})
+    |> Map.merge(Enum.into(Logger.metadata(), %{}))
+    |> Map.take(logger_metadata_keys())
   end
 
   defp logger_metadata_keys do

@@ -686,8 +686,7 @@ defmodule TowerTest do
 
     capture_log(fn ->
       in_unlinked_process(fn ->
-        Logger.metadata(%{user_id: 123})
-        Logger.metadata(%{secret: "secret"})
+        Logger.metadata(user_id: 123, secret: "secret")
 
         raise "an error"
       end)
