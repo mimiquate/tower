@@ -109,6 +109,8 @@ defmodule TowerPlugTest do
   end
 
   test "reports runtime error during plug dispatch with Bandit" do
+    put_env(:logger_metadata, [:user_id])
+
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/runtime-error"
@@ -128,6 +130,7 @@ defmodule TowerPlugTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
+          metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -137,10 +140,13 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
   test "reports uncaught throw during plug dispatch with Bandit" do
+    put_env(:logger_metadata, [:user_id])
+
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/uncaught-throw"
@@ -160,6 +166,7 @@ defmodule TowerPlugTest do
           kind: :throw,
           reason: "something",
           stacktrace: stacktrace,
+          metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -169,10 +176,13 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
   test "reports abnormal exit during plug dispatch with Bandit" do
+    put_env(:logger_metadata, [:user_id])
+
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/abnormal-exit"
@@ -192,6 +202,7 @@ defmodule TowerPlugTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: stacktrace,
+          metadata: metadata,
           # Bandit doesn't handle exits so it doesn't provide the conn in the metadata
           plug_conn: nil,
           by: Tower.LoggerHandler
@@ -202,6 +213,7 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
   end
 
   test "reports message plug_conn manually" do
@@ -222,6 +234,19 @@ defmodule TowerPlugTest do
         }
       ] = Tower.EphemeralReporter.events()
     )
+  end
+
+  defp put_env(key, value) do
+    original_value = Application.get_env(:tower, key)
+    Application.put_env(:tower, key, value)
+
+    on_exit(fn ->
+      if original_value == nil do
+        Application.delete_env(:tower, key)
+      else
+        Application.put_env(:tower, key, original_value)
+      end
+    end)
   end
 
   defp recent_datetime?(datetime) do
