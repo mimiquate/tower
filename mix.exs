@@ -61,7 +61,13 @@ defmodule Tower.MixProject do
 
       # Test
       {:assert_eventually, "~> 1.0", only: :test},
-      {:plug_cowboy, "~> 2.7", only: :test},
+      {
+        :plug_cowboy,
+        github: "mimiquate/plug_cowboy",
+        branch: "logger_metadata",
+        override: true,
+        only: :test
+      },
       {:phoenix, "~> 1.7", only: :test},
       {:phoenix_html, "~> 4.1", only: :test},
       {:oban, "~> 2.18", only: :test},

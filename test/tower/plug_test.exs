@@ -12,6 +12,8 @@ defmodule TowerPlugTest do
   end
 
   test "reports runtime error during plug dispatch with Plug.Cowboy" do
+    put_env(:logger_metadata, [:user_id])
+
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/runtime-error"
@@ -31,6 +33,7 @@ defmodule TowerPlugTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
+          metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -40,10 +43,13 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
   test "reports uncaught throw during plug dispatch with Plug.Cowboy" do
+    put_env(:logger_metadata, [:user_id])
+
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/uncaught-throw"
@@ -63,6 +69,7 @@ defmodule TowerPlugTest do
           kind: :throw,
           reason: "something",
           stacktrace: stacktrace,
+          metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -72,10 +79,13 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
   test "reports abnormal exit during plug dispatch with Plug.Cowboy" do
+    put_env(:logger_metadata, [:user_id])
+
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
     url = "http://127.0.0.1:#{plug_port}/abnormal-exit"
@@ -95,6 +105,7 @@ defmodule TowerPlugTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: stacktrace,
+          metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -105,6 +116,7 @@ defmodule TowerPlugTest do
     assert recent_datetime?(datetime)
     # Plug.Cowboy doesn't provide stacktrace for exits
     assert [] = stacktrace
+    assert metadata == %{user_id: 123}
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
