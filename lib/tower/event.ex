@@ -133,7 +133,7 @@ defmodule Tower.Event do
       datetime: event_datetime(log_event),
       log_event: log_event,
       plug_conn: plug_conn(options),
-      metadata: Keyword.get(options, :metadata, %{}),
+      metadata: Map.merge(Tower.context(), Keyword.get(options, :metadata, %{})),
       by: Keyword.get(options, :by)
     }
   end

@@ -32,6 +32,8 @@ defmodule TowerPlugTest do
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
           plug_conn: %Plug.Conn{} = plug_conn,
+          # TODO: Doesn't work with process dictionary
+          # metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -129,6 +131,7 @@ defmodule TowerPlugTest do
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
           plug_conn: %Plug.Conn{} = plug_conn,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -161,6 +164,7 @@ defmodule TowerPlugTest do
           reason: "something",
           stacktrace: stacktrace,
           plug_conn: %Plug.Conn{} = plug_conn,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -194,6 +198,7 @@ defmodule TowerPlugTest do
           stacktrace: stacktrace,
           # Bandit doesn't handle exits so it doesn't provide the conn in the metadata
           plug_conn: nil,
+          metadata: %{user_id: 123},
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
