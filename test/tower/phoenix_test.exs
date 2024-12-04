@@ -17,15 +17,15 @@ defmodule TowerPhoenixTest do
     Application.put_env(
       :phoenix_app,
       Tower.PhoenixApp.Endpoint,
-      adapter:
-        case context[:adapter] do
-          :bandit -> Bandit.PhoenixAdapter
-          :cowboy -> Phoenix.Endpoint.Cowboy2Adapter
-        end,
-      server: true,
-      http: [port: port],
-      url: [scheme: "http", port: port, host: host],
-      render_errors: [formats: [html: Tower.PhoenixApp.ErrorHTML], layout: false]
+      Keyword.merge(
+        [
+          server: true,
+          http: [port: port],
+          url: [scheme: "http", port: port, host: host],
+          render_errors: [formats: [html: Tower.PhoenixApp.ErrorHTML], layout: false]
+        ],
+        context[:endpoint_options]
+      )
     )
 
     capture_log(fn ->
@@ -35,7 +35,7 @@ defmodule TowerPhoenixTest do
     %{base_url: "http://#{host}:#{port}"}
   end
 
-  @tag adapter: :bandit
+  @tag endpoint_options: [adapter: Bandit.PhoenixAdapter]
   test "reports runtime error during Phoenix.Endpoint dispatch with Bandit", %{base_url: base_url} do
     put_env(:logger_metadata, [:user_id])
 
@@ -68,7 +68,7 @@ defmodule TowerPhoenixTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
-  @tag adapter: :bandit
+  @tag endpoint_options: [adapter: Bandit.PhoenixAdapter]
   test "reports uncaught throw during Phoenix.Endpoint dispatch with Bandit", %{
     base_url: base_url
   } do
@@ -103,7 +103,7 @@ defmodule TowerPhoenixTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
-  @tag adapter: :bandit
+  @tag endpoint_options: [adapter: Bandit.PhoenixAdapter]
   test "reports abnormal exit during Phoenix.Endpoint dispatch with Bandit", %{base_url: base_url} do
     put_env(:logger_metadata, [:user_id])
 
@@ -134,7 +134,7 @@ defmodule TowerPhoenixTest do
     assert metadata == %{user_id: 123}
   end
 
-  @tag adapter: :cowboy
+  @tag endpoint_options: [adapter: Phoenix.Endpoint.Cowboy2Adapter, drainer: false]
   test "doesn't report exceptions that return 4xx status codes with Cowboy", %{base_url: base_url} do
     # Forcing Phoenix.ActionClauseError
     url = base_url <> "/show?param=invalid"
@@ -146,7 +146,7 @@ defmodule TowerPhoenixTest do
     assert [] = Tower.EphemeralReporter.events()
   end
 
-  @tag adapter: :bandit
+  @tag endpoint_options: [adapter: Bandit.PhoenixAdapter]
   test "doesn't report exceptions that return 4xx status codes with Bandit", %{base_url: base_url} do
     # Forcing Phoenix.ActionClauseError
     url = base_url <> "/show?param=invalid"
