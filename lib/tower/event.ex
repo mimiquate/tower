@@ -45,7 +45,7 @@ defmodule Tower.Event do
           by: atom() | nil
         }
 
-  @similarity_source_attributes [:level, :kind, :reason, :stacktrace, :metadata]
+  @similarity_source_attributes [:level, :kind, :reason, :stacktrace]
   @logger_time_unit :microsecond
 
   @doc false
