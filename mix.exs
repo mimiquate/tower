@@ -3,7 +3,7 @@ defmodule Tower.MixProject do
 
   @description "Flexible error tracking and reporting in Elixir"
   @source_url "https://github.com/mimiquate/tower"
-  @version "0.7.4"
+  @version "0.7.5"
 
   def project do
     [
