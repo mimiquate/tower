@@ -207,7 +207,7 @@ defmodule TowerPlugTest do
     capture_log(fn ->
       start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
 
-      {:error, :socket_closed_remotely} = :httpc.request(url)
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
     assert_eventually(
@@ -220,8 +220,7 @@ defmodule TowerPlugTest do
           reason: :abnormal,
           stacktrace: stacktrace,
           metadata: metadata,
-          # Bandit doesn't handle exits so it doesn't provide the conn in the metadata
-          plug_conn: nil,
+          plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -231,6 +230,7 @@ defmodule TowerPlugTest do
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
     assert metadata == %{user_id: 123}
+    assert Plug.Conn.request_url(plug_conn) == url
   end
 
   test "reports message plug_conn manually" do

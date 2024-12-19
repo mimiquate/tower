@@ -42,7 +42,7 @@ defmodule Tower.LoggerHandler do
     handle_log_event(log_event)
   end
 
-  # For Bandit which doesn't unwrap Plug.Conn.WrapperError
+  # For Bandit < 1.6.2 which doesn't unwrap Plug.Conn.WrapperError
   defp handle_log_event(
          %{
            level: :error,
