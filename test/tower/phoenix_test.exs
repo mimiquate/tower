@@ -107,8 +107,10 @@ defmodule TowerPhoenixTest do
   test "reports abnormal exit during Phoenix.Endpoint dispatch with Bandit", %{base_url: base_url} do
     put_env(:logger_metadata, [:user_id])
 
+    url = base_url <> "/abnormal-exit"
+
     capture_log(fn ->
-      {:ok, {{_, 500, _}, _, _}} = :httpc.request(base_url <> "/abnormal-exit")
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
     assert_eventually(
@@ -121,8 +123,7 @@ defmodule TowerPhoenixTest do
           reason: :abnormal,
           stacktrace: stacktrace,
           metadata: metadata,
-          # Bandit doesn't handle exits so it doesn't provide the conn in the metadata
-          plug_conn: nil,
+          plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -132,6 +133,7 @@ defmodule TowerPhoenixTest do
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
     assert metadata == %{user_id: 123}
+    assert Plug.Conn.request_url(plug_conn) == url
   end
 
   @tag endpoint_options: [adapter: Phoenix.Endpoint.Cowboy2Adapter, drainer: false]
