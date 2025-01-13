@@ -56,7 +56,7 @@ defmodule Tower.MixProject do
       {:bandit, "~> 1.6", optional: true},
 
       # Dev
-      {:ex_doc, "~> 0.35.1", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.36.1", only: :dev, runtime: false},
       {:dialyxir, "~> 1.4", only: :dev, runtime: false},
 
       # Test
