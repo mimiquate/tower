@@ -50,6 +50,45 @@ defmodule TowerPlugTest do
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
+  test "reports erlang error during plug dispatch with Plug.Cowboy" do
+    put_env(:logger_metadata, [:user_id])
+
+    # An ephemeral port hopefully not being in the host running this code
+    plug_port = 51111
+    url = "http://127.0.0.1:#{plug_port}/erlang-error"
+
+    start_link_supervised!({Plug.Cowboy, plug: Tower.TestPlug, scheme: :http, port: plug_port})
+
+    capture_log(fn ->
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          kind: :error,
+          reason: %ArithmeticError{},
+          stacktrace: stacktrace,
+          metadata: metadata,
+          plug_conn: %Plug.Conn{} = plug_conn,
+          by: Tower.LoggerHandler
+        }
+      ] = Tower.EphemeralReporter.events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+    assert [_ | _] = stacktrace
+    # Plug.Cowboy doesn't report Logger.metadata when logging plug call
+    # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
+    # assert metadata == %{user_id: 123}
+    assert metadata == %{}
+    assert Plug.Conn.request_url(plug_conn) == url
+  end
+
   test "reports uncaught throw during plug dispatch with Plug.Cowboy" do
     # An ephemeral port hopefully not being in the host running this code
     plug_port = 51111
@@ -146,6 +185,42 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
+          stacktrace: stacktrace,
+          metadata: metadata,
+          plug_conn: %Plug.Conn{} = plug_conn,
+          by: Tower.LoggerHandler
+        }
+      ] = Tower.EphemeralReporter.events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+    assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
+    assert Plug.Conn.request_url(plug_conn) == url
+  end
+
+  test "reports erlang error during plug dispatch with Bandit" do
+    put_env(:logger_metadata, [:user_id])
+
+    # An ephemeral port hopefully not being in the host running this code
+    plug_port = 51111
+    url = "http://127.0.0.1:#{plug_port}/erlang-error"
+
+    capture_log(fn ->
+      start_link_supervised!({Bandit, plug: Tower.TestPlug, scheme: :http, port: plug_port})
+
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          kind: :error,
+          reason: %ArithmeticError{},
           stacktrace: stacktrace,
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,

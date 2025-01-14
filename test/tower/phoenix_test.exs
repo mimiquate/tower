@@ -69,6 +69,39 @@ defmodule TowerPhoenixTest do
   end
 
   @tag endpoint_options: [adapter: Bandit.PhoenixAdapter]
+  test "reports erlang error during Phoenix.Endpoint dispatch with Bandit", %{base_url: base_url} do
+    put_env(:logger_metadata, [:user_id])
+
+    url = base_url <> "/erlang-error"
+
+    capture_log(fn ->
+      {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          kind: :error,
+          reason: %ArithmeticError{},
+          stacktrace: stacktrace,
+          metadata: metadata,
+          plug_conn: %Plug.Conn{} = plug_conn,
+          by: Tower.LoggerHandler
+        }
+      ] = Tower.EphemeralReporter.events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+    assert [_ | _] = stacktrace
+    assert metadata == %{user_id: 123}
+    assert Plug.Conn.request_url(plug_conn) == url
+  end
+
+  @tag endpoint_options: [adapter: Bandit.PhoenixAdapter]
   test "reports uncaught throw during Phoenix.Endpoint dispatch with Bandit", %{
     base_url: base_url
   } do

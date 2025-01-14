@@ -12,6 +12,14 @@ defmodule Tower.TestPlug do
     send_resp(conn, 200, "OK")
   end
 
+  get "/erlang-error" do
+    Logger.metadata(user_id: 123, secret: "secret")
+
+    _ = 1 / 0
+
+    send_resp(conn, 200, "OK")
+  end
+
   get "/abnormal-exit" do
     Logger.metadata(user_id: 123, secret: "secret")
 

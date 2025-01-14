@@ -13,6 +13,14 @@ defmodule Tower.PhoenixApp.HomeController do
     Plug.Conn.send_resp(conn, 200, "OK")
   end
 
+  def erlang_error(conn, _params) do
+    Logger.metadata(user_id: 123)
+
+    _ = 1 / 0
+
+    Plug.Conn.send_resp(conn, 200, "OK")
+  end
+
   def abnormal_exit(conn, _params) do
     Logger.metadata(user_id: 123)
 
