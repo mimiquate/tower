@@ -313,6 +313,25 @@ defmodule Tower do
     |> report_event()
   end
 
+  @doc """
+  Asks Tower to report an event.
+
+  This can be useful if you have the need to manually run the reporter pipeline for a given `Tower.Event`.
+
+  ## Options
+
+    * `:async` - if `true`, the event will be reported asynchronously. Defaults to `true`.
+
+  ## Example
+
+      Tower.report(%Tower.Event{})
+  """
+  @type report_event_options :: [async: boolean()]
+  @spec report(%Tower.Event{}, report_event_options()) :: :ok
+  def report(%Tower.Event{} = event, options \\ []) do
+    report_event(event, options)
+  end
+
   @deprecated "Use Tower.report/3,4 instead."
   defdelegate handle_caught(kind, reason, stacktrace, options \\ []), to: __MODULE__, as: :report
 
