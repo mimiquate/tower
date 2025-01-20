@@ -64,8 +64,10 @@ defmodule Tower.MixProject do
       {:plug_cowboy, "~> 2.7", only: :test},
       {:phoenix, "~> 1.7", only: :test},
       {:phoenix_html, "~> 4.1", only: :test},
-      {:oban, "~> 2.18", only: :test},
-      {:ecto_sqlite3, "~> 0.18.1", only: :test}
+      {:oban, "~> 2.19", only: :test},
+      {:ecto_sqlite3, "~> 0.18.1", only: :test},
+      # Needed by ecto_sqlite3 (all Elixirs) and oban (for Elxir < 1.18)
+      {:jason, "~> 1.4", only: :test}
     ]
   end
 
