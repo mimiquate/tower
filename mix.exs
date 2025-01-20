@@ -54,6 +54,7 @@ defmodule Tower.MixProject do
       # Optional
       {:plug, "~> 1.0", optional: true},
       {:bandit, "~> 1.6", optional: true},
+      {:opentelemetry_process_propagator, "~> 0.3 or ~> 0.2.1", optional: true},
 
       # Dev
       {:ex_doc, "~> 0.36.1", only: :dev, runtime: false},

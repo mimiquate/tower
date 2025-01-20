@@ -508,9 +508,17 @@ defmodule Tower do
     Application.fetch_env!(:tower, :reporters)
   end
 
-  defp async(fun) do
-    Tower.TaskSupervisor
-    |> Task.Supervisor.start_child(fun)
+  # Optionally use `start_child/1` function from `opentelemetry_process_propagator` if available
+  if Code.ensure_loaded?(OpentelemetryProcessPropagator.Task) do
+    defp async(fun) do
+      Tower.TaskSupervisor
+      |> OpentelemetryProcessPropagator.Task.Supervisor.start_child(fun)
+    end
+  else
+    defp async(fun) do
+      Tower.TaskSupervisor
+      |> Task.Supervisor.start_child(fun)
+    end
   end
 
   defp ignored_exceptions do
