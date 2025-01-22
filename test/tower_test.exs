@@ -705,6 +705,41 @@ defmodule TowerTest do
     assert metadata == %{user_id: 123}
   end
 
+  test "can customize report event wrapper" do
+    defmodule MyReporter do
+      @behaviour Tower.Reporter
+
+      @impl true
+      def report_event(_event) do
+        IO.inspect("======= reported")
+      end
+
+      def report_event_wrapper(fun) do
+        fun.()
+      end
+    end
+
+    put_env(:reporters, [MyReporter])
+
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        raise "an error"
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          kind: :error,
+          reason: %RuntimeError{message: "an error"},
+          metadata: metadata
+        }
+      ] = reported_events()
+    )
+
+    # assert metadata == %{user_id: 123}
+  end
+
   defp in_unlinked_process(fun) when is_function(fun, 0) do
     {:ok, pid} = Task.Supervisor.start_link()
 
