@@ -455,53 +455,35 @@ defmodule Tower do
     rescue
       e ->
         Event.from_exception(e, __STACKTRACE__, metadata: %{test: true})
-        |> report_event(async: false)
+        |> report_event()
 
         :ok
     end
   end
 
-  defp report_event(%Event{} = event, options \\ []) do
-    async = Keyword.get(options, :async, true)
-
+  defp report_event(%Event{} = event) do
     reporters()
     |> Enum.each(fn reporter ->
-      report_event(reporter, event, async)
+      report_event(reporter, event)
     end)
   end
 
-  defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}, _) do
+  defp report_event(reporter, %Event{reason: %ReportEventError{reporter: reporter}}) do
     # Ignore so we don't enter in a loop trying to report to the same buggy reporter
     :ignore
   end
 
-  defp report_event(reporter, event, false) do
+  defp report_event(reporter, event) do
     try do
       reporter.report_event(event)
     rescue
       exception ->
-        raise ReportEventError,
-          reporter: reporter,
-          original: {:error, exception, __STACKTRACE__}
+        async(fn ->
+          raise ReportEventError,
+            reporter: reporter,
+            original: {:error, exception, __STACKTRACE__}
+        end)
     end
-  end
-
-  # Not beautiful that tower needs to know about something specific to tower_error_tracker.
-  # We may refactor this to be configurable by reporters or it can change once we support
-  # something like `Tower.set_context`.
-  defp report_event(reporter = TowerErrorTracker, event, true) do
-    value = Process.get(:error_tracker_context, %{})
-
-    async(fn ->
-      Process.put(:error_tracker_context, value)
-      report_event(reporter, event, false)
-    end)
-  end
-
-  defp report_event(reporter, event, true) do
-    async(fn ->
-      report_event(reporter, event, false)
-    end)
   end
 
   defp reporters do
