@@ -486,20 +486,8 @@ defmodule Tower do
     end
   end
 
-  # Not beautiful that tower needs to know about something specific to tower_error_tracker.
-  # We may refactor this to be configurable by reporters or it can change once we support
-  # something like `Tower.set_context`.
-  defp report_event(reporter = TowerErrorTracker, event, true) do
-    value = Process.get(:error_tracker_context, %{})
-
-    async(fn ->
-      Process.put(:error_tracker_context, value)
-      report_event(reporter, event, false)
-    end)
-  end
-
   defp report_event(reporter, event, true) do
-    async(fn ->
+    report_event_wrapper().(fn ->
       report_event(reporter, event, false)
     end)
   end
@@ -508,12 +496,15 @@ defmodule Tower do
     Application.fetch_env!(:tower, :reporters)
   end
 
-  defp async(fun) do
-    Tower.TaskSupervisor
-    |> Task.Supervisor.start_child(fun)
+  defp report_event_wrapper do
+    Application.fetch_env!(:tower, :report_event_wrapper)
   end
 
   defp ignored_exceptions do
     Application.fetch_env!(:tower, :ignored_exceptions)
+  end
+
+  def wrapper(fun) do
+    Task.Supervisor.start_child(Tower.TaskSupervisor, fun)
   end
 end
