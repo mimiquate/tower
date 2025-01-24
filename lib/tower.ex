@@ -478,7 +478,7 @@ defmodule Tower do
       reporter.report_event(event)
     rescue
       exception ->
-        async(fn ->
+        fire_and_forget(fn ->
           raise ReportEventError,
             reporter: reporter,
             original: {:error, exception, __STACKTRACE__}
@@ -490,7 +490,21 @@ defmodule Tower do
     Application.fetch_env!(:tower, :reporters)
   end
 
-  defp async(fun) do
+  def async(reporter, fun) do
+    Tower.TaskSupervisor
+    |> Task.Supervisor.start_child(fn ->
+      try do
+        fun.()
+      rescue
+        exception ->
+          raise ReportEventError,
+            reporter: reporter,
+            original: {:error, exception, __STACKTRACE__}
+      end
+    end)
+  end
+
+  defp fire_and_forget(fun) do
     Tower.TaskSupervisor
     |> Task.Supervisor.start_child(fun)
   end
