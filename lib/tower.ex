@@ -444,6 +444,14 @@ defmodule Tower do
   end
 
   @doc """
+  Executes a function asynchronously under Tower supervision tree in a fire-and-forget manner.
+  """
+  def async(fun) do
+    Tower.TaskSupervisor
+    |> Task.Supervisor.start_child(fun)
+  end
+
+  @doc """
   Generates an exception and lets Tower handle it.
 
   Useful for testing Tower is well configuring and reporting errors during development.
@@ -488,11 +496,6 @@ defmodule Tower do
 
   defp reporters do
     Application.fetch_env!(:tower, :reporters)
-  end
-
-  defp async(fun) do
-    Tower.TaskSupervisor
-    |> Task.Supervisor.start_child(fun)
   end
 
   defp ignored_exceptions do
