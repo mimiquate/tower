@@ -572,7 +572,9 @@ defmodule TowerTest do
 
       @impl true
       def report_event(_event) do
-        raise "I have a bug"
+        Tower.async(fn ->
+          raise "I have a bug"
+        end)
       end
     end
 

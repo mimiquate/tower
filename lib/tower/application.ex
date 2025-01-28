@@ -11,7 +11,8 @@ defmodule Tower.Application do
            Supervisor.start_link(
              [
                Tower.EphemeralReporter,
-               {Task.Supervisor, name: Tower.TaskSupervisor}
+               {Task.Supervisor, name: Tower.TaskSupervisor},
+               Tower.TaskServer
              ],
              strategy: :one_for_one,
              name: Tower.Supervisor
