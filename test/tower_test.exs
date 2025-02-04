@@ -566,6 +566,24 @@ defmodule TowerTest do
     assert [_ | _] = stacktrace
   end
 
+  test "allows reporting an existing Tower.Event struct" do
+    id = "123"
+    datetime = DateTime.utc_now()
+    reason = "Something went wrong"
+
+    %Tower.Event{
+      id: id,
+      datetime: datetime,
+      level: :error,
+      kind: :throw,
+      reason: reason
+    }
+    |> Tower.report()
+
+    assert [%{id: ^id, datetime: ^datetime, level: :error, kind: :throw, reason: ^reason}] =
+             reported_events()
+  end
+
   test "bug in one reporter doesn't affect other reporters" do
     defmodule BuggyReporter do
       @behaviour Tower.Reporter

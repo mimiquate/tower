@@ -313,6 +313,20 @@ defmodule Tower do
     |> report_event()
   end
 
+  @doc """
+  Asks Tower to report an event.
+
+  This can be useful if you have the need to manually run the reporter pipeline for a given `Tower.Event`.
+
+  ## Example
+
+      Tower.report(%Tower.Event{})
+  """
+  @spec report(%Tower.Event{}) :: :ok
+  def report(%Tower.Event{} = event) do
+    report_event(event)
+  end
+
   @deprecated "Use Tower.report/3,4 instead."
   defdelegate handle_caught(kind, reason, stacktrace, options \\ []), to: __MODULE__, as: :report
 
