@@ -177,7 +177,7 @@ defmodule TowerPlugTest do
       {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
-    assert_eventually(
+    assert(
       [
         %{
           id: id,
@@ -213,7 +213,7 @@ defmodule TowerPlugTest do
       {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
-    assert_eventually(
+    assert(
       [
         %{
           id: id,
@@ -249,7 +249,7 @@ defmodule TowerPlugTest do
       {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
-    assert_eventually(
+    assert(
       [
         %{
           id: id,
@@ -285,7 +285,7 @@ defmodule TowerPlugTest do
       {:ok, {{_, 500, _}, _, _}} = :httpc.request(url)
     end)
 
-    assert_eventually(
+    assert(
       [
         %{
           id: id,
@@ -315,7 +315,7 @@ defmodule TowerPlugTest do
       plug_conn: Plug.Conn.assign(%Plug.Conn{}, :hello, "world")
     )
 
-    assert_eventually(
+    assert(
       [
         %{
           level: :info,
