@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2024-01-31
+
+### Changed
+
+- No longer call reporter's `report_event` function in fresh spawned task/process. Call it in the same process as the one originating the exception. This way, reporters can read any process state in the erroring process dictionary if they want. They can still, if considered worthy, spawn new async tasks, e.g. to make HTTP requests to 3rd parties, as part of their `report_event` implementation.
+
 ## [0.7.5] - 2024-12-18
 
 ### Fixed
@@ -184,6 +190,7 @@ is the main way `tower` handles errors. Keep elixir 1.15+ for now.
 
 - Reporters (those implementing `Tower.Reporter` behaviour) can now handle events with just one callback: `report_event/1`, in replacement of `report_exception/2,3`, `report_exit/2,3`, `report_throw/2,3` and `report_message/2,3` callbacks.
 
+[0.8.0]: https://github.com/mimiquate/tower/compare/v0.7.5...v0.8.0/
 [0.7.5]: https://github.com/mimiquate/tower/compare/v0.7.4...v0.7.5/
 [0.7.4]: https://github.com/mimiquate/tower/compare/v0.7.3...v0.7.4/
 [0.7.3]: https://github.com/mimiquate/tower/compare/v0.7.2...v0.7.3/
