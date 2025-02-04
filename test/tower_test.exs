@@ -346,7 +346,7 @@ defmodule TowerTest do
   test "reports message manually" do
     Tower.report_message(:info, "Something interesting", metadata: %{something: "else"})
 
-    assert_eventually(
+    assert(
       [
         %{
           id: id,
