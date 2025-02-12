@@ -133,6 +133,76 @@ to tower and error capturing tactics is still valid and unchanged.
 Necessary future changes caused by deprecations and/or changes in error handling behavior in the BEAM or Elixir can be just
 made in `Tower` without need to change any of the service specific reporters.
 
+## Configuration
+
+### `reporters`
+
+List of reporters Tower should report events to.
+
+Default: `[Tower.EphemeralReporter]`
+
+Example:
+
+```elixir
+config :tower, reporters: [TowerEmail]
+```
+
+### `log_level`
+
+`Logger` messages this level and above will be reported.
+
+Possible values are any of defined `Logger` levels (https://hexdocs.pm/logger/Logger.html#module-levels) or
+`:none` to disable reporting of `Logger` messages.
+
+Default: `:critical`
+
+Example:
+
+```elixir
+config :tower, log_level: :error
+```
+
+### `ignored_exceptions`
+
+List of exceptions that Tower should ignore and not report.
+
+Default: `[]`
+
+Example:
+
+```elixir
+config :tower, ignored_exceptions: [DBConnection.ConnectionError]
+```
+
+### `logger_metadata`
+
+List of keys that Tower should pick up from the current process `Logger.metadata` when reporting events.
+
+Default: `[]`
+
+Example:
+
+A common use case is setting `Logger.metadata(user_id: user.id)` at the start of your plugs or controller actions and
+configure Tower:
+
+```elixir
+config :tower, logger_metadata: [:user_id]
+```
+
+so that it's included in the reported exception or message event as extra metadata.
+
+Also if using Phoenix you can
+
+```elixir
+config :tower, logger_metadata: [:request_id]
+```
+
+so that you can co-relate your exceptions reports to the request id in your application logs.
+
+More about Logger metadata:
+ - https://hexdocs.pm/logger/Logger.html#module-metadata
+ - https://hexdocs.pm/logger/Logger.html#metadata/1
+
 ## License
 
 Copyright 2024 Mimiquate
