@@ -318,8 +318,6 @@ defmodule TowerTest do
 
   test "reports a Logger format/args message" do
     in_unlinked_process(fn ->
-      require Logger
-
       capture_log(fn ->
         :logger.critical(~c"This is a format with ~b ~p", [2, :args])
       end)
