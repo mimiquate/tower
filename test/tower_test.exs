@@ -722,9 +722,15 @@ defmodule TowerTest do
   end
 
   defp in_unlinked_process(fun) when is_function(fun, 0) do
-    {:ok, pid} = Task.Supervisor.start_link()
+    start_supervised(Task.Supervisor)
+    |> case do
+      {:ok, pid} ->
+        Process.link(pid)
+        pid
 
-    pid
+      {:error, {:already_started, pid}} ->
+        pid
+    end
     |> Task.Supervisor.async_nolink(fun)
     |> Task.yield()
   end
