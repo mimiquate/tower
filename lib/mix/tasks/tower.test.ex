@@ -7,9 +7,14 @@ defmodule Mix.Tasks.Tower.Test do
 
   @impl true
   def run(_args) do
+    Tower.test()
+
     # Avoid automatic BEAM halt after task finishes so we allow time for any
     # reporters reporting in async processes to finish.
-    System.no_halt(true)
-    Tower.test()
+    Mix.shell().info(
+      "A test exception was generated. You should see it now wherever your configured reporter(s) should report to."
+    )
+
+    Mix.shell().prompt("press ENTER to exit:")
   end
 end
