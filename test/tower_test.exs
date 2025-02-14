@@ -679,7 +679,9 @@ defmodule TowerTest do
 
     capture_log(fn ->
       in_unlinked_process(fn ->
-        1 / 0
+        # Manually generate bad arithmetic error without compiler warnings would be
+        # caused if using `1 / 0`.
+        exit(:badarith)
       end)
 
       in_unlinked_process(fn ->
