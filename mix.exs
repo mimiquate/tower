@@ -48,8 +48,8 @@ defmodule Tower.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:uniq, "~> 0.6.0"},
       {:telemetry, "~> 1.1"},
+      {:uuid_v7, "~> 0.5.0"},
 
       # Optional
       {:plug, "~> 1.0", optional: true},

@@ -183,7 +183,7 @@ defmodule Tower do
           # A `Tower.Event` is a struct with the following typespec:
           #
           # %Tower.Event{
-          #   id: Uniq.UUID.t(),
+          #   id: UUIDv7.t(),
           #   datetime: DateTime.t(),
           #   level: :logger.level(),
           #   kind: :error | :exit | :throw | :message,

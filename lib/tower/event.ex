@@ -32,7 +32,7 @@ defmodule Tower.Event do
   before passing along to reporters.
   """
   @type t :: %__MODULE__{
-          id: Uniq.UUID.t(),
+          id: UUIDv7.t(),
           similarity_id: non_neg_integer(),
           datetime: DateTime.t(),
           level: level(),
@@ -119,7 +119,7 @@ defmodule Tower.Event do
   defp from_map(map, options) when is_map(map) do
     struct!(
       __MODULE__,
-      %{id: Uniq.UUID.uuid7()}
+      %{id: UUIDv7.generate()}
       |> Map.merge(map)
       |> Map.merge(attributes_from_options(options))
     )
