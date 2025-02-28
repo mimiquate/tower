@@ -49,7 +49,7 @@ defmodule Tower.MixProject do
   defp deps do
     [
       {:telemetry, "~> 1.1"},
-      {:uuid_v7, "~> 0.5.0"},
+      {:uuid_v7, "~> 0.6.0"},
 
       # Optional
       {:plug, "~> 1.0", optional: true},
