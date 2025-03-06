@@ -45,8 +45,8 @@ defmodule TowerPlugTest do
     assert [_ | _] = stacktrace
     # Plug.Cowboy doesn't report Logger.metadata when logging plug call
     # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
-    # assert metadata == %{user_id: 123}
-    assert metadata == %{}
+    # assert metadata[:user_id] == 123
+    assert metadata[:user_id] == nil
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -84,8 +84,8 @@ defmodule TowerPlugTest do
     assert [_ | _] = stacktrace
     # Plug.Cowboy doesn't report Logger.metadata when logging plug call
     # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
-    # assert metadata == %{user_id: 123}
-    assert metadata == %{}
+    # assert metadata[:user_id] == 123
+    assert metadata[:user_id] == nil
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -121,8 +121,8 @@ defmodule TowerPlugTest do
     assert [_ | _] = stacktrace
     # Plug.Cowboy doesn't report Logger.metadata when logging plug call
     # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
-    # assert metadata == %{user_id: 123}
-    assert metadata == %{}
+    # assert metadata[:user_id] == 123
+    assert metadata[:user_id] == nil
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -159,8 +159,8 @@ defmodule TowerPlugTest do
     assert [] = stacktrace
     # Plug.Cowboy doesn't report Logger.metadata when logging plug call
     # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
-    # assert metadata == %{user_id: 123}
-    assert metadata == %{}
+    # assert metadata[:user_id] == 123
+    assert metadata[:user_id] == nil
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -196,7 +196,7 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -232,7 +232,7 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -268,7 +268,7 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -304,7 +304,7 @@ defmodule TowerPlugTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 

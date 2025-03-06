@@ -720,7 +720,7 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
   end
 
   defp in_unlinked_process(fun) when is_function(fun, 0) do
