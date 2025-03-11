@@ -39,6 +39,7 @@ defmodule Tower.LoggerHandler do
   end
 
   def log(log_event, _config) do
+    IO.inspect(log_event)
     handle_log_event(log_event)
   end
 
