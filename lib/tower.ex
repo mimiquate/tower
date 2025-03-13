@@ -561,7 +561,7 @@ defmodule Tower do
       reporter.report_event(event)
     rescue
       exception ->
-        async(fn ->
+        in_unlinked_task(fn ->
           raise ReportEventError,
             reporter: reporter,
             original: {:error, exception, __STACKTRACE__}
@@ -573,7 +573,22 @@ defmodule Tower do
     Application.fetch_env!(:tower, :reporters)
   end
 
-  defp async(fun) do
+  def async(reporter, fun) do
+    in_unlinked_task(fn ->
+      try do
+        fun.()
+      rescue
+        exception ->
+          in_unlinked_task(fn ->
+            raise ReportEventError,
+              reporter: reporter,
+              original: {:error, exception, __STACKTRACE__}
+          end)
+      end
+    end)
+  end
+
+  defp in_unlinked_task(fun) do
     Tower.TaskSupervisor
     |> Task.Supervisor.start_child(fun)
   end
