@@ -573,7 +573,7 @@ defmodule Tower do
     Application.fetch_env!(:tower, :reporters)
   end
 
-  def async(fun) do
+  def async(reporter, fun) do
     in_unlinked_task(fn ->
       try do
         fun.()
@@ -581,19 +581,11 @@ defmodule Tower do
         exception ->
           in_unlinked_task(fn ->
             raise ReportEventError,
-              reporter: reporter_from_stacktrace(__STACKTRACE__),
+              reporter: reporter,
               original: {:error, exception, __STACKTRACE__}
           end)
       end
     end)
-  end
-
-  defp reporter_from_stacktrace([{m, _f, _a, _} | _]) do
-    m
-  end
-
-  defp reporter_from_stacktrace(_stacktrace) do
-    nil
   end
 
   defp in_unlinked_task(fun) do
