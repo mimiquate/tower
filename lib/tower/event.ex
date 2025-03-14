@@ -136,7 +136,11 @@ defmodule Tower.Event do
       metadata:
         Map.merge(
           logger_metadata(log_event),
-          Keyword.get(options, :metadata, %{application: application_data(log_event)})
+          Keyword.get(
+            options,
+            :metadata,
+            %{application: application_data_from_log_event(log_event)}
+          )
         ),
       by: Keyword.get(options, :by)
     }
@@ -160,23 +164,11 @@ defmodule Tower.Event do
     Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
   end
 
-  defp application_data(%{meta: %{gl: group_leader}}) do
-    case :application.get_application(group_leader) do
-      {:ok, app_name} ->
-        case :application.get_key(app_name, :vsn) do
-          {:ok, app_version} when is_list(app_version) ->
-            %{name: app_name, version: List.to_string(app_version)}
-
-          _ ->
-            %{name: app_name}
-        end
-
-      :undefined ->
-        %{}
-    end
+  defp application_data_from_log_event(%{meta: %{gl: group_leader}}) do
+    Tower.Utils.application_data(group_leader)
   end
 
-  defp application_data(_log_event) do
+  defp application_data_from_log_event(_log_event) do
     %{}
   end
 
