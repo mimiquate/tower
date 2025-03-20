@@ -3,6 +3,7 @@ defmodule Tower.MixProject do
 
   @description "Flexible error tracking and reporting in Elixir"
   @source_url "https://github.com/mimiquate/tower"
+  @changelog_url @source_url <> "/blob/-/CHANGELOG.md"
   @version "0.8.1"
 
   def project do
@@ -75,7 +76,8 @@ defmodule Tower.MixProject do
     [
       licenses: ["Apache-2.0"],
       links: %{
-        "GitHub" => @source_url
+        "GitHub" => @source_url,
+        "Changelog" => @changelog_url
       }
     ]
   end
