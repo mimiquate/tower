@@ -134,14 +134,9 @@ defmodule Tower.Event do
       log_event: log_event,
       plug_conn: plug_conn(options),
       metadata:
-        Map.merge(
-          logger_metadata(log_event),
-          Keyword.get(
-            options,
-            :metadata,
-            %{application: application_data_from_log_event(log_event)}
-          )
-        ),
+        %{application: application_data_from_log_event(log_event)}
+        |> Map.merge(logger_metadata(log_event))
+        |> Map.merge(Keyword.get(options, :metadata, %{})),
       by: Keyword.get(options, :by)
     }
   end
