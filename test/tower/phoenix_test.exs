@@ -64,7 +64,7 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -97,7 +97,7 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -132,7 +132,7 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -165,7 +165,7 @@ defmodule TowerPhoenixTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 

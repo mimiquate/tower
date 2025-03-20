@@ -49,7 +49,7 @@ defmodule TowerObanTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
   end
 
   test "reports uncaught throw generated in an Oban worker" do
@@ -76,7 +76,7 @@ defmodule TowerObanTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
   end
 
   test "reports abnormal exit generated in an Oban worker" do
@@ -103,7 +103,7 @@ defmodule TowerObanTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
   end
 
   defp put_env(key, value) do

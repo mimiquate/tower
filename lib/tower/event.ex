@@ -133,7 +133,10 @@ defmodule Tower.Event do
       datetime: event_datetime(log_event),
       log_event: log_event,
       plug_conn: plug_conn(options),
-      metadata: Map.merge(logger_metadata(log_event), Keyword.get(options, :metadata, %{})),
+      metadata:
+        %{application: application_data_from_log_event(log_event)}
+        |> Map.merge(logger_metadata(log_event))
+        |> Map.merge(Keyword.get(options, :metadata, %{})),
       by: Keyword.get(options, :by)
     }
   end
@@ -154,6 +157,14 @@ defmodule Tower.Event do
 
   defp plug_conn(options) do
     Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
+  end
+
+  defp application_data_from_log_event(%{meta: %{gl: group_leader}}) do
+    Tower.Utils.application_data(group_leader)
+  end
+
+  defp application_data_from_log_event(_log_event) do
+    %{}
   end
 
   defp logger_metadata(log_event) do
