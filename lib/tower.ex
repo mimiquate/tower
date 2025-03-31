@@ -22,7 +22,7 @@ defmodule Tower do
 
   > Decoupled error capturing and error reporting in Elixir.
 
-  Say you need to add error tracking to your elixir app:
+  Say you need to add exception tracking to your elixir app:
 
     - You decide what service you will use to send your errors to
     - You look for a good elixir library for that service
