@@ -53,7 +53,6 @@ defmodule Tower.MixProject do
       {:uuid_v7, "~> 0.6.0"},
 
       # Optional
-      {:plug, "~> 1.0", optional: true},
       {:bandit, "~> 1.6", optional: true},
 
       # Dev
