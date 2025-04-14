@@ -18,14 +18,25 @@ config :tower, :reporters, [TowerEmail]
 
 You can pick any of the following reporters or [build your own](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter).
 
-- [`TowerBugsnag`](https://github.com/mimiquate/tower_bugsnag)
-- [`TowerEmail`](https://github.com/mimiquate/tower_email)
-- [`TowerErrorTracker`](https://github.com/mimiquate/tower_error_tracker)
-- [`TowerHoneybadger`](https://github.com/mimiquate/tower_honeybadger)
-- [`TowerRollbar`](https://github.com/mimiquate/tower_rollbar)
-- [`TowerSentry`](https://github.com/mimiquate/tower_sentry)
-- [`TowerSlack`](https://github.com/mimiquate/tower_slack)
-- [`Tower.EphemeralReporter`](https://github.com/mimiquate/tower/blob/main/lib/tower/ephemeral_reporter.ex)
+
+Report to | Tower reporter | Package dependency
+:-----| :---------------| :---------
+In memory | `Tower.EphemeralReporter` | Built-In
+Transactional E-mail | `TowerEmail` | [tower_email]
+[Slack.com](https://slack.com) [Webhook](https://api.slack.com/messaging/webhooks) | `TowerSlack` | [tower_slack]
+Self-hosted [ErrorTracker](https://github.com/elixir-error-tracker/error-tracker) | `TowerErrorTracker` | [tower_error_tracker]
+[BugSnag.com](https://bugsnag.com) | `TowerBugsnag` | [tower_bugsnag]
+[Honeybadger.io](https://honeybadger.io) | `TowerHoneybadger` | [tower_honeybadger]
+[Rollbar.com](https://rollbar.com) | `TowerRollbar` | [tower_rollbar]
+[Sentry.io](https://sentry.io) | `TowerSentry` | [tower_sentry]
+
+[tower_bugsnag]: https://github.com/mimiquate/tower_bugsnag
+[tower_email]: https://github.com/mimiquate/tower_email
+[tower_error_tracker]: https://github.com/mimiquate/tower_error_tracker
+[tower_honeybadger]: https://github.com/mimiquate/tower_honeybadger
+[tower_rollbar]: https://github.com/mimiquate/tower_rollbar
+[tower_sentry]: https://github.com/mimiquate/tower_sentry
+[tower_slack]: https://github.com/mimiquate/tower_slack
 
 Community supported:
 
