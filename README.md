@@ -41,6 +41,7 @@ Self-hosted [ErrorTracker](https://github.com/elixir-error-tracker/error-tracker
 Community supported:
 
 - [`ivanhercaz/tower_telegram`](https://github.com/ivanhercaz/tower_telegram)
+- [`KristerV/tower_discord`](https://github.com/KristerV/tower_discord)
 
 Follow each reporter's README to get `Tower` installed and configured properly.
 
