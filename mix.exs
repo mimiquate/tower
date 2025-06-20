@@ -54,6 +54,7 @@ defmodule Tower.MixProject do
 
       # Optional
       {:bandit, "~> 1.6", optional: true},
+      {:igniter, "~> 0.6", optional: true},
 
       # Dev
       {:ex_doc, "~> 0.38.1", only: :dev, runtime: false},
@@ -65,9 +66,7 @@ defmodule Tower.MixProject do
       {:phoenix, "~> 1.7", only: :test},
       {:phoenix_html, "~> 4.1", only: :test},
       {:oban, "~> 2.19", only: :test},
-      {:ecto_sqlite3, "~> 0.19.0", only: :test},
-      # Needed by ecto_sqlite3 (all Elixirs) and oban (for Elxir < 1.18)
-      {:jason, "~> 1.4", only: :test}
+      {:ecto_sqlite3, "~> 0.19.0", only: :test}
     ]
   end
 
