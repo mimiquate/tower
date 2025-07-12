@@ -89,6 +89,8 @@ defmodule Tower.LoggerHandler do
     report_exit(exit_reason, stacktrace, log_event)
   end
 
+  # For Plug.Cowboy < 2.7.4 which didn't properly format the crash_reason as a two element tuple
+  # Fixed in https://github.com/elixir-plug/plug_cowboy/pull/108
   defp handle_log_event(%{level: :error, meta: %{crash_reason: exit_reason}} = log_event) do
     report_exit(exit_reason, [], log_event)
   end
