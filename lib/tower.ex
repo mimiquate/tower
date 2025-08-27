@@ -327,7 +327,7 @@ defmodule Tower do
 
   Additionally adds other handlers specifically tailored for some packages that
   do catch errors and have their own specific error handling and emit events instead
-  of letting errors get to the logger handler, like oban or bandit.
+  of letting errors get to the logger handler, like oban.
   """
   @spec attach() :: :ok | {:error, reason :: term()}
   def attach do
@@ -360,7 +360,8 @@ defmodule Tower do
       try do
         # possibly crashing code
       catch
-        # Note this will also catch and handle normal (`:normal` and `:shutdown`) exits
+        # Note this will also catch and handle normal (`:normal` and `:shutdown`) exits.
+        # Consider using Tower.is_normal_exit guard.
         kind, reason ->
           Tower.report(kind, reason, __STACKTRACE__)
       end
