@@ -145,7 +145,7 @@ defmodule TowerTest do
     assert [_ | _] = stacktrace
   end
 
-  test "doesn't report an normal exit" do
+  test "doesn't report a normal exit" do
     in_unlinked_process(fn ->
       exit(:normal)
     end)
@@ -153,7 +153,7 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
-  test "doesn't report an shutdown exit" do
+  test "doesn't report a shutdown exit" do
     in_unlinked_process(fn ->
       exit(:shutdown)
     end)
