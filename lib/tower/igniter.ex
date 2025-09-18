@@ -13,7 +13,7 @@ if Code.ensure_loaded?(Igniter) do
       """
     ]
 
-    def add_reporter(igniter, module, application, [{first_key, _} | _] = config) do
+    def configure_reporter(igniter, module, application, [{first_key, _} | _] = config) do
       igniter =
         Igniter.Project.Config.configure(
           igniter,

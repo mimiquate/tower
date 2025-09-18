@@ -2,10 +2,10 @@ defmodule TowerIgniterTest do
   use ExUnit.Case, async: true
   import Igniter.Test
 
-  describe "add_reporter/2" do
+  describe "configure_reporter/2" do
     test "from scratch" do
       test_project()
-      |> Tower.Igniter.add_reporter(
+      |> Tower.Igniter.configure_reporter(
         Reporter,
         :reporter,
         api_key: ~s[System.get_env("API_KEY")]
@@ -43,7 +43,7 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.add_reporter(
+      |> Tower.Igniter.configure_reporter(
         ReporterTwo,
         :reporter_two,
         api_key: ~s[System.get_env("API_KEY")]
@@ -87,7 +87,7 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.add_reporter(
+      |> Tower.Igniter.configure_reporter(
         ReporterTwo,
         :reporter_two,
         api_key: ~s[System.get_env("API_KEY")]
@@ -130,7 +130,7 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.add_reporter(
+      |> Tower.Igniter.configure_reporter(
         ReporterTwo,
         :reporter_two,
         api_key: ~s[System.get_env("API_KEY")]
@@ -140,13 +140,13 @@ defmodule TowerIgniterTest do
 
     test "is idempotent" do
       test_project()
-      |> Tower.Igniter.add_reporter(
+      |> Tower.Igniter.configure_reporter(
         Reporter,
         :reporter,
         api_key: ~s[System.get_env("API_KEY")]
       )
       |> apply_igniter!()
-      |> Tower.Igniter.add_reporter(
+      |> Tower.Igniter.configure_reporter(
         Reporter,
         :reporter,
         api_key: ~s[System.get_env("API_KEY")]
