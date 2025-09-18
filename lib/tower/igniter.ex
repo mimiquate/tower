@@ -13,31 +13,30 @@ if Code.ensure_loaded?(Igniter) do
       """
     ]
 
-    def add_reporter_to_config(igniter, reporter_module) do
-      Igniter.Project.Config.configure(
-        igniter,
-        "config.exs",
-        :tower,
-        [:reporters],
-        [reporter_module],
-        updater: &Igniter.Code.List.append_new_to_list(&1, reporter_module)
-      )
-    end
+    def add_reporter(igniter, module, application, [{first_key, _} | _] = config) do
+      igniter =
+        Igniter.Project.Config.configure(
+          igniter,
+          "config.exs",
+          :tower,
+          [:reporters],
+          [module],
+          updater: &Igniter.Code.List.append_new_to_list(&1, module)
+        )
 
-    def add_reporter_config(igniter, reporter_app_name, [{first_key, _} | _] = config) do
-      if Igniter.Project.Config.configures_root_key?(igniter, "runtime.exs", reporter_app_name) do
+      if Igniter.Project.Config.configures_root_key?(igniter, "runtime.exs", application) do
         igniter
       else
         Igniter.create_or_update_elixir_file(
           igniter,
           "config/runtime.exs",
-          default_runtime_exs_content(reporter_app_name, config),
+          default_runtime_exs_content(application, config),
           fn zipper ->
             zipper
             |> Igniter.Code.Common.move_to_cursor_match_in_scope(@prod_config_patterns)
             |> case do
               {:ok, zipper} ->
-                if Igniter.Project.Config.configures_key?(zipper, reporter_app_name, first_key) do
+                if Igniter.Project.Config.configures_key?(zipper, application, first_key) do
                   {:ok, zipper}
                 else
                   Igniter.Code.Function.move_to_function_call_in_current_scope(
@@ -45,7 +44,7 @@ if Code.ensure_loaded?(Igniter) do
                     :=,
                     2,
                     fn call ->
-                      Igniter.Code.Function.argument_equals?(call, 0, reporter_app_name)
+                      Igniter.Code.Function.argument_equals?(call, 0, application)
                     end
                   )
                   |> case do
@@ -57,7 +56,7 @@ if Code.ensure_loaded?(Igniter) do
                           zipper
                           |> Igniter.Project.Config.modify_config_code(
                             [key],
-                            reporter_app_name,
+                            application,
                             Sourceror.parse_string!(value)
                           )
                         end
@@ -67,7 +66,7 @@ if Code.ensure_loaded?(Igniter) do
                     _ ->
                       Igniter.Code.Common.add_code(
                         zipper,
-                        config_block(reporter_app_name, config)
+                        config_block(application, config)
                       )
                   end
                 end
@@ -77,7 +76,7 @@ if Code.ensure_loaded?(Igniter) do
                   zipper,
                   """
                   if config_env() == :prod do
-                  #{config_block(reporter_app_name, config)}
+                  #{config_block(application, config)}
                   end
                   """
                 )
@@ -87,19 +86,19 @@ if Code.ensure_loaded?(Igniter) do
       end
     end
 
-    defp default_runtime_exs_content(name, config) do
+    defp default_runtime_exs_content(application, config) do
       """
       import Config
 
       if config_env() == :prod do
-      #{config_block(name, config)}
+      #{config_block(application, config)}
       end
       """
     end
 
-    defp config_block(name, config) do
+    defp config_block(application, config) do
       """
-      config #{inspect(name)},
+      config #{inspect(application)},
         #{Enum.map_join(config, ",\n", fn {key, value} -> "#{key}: #{value}" end)}
       """
     end
