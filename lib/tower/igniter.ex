@@ -48,26 +48,11 @@ if Code.ensure_loaded?(Igniter) do
                     end
                   )
                   |> case do
-                    {:ok, _zipper} ->
-                      config
-                      |> Enum.reduce(
-                        zipper,
-                        fn {key, value}, zipper ->
-                          zipper
-                          |> Igniter.Project.Config.modify_config_code(
-                            [key],
-                            application,
-                            Sourceror.parse_string!(value)
-                          )
-                        end
-                      )
-                      |> then(&{:ok, &1})
+                    {:ok, zipper} ->
+                      zipper
 
                     _ ->
-                      Igniter.Code.Common.add_code(
-                        zipper,
-                        config_block(application, config)
-                      )
+                      Igniter.Code.Common.add_code(zipper, config_block(application, config))
                   end
                 end
 
