@@ -24,20 +24,20 @@ if Code.ensure_loaded?(Igniter) do
       )
     end
 
-    def add_reporter_config(igniter, reporter_name, [{first_key, _} | _] = config) do
-      if Igniter.Project.Config.configures_root_key?(igniter, "runtime.exs", reporter_name) do
+    def add_reporter_config(igniter, reporter_app_name, [{first_key, _} | _] = config) do
+      if Igniter.Project.Config.configures_root_key?(igniter, "runtime.exs", reporter_app_name) do
         igniter
       else
         Igniter.create_or_update_elixir_file(
           igniter,
           "config/runtime.exs",
-          default_runtime_exs_content(reporter_name, config),
+          default_runtime_exs_content(reporter_app_name, config),
           fn zipper ->
             zipper
             |> Igniter.Code.Common.move_to_cursor_match_in_scope(@prod_config_patterns)
             |> case do
               {:ok, zipper} ->
-                if Igniter.Project.Config.configures_key?(zipper, reporter_name, first_key) do
+                if Igniter.Project.Config.configures_key?(zipper, reporter_app_name, first_key) do
                   {:ok, zipper}
                 else
                   Igniter.Code.Function.move_to_function_call_in_current_scope(
@@ -45,7 +45,7 @@ if Code.ensure_loaded?(Igniter) do
                     :=,
                     2,
                     fn call ->
-                      Igniter.Code.Function.argument_equals?(call, 0, reporter_name)
+                      Igniter.Code.Function.argument_equals?(call, 0, reporter_app_name)
                     end
                   )
                   |> case do
@@ -57,7 +57,7 @@ if Code.ensure_loaded?(Igniter) do
                           zipper
                           |> Igniter.Project.Config.modify_config_code(
                             [key],
-                            reporter_name,
+                            reporter_app_name,
                             Sourceror.parse_string!(value)
                           )
                         end
@@ -65,7 +65,10 @@ if Code.ensure_loaded?(Igniter) do
                       |> then(&{:ok, &1})
 
                     _ ->
-                      Igniter.Code.Common.add_code(zipper, config_block(reporter_name, config))
+                      Igniter.Code.Common.add_code(
+                        zipper,
+                        config_block(reporter_app_name, config)
+                      )
                   end
                 end
 
@@ -74,7 +77,7 @@ if Code.ensure_loaded?(Igniter) do
                   zipper,
                   """
                   if config_env() == :prod do
-                  #{config_block(reporter_name, config)}
+                  #{config_block(reporter_app_name, config)}
                   end
                   """
                 )
