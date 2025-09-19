@@ -45,18 +45,6 @@ if Code.ensure_loaded?(Igniter) do
           if Igniter.Project.Config.configures_root_key?(zipper, application) do
             {:ok, zipper}
           else
-            # modify_to =
-            #   case items[0] do
-            #     {:code, code} ->
-            #       code
-            #
-            #     value ->
-            #       value
-            #       |> Macro.escape()
-            #       |> Sourceror.to_string()
-            #       |> Sourceror.parse_string!()
-            #   end
-
             if env do
               patterns = env_config_patterns(env)
 
