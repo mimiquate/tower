@@ -58,14 +58,7 @@ if Code.ensure_loaded?(Igniter) do
                 end
 
               :error ->
-                Igniter.Code.Common.add_code(
-                  zipper,
-                  """
-                  if config_env() == :prod do
-                  #{config_block(application, config)}
-                  end
-                  """
-                )
+                Igniter.Code.Common.add_code(zipper, prod_config_block(application, config))
             end
           end
         end
@@ -76,6 +69,12 @@ if Code.ensure_loaded?(Igniter) do
       """
       import Config
 
+      #{prod_config_block(application, config)}
+      """
+    end
+
+    defp prod_config_block(application, config) do
+      """
       if config_env() == :prod do
       #{config_block(application, config)}
       end
