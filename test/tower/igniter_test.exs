@@ -152,6 +152,23 @@ defmodule TowerIgniterTest do
       |> assert_unchanged()
     end
 
+    test "does not modify existing configs exists" do
+      test_project(
+        files: %{
+          "config/runtime.exs" => """
+          import Config
+
+          config :reporter_two, api_key: System.get_env("API_KEY")
+          """
+        }
+      )
+      |> Tower.Igniter.runtime_configure_reporter(
+        :reporter_two,
+        api_key: ~s[System.get_env("API_KEY")]
+      )
+      |> assert_unchanged()
+    end
+
     test "is idempotent" do
       test_project()
       |> Tower.Igniter.runtime_configure_reporter(
