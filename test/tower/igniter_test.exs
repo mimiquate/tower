@@ -152,6 +152,25 @@ defmodule TowerIgniterTest do
       |> assert_unchanged()
     end
 
+    test "does not modify existing configs despite different" do
+      test_project(
+        files: %{
+          "config/runtime.exs" => """
+          import Config
+
+          if config_env() == :prod do
+            config :reporter_two, stale_key: System.get_env("STALE_KEY")
+          end
+          """
+        }
+      )
+      |> Tower.Igniter.runtime_configure_reporter(
+        :reporter_two,
+        api_key: ~s[System.get_env("API_KEY")]
+      )
+      |> assert_unchanged()
+    end
+
     test "does not modify existing configs exists" do
       test_project(
         files: %{
