@@ -13,17 +13,18 @@ if Code.ensure_loaded?(Igniter) do
       """
     ]
 
-    def configure_reporter(igniter, module, application, [{first_key, _} | _] = config) do
-      igniter =
-        Igniter.Project.Config.configure(
-          igniter,
-          "config.exs",
-          :tower,
-          [:reporters],
-          [module],
-          updater: &Igniter.Code.List.append_new_to_list(&1, module)
-        )
+    def add_reporter_to_config(igniter, module) do
+      igniter
+      |> Igniter.Project.Config.configure(
+        "config.exs",
+        :tower,
+        [:reporters],
+        [module],
+        updater: &Igniter.Code.List.append_new_to_list(&1, module)
+      )
+    end
 
+    def runtime_configure_reporter(igniter, application, [{first_key, _} | _] = config) do
       if Igniter.Project.Config.configures_root_key?(igniter, "runtime.exs", application) do
         igniter
       else

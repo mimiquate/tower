@@ -2,20 +2,70 @@ defmodule TowerIgniterTest do
   use ExUnit.Case, async: true
   import Igniter.Test
 
-  describe "configure_reporter/2" do
+  describe "add_reporter_to_config/2" do
     test "from scratch" do
       test_project()
-      |> Tower.Igniter.configure_reporter(
-        Reporter,
-        :reporter,
-        api_key: ~s[System.get_env("API_KEY")]
-      )
+      |> Tower.Igniter.add_reporter_to_config(Reporter)
       |> assert_creates(
         "config/config.exs",
         """
         import Config
         config :tower, reporters: [Reporter]
         """
+      )
+    end
+
+    test "appends to list if existing config" do
+      test_project(
+        files: %{
+          "config/config.exs" => """
+          import Config
+
+          config :tower, reporters: [ReporterOne]
+          """
+        }
+      )
+      |> Tower.Igniter.add_reporter_to_config(ReporterTwo)
+      |> assert_has_patch(
+        "config/config.exs",
+        """
+        |import Config
+        |
+        - |config :tower, reporters: [ReporterOne]
+        + |config :tower, reporters: [ReporterOne, ReporterTwo]
+        """
+      )
+    end
+
+    test "does nothing if module already listed" do
+      test_project(
+        files: %{
+          "config/config.exs" => """
+          import Config
+
+          config :tower, reporters: [ReporterOne, ReporterTwo]
+          """
+        }
+      )
+      |> Tower.Igniter.add_reporter_to_config(ReporterTwo)
+      |> assert_unchanged()
+    end
+
+    test "is idempotent" do
+      test_project()
+      |> Tower.Igniter.add_reporter_to_config(Reporter)
+      |> apply_igniter!()
+      |> Tower.Igniter.add_reporter_to_config(Reporter)
+      |> assert_unchanged()
+    end
+  end
+
+  describe "runtime_configure_reporter/2" do
+    test "from scratch" do
+      test_project()
+      |> Tower.Igniter.runtime_configure_reporter(
+        :reporter,
+        api_key: ~s[System.get_env("API_KEY")]
       )
       |> assert_creates(
         "config/runtime.exs",
@@ -30,32 +80,17 @@ defmodule TowerIgniterTest do
       )
     end
 
-    test "modifies existing tower configs if available" do
+    test "appends to existing runtime config" do
       test_project(
         files: %{
-          "config/config.exs" => """
-          import Config
-
-          config :tower, reporters: [ReporterOne]
-          """,
           "config/runtime.exs" => """
           import Config
           """
         }
       )
-      |> Tower.Igniter.configure_reporter(
-        ReporterTwo,
+      |> Tower.Igniter.runtime_configure_reporter(
         :reporter_two,
         api_key: ~s[System.get_env("API_KEY")]
-      )
-      |> assert_has_patch(
-        "config/config.exs",
-        """
-        |import Config
-        |
-        - |config :tower, reporters: [ReporterOne]
-        + |config :tower, reporters: [ReporterOne, ReporterTwo]
-        """
       )
       |> assert_has_patch(
         "config/runtime.exs",
@@ -70,14 +105,9 @@ defmodule TowerIgniterTest do
       )
     end
 
-    test "modifies existing tower configs if config_env() == :prod block exists" do
+    test "writes inside existing prod block if present" do
       test_project(
         files: %{
-          "config/config.exs" => """
-          import Config
-
-          config :tower, reporters: [ReporterOne]
-          """,
           "config/runtime.exs" => """
           import Config
 
@@ -87,19 +117,9 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.configure_reporter(
-        ReporterTwo,
+      |> Tower.Igniter.runtime_configure_reporter(
         :reporter_two,
         api_key: ~s[System.get_env("API_KEY")]
-      )
-      |> assert_has_patch(
-        "config/config.exs",
-        """
-        |import Config
-        |
-        - |config :tower, reporters: [ReporterOne]
-        + |config :tower, reporters: [ReporterOne, ReporterTwo]
-        """
       )
       |> assert_has_patch(
         "config/runtime.exs",
@@ -113,14 +133,9 @@ defmodule TowerIgniterTest do
       )
     end
 
-    test "does not modify existing tower_rollbar configs if config_env() == :prod block exists" do
+    test "does not modify existing configs if config_env() == :prod block exists" do
       test_project(
         files: %{
-          "config/config.exs" => """
-          import Config
-
-          config :tower, reporters: [ReporterOne, ReporterTwo]
-          """,
           "config/runtime.exs" => """
           import Config
 
@@ -130,8 +145,7 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.configure_reporter(
-        ReporterTwo,
+      |> Tower.Igniter.runtime_configure_reporter(
         :reporter_two,
         api_key: ~s[System.get_env("API_KEY")]
       )
@@ -140,14 +154,12 @@ defmodule TowerIgniterTest do
 
     test "is idempotent" do
       test_project()
-      |> Tower.Igniter.configure_reporter(
-        Reporter,
+      |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
         api_key: ~s[System.get_env("API_KEY")]
       )
       |> apply_igniter!()
-      |> Tower.Igniter.configure_reporter(
-        Reporter,
+      |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
         api_key: ~s[System.get_env("API_KEY")]
       )
