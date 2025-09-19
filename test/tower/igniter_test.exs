@@ -2,10 +2,10 @@ defmodule TowerIgniterTest do
   use ExUnit.Case, async: true
   import Igniter.Test
 
-  describe "add_reporter_to_config/2" do
+  describe "reporters_list_append/2" do
     test "from scratch" do
       test_project()
-      |> Tower.Igniter.add_reporter_to_config(Reporter)
+      |> Tower.Igniter.reporters_list_append(Reporter)
       |> assert_creates(
         "config/config.exs",
         """
@@ -25,7 +25,7 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.add_reporter_to_config(ReporterTwo)
+      |> Tower.Igniter.reporters_list_append(ReporterTwo)
       |> assert_has_patch(
         "config/config.exs",
         """
@@ -47,15 +47,15 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.add_reporter_to_config(ReporterTwo)
+      |> Tower.Igniter.reporters_list_append(ReporterTwo)
       |> assert_unchanged()
     end
 
     test "is idempotent" do
       test_project()
-      |> Tower.Igniter.add_reporter_to_config(Reporter)
+      |> Tower.Igniter.reporters_list_append(Reporter)
       |> apply_igniter!()
-      |> Tower.Igniter.add_reporter_to_config(Reporter)
+      |> Tower.Igniter.reporters_list_append(Reporter)
       |> assert_unchanged()
     end
   end

@@ -13,9 +13,9 @@ if Code.ensure_loaded?(Igniter) do
       """
     ]
 
-    def add_reporter_to_config(igniter, module) do
-      igniter
-      |> Igniter.Project.Config.configure(
+    def reporters_list_append(igniter, module) do
+      Igniter.Project.Config.configure(
+        igniter,
         "config.exs",
         :tower,
         [:reporters],
