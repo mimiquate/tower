@@ -166,7 +166,7 @@ defmodule TowerIgniterTest do
       |> assert_unchanged()
     end
 
-    test "does not modify existing config in env block" do
+    test "does not modify existing key value yet appends new key in env block" do
       test_project(
         files: %{
           "config/runtime.exs" => """
@@ -183,7 +183,15 @@ defmodule TowerIgniterTest do
         [api_key: "456", other_key: "789"],
         env: :prod
       )
-      |> assert_unchanged()
+      |> assert_has_patch(
+        "config/runtime.exs",
+        """
+        |if config_env() == :prod do
+        - |  config :reporter, api_key: "123"
+        + |  config :reporter, api_key: "123", other_key: "789"
+        |end
+        """
+      )
     end
 
     test "does not modify existing configs despite different" do
