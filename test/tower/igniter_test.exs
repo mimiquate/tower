@@ -61,11 +61,23 @@ defmodule TowerIgniterTest do
   end
 
   describe "runtime_configure_reporter/4" do
-    test "from scratch" do
+    test "from scratch with string value" do
+      test_project()
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, api_key: "123")
+      |> assert_creates(
+        "config/runtime.exs",
+        """
+        import Config
+        config :reporter, api_key: "123"
+        """
+      )
+    end
+
+    test "from scratch with code value" do
       test_project()
       |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
-        api_key: ~s[System.get_env("REPORTER_API_KEY")]
+        api_key: {:code, Sourceror.parse_string!(~s[System.get_env("REPORTER_API_KEY")])}
       )
       |> assert_creates(
         "config/runtime.exs",
@@ -78,18 +90,14 @@ defmodule TowerIgniterTest do
 
     test "from scratch with env" do
       test_project()
-      |> Tower.Igniter.runtime_configure_reporter(
-        :reporter,
-        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
-        env: :prod
-      )
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, [api_key: "123"], env: :prod)
       |> assert_creates(
         "config/runtime.exs",
         """
         import Config
 
         if config_env() == :prod do
-          config :reporter, api_key: System.get_env("REPORTER_API_KEY")
+          config :reporter, api_key: "123"
         end
         """
       )
@@ -103,18 +111,14 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.runtime_configure_reporter(
-        :reporter,
-        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
-        env: :prod
-      )
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, [api_key: "123"], env: :prod)
       |> assert_has_patch(
         "config/runtime.exs",
         """
         |import Config
         |
         + |if config_env() == :prod do
-        + |  config :reporter, api_key: System.get_env("REPORTER_API_KEY")
+        + |  config :reporter, api_key: "123"
         + |end
         + |
         """
@@ -133,38 +137,50 @@ defmodule TowerIgniterTest do
           """
         }
       )
-      |> Tower.Igniter.runtime_configure_reporter(
-        :reporter,
-        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
-        env: :prod
-      )
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, [api_key: "123"], env: :prod)
       |> assert_has_patch(
         "config/runtime.exs",
         """
         |if config_env() == :prod do
         |  IO.puts("hello")
-        + |config :reporter, api_key: System.get_env("REPORTER_API_KEY")
+        + |config :reporter, api_key: "123"
         |end
         |
         """
       )
     end
 
-    test "does not modify existing configs if config_env() == :prod block exists" do
+    test "does not append same config again in existing env block" do
       test_project(
         files: %{
           "config/runtime.exs" => """
           import Config
 
           if config_env() == :prod do
-            config :reporter, api_key: System.get_env("REPORTER_API_KEY")
+            config :reporter, api_key: "123"
+          end
+          """
+        }
+      )
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, [api_key: "123"], env: :prod)
+      |> assert_unchanged()
+    end
+
+    test "does not modify existing config in env block" do
+      test_project(
+        files: %{
+          "config/runtime.exs" => """
+          import Config
+
+          if config_env() == :prod do
+            config :reporter, api_key: "123"
           end
           """
         }
       )
       |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
-        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
+        [api_key: "456", other_key: "789"],
         env: :prod
       )
       |> assert_unchanged()
@@ -176,49 +192,33 @@ defmodule TowerIgniterTest do
           "config/runtime.exs" => """
           import Config
 
-          if config_env() == :prod do
-            config :reporter, stale_key: System.get_env("REPORETER_STALE_KEY")
-          end
+          config :reporter, api_key: "123"
           """
         }
       )
-      |> Tower.Igniter.runtime_configure_reporter(
-        :reporter,
-        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
-        env: :prod
-      )
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, api_key: "456")
       |> assert_unchanged()
     end
 
-    test "does not modify existing configs exists" do
+    test "does not modify existing config in top level if configured for env" do
       test_project(
         files: %{
           "config/runtime.exs" => """
           import Config
 
-          config :reporter, api_key: System.get_env("REPORTER_API_KEY")
+          config :reporter, api_key: "123"
           """
         }
       )
-      |> Tower.Igniter.runtime_configure_reporter(
-        :reporter,
-        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
-        env: :prod
-      )
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, [api_key: "123"], env: :prod)
       |> assert_unchanged()
     end
 
     test "is idempotent" do
       test_project()
-      |> Tower.Igniter.runtime_configure_reporter(
-        :reporter,
-        api_key: ~s[System.get_env("REPORTER_API_KEY")]
-      )
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, api_key: "123")
       |> apply_igniter!()
-      |> Tower.Igniter.runtime_configure_reporter(
-        :reporter,
-        api_key: ~s[System.get_env("REPORTER_API_KEY")]
-      )
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, api_key: "123")
       |> assert_unchanged()
     end
   end

@@ -19,6 +19,24 @@ if Code.ensure_loaded?(Igniter) do
     def runtime_configure_reporter(igniter, application, items, opts \\ []) do
       env = opts[:env]
 
+      items =
+        items
+        |> Enum.map(fn {key, value} ->
+          {
+            key,
+            case value do
+              {:code, code} ->
+                code
+
+              other ->
+                other
+                |> Macro.escape()
+                |> Sourceror.to_string()
+                |> Sourceror.parse_string!()
+            end
+          }
+        end)
+
       igniter
       |> Igniter.include_or_create_file(@runtime_file_path, @default_runtime_file_content)
       |> Igniter.update_elixir_file(
@@ -27,41 +45,66 @@ if Code.ensure_loaded?(Igniter) do
           if Igniter.Project.Config.configures_root_key?(zipper, application) do
             {:ok, zipper}
           else
+            # modify_to =
+            #   case items[0] do
+            #     {:code, code} ->
+            #       code
+            #
+            #     value ->
+            #       value
+            #       |> Macro.escape()
+            #       |> Sourceror.to_string()
+            #       |> Sourceror.parse_string!()
+            #   end
+
             if env do
+              patterns = env_config_patterns(env)
+
               zipper
-              |> Igniter.Code.Common.move_to_cursor_match_in_scope(env_config_patterns(env))
+              |> Igniter.Code.Common.move_to_cursor_match_in_scope(patterns)
+              |> case do
+                {:ok, zipper} ->
+                  {:ok, zipper}
+
+                :error ->
+                  zipper
+                  |> Igniter.Code.Common.add_code("""
+                  if config_env() == #{inspect(env)} do
+                  end
+                  """)
+                  |> Igniter.Code.Common.move_to_cursor_match_in_scope(patterns)
+              end
             else
               {:ok, zipper}
             end
             |> case do
               {:ok, zipper} ->
-                if Igniter.Project.Config.configures_root_key?(zipper, application) do
-                  {:ok, zipper}
-                else
-                  Igniter.Code.Common.add_code(zipper, config_block(application, items))
-                end
+                {
+                  :ok,
+                  Enum.reduce(
+                    items,
+                    zipper,
+                    fn {key, value}, zipper ->
+                      {:ok, zipper} =
+                        Igniter.Project.Config.modify_config_code(
+                          zipper,
+                          [key],
+                          application,
+                          value,
+                          updater: &{:ok, &1}
+                        )
+
+                      zipper
+                    end
+                  )
+                }
 
               :error ->
-                Igniter.Code.Common.add_code(zipper, env_config_block(env, application, items))
+                {:error, "error"}
             end
           end
         end
       )
-    end
-
-    defp env_config_block(env, application, config) do
-      """
-      if config_env() == #{inspect(env)} do
-      #{config_block(application, config)}
-      end
-      """
-    end
-
-    defp config_block(application, config) do
-      """
-      config #{inspect(application)},
-        #{Enum.map_join(config, ",\n", fn {key, value} -> "#{key}: #{value}" end)}
-      """
     end
 
     defp env_config_patterns(env) do
