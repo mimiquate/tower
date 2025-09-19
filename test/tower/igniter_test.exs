@@ -60,7 +60,7 @@ defmodule TowerIgniterTest do
     end
   end
 
-  describe "runtime_configure_reporter/2" do
+  describe "runtime_configure_reporter/4" do
     test "from scratch" do
       test_project()
       |> Tower.Igniter.runtime_configure_reporter(
@@ -71,10 +71,25 @@ defmodule TowerIgniterTest do
         "config/runtime.exs",
         """
         import Config
+        config :reporter, api_key: System.get_env("REPORTER_API_KEY")
+        """
+      )
+    end
+
+    test "from scratch with env" do
+      test_project()
+      |> Tower.Igniter.runtime_configure_reporter(
+        :reporter,
+        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
+        env: :prod
+      )
+      |> assert_creates(
+        "config/runtime.exs",
+        """
+        import Config
 
         if config_env() == :prod do
-          config :reporter,
-            api_key: System.get_env("REPORTER_API_KEY")
+          config :reporter, api_key: System.get_env("REPORTER_API_KEY")
         end
         """
       )
@@ -90,7 +105,8 @@ defmodule TowerIgniterTest do
       )
       |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
-        api_key: ~s[System.get_env("REPORTER_API_KEY")]
+        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
+        env: :prod
       )
       |> assert_has_patch(
         "config/runtime.exs",
@@ -119,7 +135,8 @@ defmodule TowerIgniterTest do
       )
       |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
-        api_key: ~s[System.get_env("REPORTER_API_KEY")]
+        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
+        env: :prod
       )
       |> assert_has_patch(
         "config/runtime.exs",
@@ -147,7 +164,8 @@ defmodule TowerIgniterTest do
       )
       |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
-        api_key: ~s[System.get_env("REPORTER_API_KEY")]
+        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
+        env: :prod
       )
       |> assert_unchanged()
     end
@@ -166,7 +184,8 @@ defmodule TowerIgniterTest do
       )
       |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
-        api_key: ~s[System.get_env("REPORTER_API_KEY")]
+        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
+        env: :prod
       )
       |> assert_unchanged()
     end
@@ -183,7 +202,8 @@ defmodule TowerIgniterTest do
       )
       |> Tower.Igniter.runtime_configure_reporter(
         :reporter,
-        api_key: ~s[System.get_env("REPORTER_API_KEY")]
+        [api_key: ~s[System.get_env("REPORTER_API_KEY")]],
+        env: :prod
       )
       |> assert_unchanged()
     end
