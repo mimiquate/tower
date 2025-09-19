@@ -40,21 +40,7 @@ if Code.ensure_loaded?(Igniter) do
                 if Igniter.Project.Config.configures_root_key?(zipper, application) do
                   {:ok, zipper}
                 else
-                  Igniter.Code.Function.move_to_function_call_in_current_scope(
-                    zipper,
-                    :=,
-                    2,
-                    fn call ->
-                      Igniter.Code.Function.argument_equals?(call, 0, application)
-                    end
-                  )
-                  |> case do
-                    {:ok, zipper} ->
-                      {:ok, zipper}
-
-                    _ ->
-                      Igniter.Code.Common.add_code(zipper, config_block(application, config))
-                  end
+                  Igniter.Code.Common.add_code(zipper, config_block(application, config))
                 end
 
               :error ->
