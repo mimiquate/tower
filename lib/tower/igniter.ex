@@ -25,14 +25,14 @@ if Code.ensure_loaded?(Igniter) do
     end
 
     def runtime_configure_reporter(igniter, application, [{first_key, _} | _] = config) do
-      if Igniter.Project.Config.configures_root_key?(igniter, "runtime.exs", application) do
-        igniter
-      else
-        Igniter.create_or_update_elixir_file(
-          igniter,
-          "config/runtime.exs",
-          default_runtime_exs_content(application, config),
-          fn zipper ->
+      Igniter.create_or_update_elixir_file(
+        igniter,
+        "config/runtime.exs",
+        default_runtime_exs_content(application, config),
+        fn zipper ->
+          if Igniter.Project.Config.configures_root_key?(zipper, application) do
+            zipper
+          else
             zipper
             |> Igniter.Code.Common.move_to_cursor_match_in_scope(@prod_config_patterns)
             |> case do
@@ -68,8 +68,8 @@ if Code.ensure_loaded?(Igniter) do
                 )
             end
           end
-        )
-      end
+        end
+      )
     end
 
     defp default_runtime_exs_content(application, config) do
