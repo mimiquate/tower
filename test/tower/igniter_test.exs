@@ -61,14 +61,14 @@ defmodule TowerIgniterTest do
   end
 
   describe "runtime_configure_reporter/4" do
-    test "from scratch with string value" do
+    test "from scratch with string values" do
       test_project()
-      |> Tower.Igniter.runtime_configure_reporter(:reporter, api_key: "123")
+      |> Tower.Igniter.runtime_configure_reporter(:reporter, api_key: "123", other: "abc")
       |> assert_creates(
         "config/runtime.exs",
         """
         import Config
-        config :reporter, api_key: "123"
+        config :reporter, api_key: "123", other: "abc"
         """
       )
     end
