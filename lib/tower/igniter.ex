@@ -19,24 +19,6 @@ if Code.ensure_loaded?(Igniter) do
     def runtime_configure_reporter(igniter, application, items, opts \\ []) do
       env = opts[:env]
 
-      items =
-        items
-        |> Enum.map(fn {key, value} ->
-          {
-            key,
-            case value do
-              {:code, code} ->
-                code
-
-              other ->
-                other
-                |> Macro.escape()
-                |> Sourceror.to_string()
-                |> Sourceror.parse_string!()
-            end
-          }
-        end)
-
       igniter
       |> Igniter.include_or_create_file(@runtime_file_path, @default_runtime_file_content)
       |> Igniter.update_elixir_file(
@@ -67,8 +49,23 @@ if Code.ensure_loaded?(Igniter) do
             end
             |> case do
               {:ok, zipper} ->
-                Enum.reduce_while(
-                  items,
+                items
+                |> Enum.map(fn {key, value} ->
+                  {
+                    key,
+                    case value do
+                      {:code, code} ->
+                        code
+
+                      other ->
+                        other
+                        |> Macro.escape()
+                        |> Sourceror.to_string()
+                        |> Sourceror.parse_string!()
+                    end
+                  }
+                end)
+                |> Enum.reduce_while(
                   {:ok, zipper},
                   fn {key, value}, {:ok, zipper} ->
                     Igniter.Project.Config.modify_config_code(
