@@ -67,25 +67,23 @@ if Code.ensure_loaded?(Igniter) do
             end
             |> case do
               {:ok, zipper} ->
-                {
-                  :ok,
-                  Enum.reduce(
-                    items,
-                    zipper,
-                    fn {key, value}, zipper ->
-                      {:ok, zipper} =
-                        Igniter.Project.Config.modify_config_code(
-                          zipper,
-                          [key],
-                          application,
-                          value,
-                          updater: &{:ok, &1}
-                        )
-
-                      zipper
+                Enum.reduce_while(
+                  items,
+                  {:ok, zipper},
+                  fn {key, value}, {:ok, zipper} ->
+                    Igniter.Project.Config.modify_config_code(
+                      zipper,
+                      [key],
+                      application,
+                      value,
+                      updater: &{:ok, &1}
+                    )
+                    |> case do
+                      {:ok, _} = ok_result -> {:cont, ok_result}
+                      other_result -> {:halt, other_result}
                     end
-                  )
-                }
+                  end
+                )
 
               :error ->
                 {:error, "Could not modify #{@runtime_file_path}"}
