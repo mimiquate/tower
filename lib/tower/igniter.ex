@@ -88,7 +88,7 @@ if Code.ensure_loaded?(Igniter) do
                 }
 
               :error ->
-                {:error, "error"}
+                {:error, "Could not modify #{@runtime_file_path}"}
             end
           end
         end
