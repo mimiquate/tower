@@ -4,7 +4,7 @@ defmodule Tower.MixProject do
   @description "Flexible exception tracking and reporting in Elixir"
   @source_url "https://github.com/mimiquate/tower"
   @changelog_url @source_url <> "/blob/-/CHANGELOG.md"
-  @version "0.8.3"
+  @version "0.8.4"
 
   def project do
     [
