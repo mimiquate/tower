@@ -102,10 +102,8 @@ defmodule Tower.LoggerHandler do
   end
 
   defp handle_log_event(
-         %{
-           level: level,
-           msg: {:report, %{args: args, label: {:error_logger, :error_msg}, format: format}}
-         } = log_event
+         %{level: level, msg: {:report, %{args: args, label: {:error_logger, _}, format: format}}} =
+           log_event
        ) do
     if should_handle?(level) do
       report_message(level, formatted_message(format, args), log_event)
