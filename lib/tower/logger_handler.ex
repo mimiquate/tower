@@ -95,30 +95,9 @@ defmodule Tower.LoggerHandler do
     report_exit(exit_reason, [], log_event)
   end
 
-  defp handle_log_event(%{level: level, msg: {:string, reason_chardata}} = log_event) do
+  defp handle_log_event(%{level: level, msg: msg, meta: meta} = log_event) do
     if should_handle?(level) do
-      report_message(level, IO.chardata_to_string(reason_chardata), log_event)
-    end
-  end
-
-  defp handle_log_event(
-         %{level: level, msg: {:report, %{label: {:error_logger, _}, format: format, args: args}}} =
-           log_event
-       ) do
-    if should_handle?(level) do
-      report_message(level, formatted_message(format, args), log_event)
-    end
-  end
-
-  defp handle_log_event(%{level: level, msg: {:report, report}} = log_event) do
-    if should_handle?(level) do
-      report_message(level, report, log_event)
-    end
-  end
-
-  defp handle_log_event(%{level: level, msg: {format, args}} = log_event) when is_list(args) do
-    if should_handle?(level) do
-      report_message(level, formatted_message(format, args), log_event)
+      report_message(level, formatted_msg(msg, meta), log_event)
     end
   end
 
@@ -158,7 +137,33 @@ defmodule Tower.LoggerHandler do
     Logger.log(level, message, domain: @own_logs_domain)
   end
 
-  defp formatted_message(format, args) do
+  defp formatted_msg({:string, chardata}, _meta) do
+    IO.chardata_to_string(chardata)
+  end
+
+  defp formatted_msg({:report, report}, meta) do
+    formatted_report(report, meta)
+  end
+
+  defp formatted_msg({_, _} = fa, _meta) do
+    formatted_fa(fa)
+  end
+
+  defp formatted_report(report, %{report_cb: report_cb}) when is_function(report_cb, 1) do
+    report
+    |> report_cb.()
+    |> formatted_fa()
+  end
+
+  defp formatted_report(report, %{report_cb: report_cb}) when is_function(report_cb, 2) do
+    report_cb.(report, %{})
+  end
+
+  defp formatted_report(report, _meta) do
+    report
+  end
+
+  defp formatted_fa({format, args}) do
     # Borrowed from Elixir's Logger.Formatter:
     # https://github.com/elixir-lang/elixir/blob/a4adaa871f1b65a166bce5d007ed5f34fd231fb9/lib/logger/lib/logger/formatter.ex#L273-L278
 
