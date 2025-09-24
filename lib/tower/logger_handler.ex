@@ -159,8 +159,14 @@ defmodule Tower.LoggerHandler do
     report_cb.(report, %{})
   end
 
-  defp formatted_report(report, _meta) do
+  defp formatted_report(%{} = report, _meta) do
     report
+    |> Map.to_list()
+    |> Kernel.inspect()
+  end
+
+  defp formatted_report(report, _meta) do
+    Kernel.inspect(report)
   end
 
   defp formatted_fa({format, args}) do

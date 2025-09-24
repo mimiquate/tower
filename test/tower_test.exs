@@ -289,7 +289,7 @@ defmodule TowerTest do
     assert recent_datetime?(datetime)
   end
 
-  test "reports a Logger structured report" do
+  test "reports a Logger report list" do
     in_unlinked_process(fn ->
       require Logger
 
@@ -305,7 +305,34 @@ defmodule TowerTest do
           datetime: datetime,
           level: :critical,
           kind: :message,
-          reason: [something: :reported, this: :critical],
+          reason: "[something: :reported, this: :critical]",
+          stacktrace: nil,
+          by: Tower.LoggerHandler
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+  end
+
+  test "reports a Logger report map (as a list as Elixir's Logger)" do
+    in_unlinked_process(fn ->
+      require Logger
+
+      capture_log(fn ->
+        Logger.critical(%{one: 1, two: 2})
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :critical,
+          kind: :message,
+          reason: "[one: 1, two: 2]",
           stacktrace: nil,
           by: Tower.LoggerHandler
         }
