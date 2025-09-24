@@ -341,6 +341,33 @@ defmodule TowerTest do
     assert recent_datetime?(datetime)
   end
 
+  test "reports a legacy Erlang's error_logger:error_msg (if enabled)" do
+    put_env(:log_level, :error)
+
+    in_unlinked_process(fn ->
+      capture_log(fn ->
+        :error_logger.error_msg("An error occurred in ~p", [:some_module])
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          kind: :message,
+          reason: "An error occurred in :some_module",
+          stacktrace: nil,
+          by: Tower.LoggerHandler
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+  end
+
   test "reports message manually" do
     Tower.report_message(:info, "Something interesting", metadata: %{something: "else"})
 
