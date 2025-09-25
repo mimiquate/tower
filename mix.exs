@@ -54,7 +54,7 @@ defmodule Tower.MixProject do
 
       # Optional
       {:bandit, "~> 1.6", optional: true},
-      {:igniter, "~> 0.6", optional: true},
+      {:igniter, "~> 0.6", optional: true, github: "ash-project/igniter", override: true},
 
       # Dev
       {:ex_doc, "~> 0.38.1", only: :dev, runtime: false},
