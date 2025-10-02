@@ -559,7 +559,16 @@ defmodule Tower do
 
   defp report_event(reporter, event) do
     try do
-      reporter.report_event(event)
+      :telemetry.span(
+        [:tower, :report_event],
+        %{reporter: reporter, event: event},
+        fn ->
+          {
+            reporter.report_event(event),
+            %{}
+          }
+        end
+      )
     rescue
       exception ->
         async(fn ->
