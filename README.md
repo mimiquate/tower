@@ -4,20 +4,26 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/tower.svg)](https://hex.pm/packages/tower)
 [![Documentation](https://img.shields.io/badge/Documentation-purple.svg)](https://hexdocs.pm/tower)
 
-Tower is a flexible exception tracker for elixir applications.
+Tower is an Elixir package that provides modern and robust exception reporting capabilities for applications.
 
-It **listens** for **exceptions** in an elixir application **and informs** about them to
-the configured list of **reporters** (one or many).
+It automatically captures all uncaught exceptions, throws, and abnormal process exits, converting each into a structured `Tower.Event` that can be forwarded to various reporters (e.g., Sentry, Rollbar, E-mail, Slack, etc).
 
-Any captured exception by `Tower` will be passed along to the list of
-configured reporters, which can be set using the `:reporters` config key. For example:
+Key points:
+
+- Automatic handling – the library automatically registers the necessary handlers so that any uncaught error, throw or exit is intercepted and processed by Tower.
+- Manual handling – You can also explicitly ask Tower to handle a caught error, exception, or exit via helper functions such as `Tower.report_exception`.
+- Event structure – Each captured incident is represented as a `%Tower.Event{}` struct containing details like timestamp, unique ID, error kind, log level, metadata, and optional Plug connection information.
+- Extensible reporters – Tower’s design lets you plug in custom reporters or use existing ones to forward events to external monitoring services.
+
+Overall, Tower is a “once‑and‑for‑all” solution for Elixir projects that want reliable exception tracking while retaining the freedom to choose or change third‑party monitoring tools.
+
+---
+
+You can pick any of the following reporters or [build your own](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter) and set them in the list of configured reporters, e.g.:
 
 ```elixir
 config :tower, :reporters, [TowerEmail]
 ```
-
-You can pick any of the following reporters or [build your own](https://hexdocs.pm/tower/Tower.html#module-writing-a-custom-reporter).
-
 
 Report to | Tower reporter | Package dependency
 :-----| :---------------| :---------
