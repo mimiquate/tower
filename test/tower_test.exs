@@ -19,6 +19,7 @@ defmodule TowerTest do
   test "reports runtime error" do
     capture_log(fn ->
       in_unlinked_process(fn ->
+        Process.set_label({:a, :task})
         raise "an error"
       end)
     end)
@@ -32,6 +33,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
+          metadata: %{process_label: {:a, :task}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
