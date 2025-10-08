@@ -16,24 +16,7 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
-  test "reports runtime error", %{test: test_name} do
-    test_pid = self()
-
-    :telemetry.attach_many(
-      test_name,
-      [
-        [:tower, :report_event, :start],
-        [:tower, :report_event, :stop],
-        [:tower, :report_event, :exception]
-      ],
-      fn event, measures, metadata, config ->
-        send(test_pid, {:telemetry_event, {event, measures, metadata, config}})
-      end,
-      nil
-    )
-
-    on_exit(fn -> :telemetry.detach(test_name) end)
-
+  test "reports runtime error" do
     capture_log(fn ->
       in_unlinked_process(fn ->
         raise "an error"
@@ -57,9 +40,6 @@ defmodule TowerTest do
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
     assert [_ | _] = stacktrace
-
-    assert_receive {:telemetry_event, {[:tower, :report_event, :start], _, _, _}}
-    assert_receive {:telemetry_event, {[:tower, :report_event, :stop], _, _, _}}
   end
 
   test "reports as an :error an Erlang error Elixir can normalize" do
@@ -795,6 +775,36 @@ defmodule TowerTest do
     )
 
     assert metadata[:user_id] == 123
+  end
+
+  test "emits telemetry events", %{test: test_name} do
+    test_pid = self()
+
+    :telemetry.attach_many(
+      test_name,
+      [
+        [:tower, :report_event, :start],
+        [:tower, :report_event, :stop],
+        [:tower, :report_event, :exception]
+      ],
+      fn event, measures, metadata, config ->
+        send(test_pid, {:telemetry_event, {event, measures, metadata, config}})
+      end,
+      nil
+    )
+
+    on_exit(fn -> :telemetry.detach(test_name) end)
+
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        raise "an error"
+      end)
+    end)
+
+    assert_eventually [_] = reported_events()
+
+    assert_receive {:telemetry_event, {[:tower, :report_event, :start], _, _, _}}
+    assert_receive {:telemetry_event, {[:tower, :report_event, :stop], _, _, _}}
   end
 
   defp in_unlinked_process(fun) when is_function(fun, 0) do
