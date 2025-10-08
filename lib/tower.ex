@@ -22,7 +22,7 @@ defmodule Tower do
 
   > Decoupled error capturing and error reporting in Elixir.
 
-  Say you need to add error tracking to your elixir app:
+  Say you need to add exception tracking to your elixir app:
 
     - You decide what service you will use to send your errors to
     - You look for a good elixir library for that service
@@ -327,7 +327,7 @@ defmodule Tower do
 
   Additionally adds other handlers specifically tailored for some packages that
   do catch errors and have their own specific error handling and emit events instead
-  of letting errors get to the logger handler, like oban or bandit.
+  of letting errors get to the logger handler, like oban.
   """
   @spec attach() :: :ok | {:error, reason :: term()}
   def attach do
@@ -360,7 +360,8 @@ defmodule Tower do
       try do
         # possibly crashing code
       catch
-        # Note this will also catch and handle normal (`:normal` and `:shutdown`) exits
+        # Note this will also catch and handle normal (`:normal` and `:shutdown`) exits.
+        # Consider using Tower.is_normal_exit guard.
         kind, reason ->
           Tower.report(kind, reason, __STACKTRACE__)
       end
@@ -558,7 +559,16 @@ defmodule Tower do
 
   defp report_event(reporter, event) do
     try do
-      reporter.report_event(event)
+      :telemetry.span(
+        [:tower, :report_event],
+        %{reporter: reporter, event: event},
+        fn ->
+          {
+            reporter.report_event(event),
+            %{}
+          }
+        end
+      )
     rescue
       exception ->
         async(fn ->

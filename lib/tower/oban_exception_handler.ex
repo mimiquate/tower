@@ -21,10 +21,16 @@ defmodule Tower.ObanExceptionHandler do
   def handle_event(
         [:oban, :job, :exception],
         _event_measurements,
-        %{kind: kind, reason: reason, stacktrace: stacktrace},
+        %{kind: kind, reason: reason, stacktrace: stacktrace} = meta,
         _handler_config
       ) do
-    Tower.report(kind, reason, stacktrace, by: __MODULE__)
+    Tower.report(
+      kind,
+      reason,
+      stacktrace,
+      by: __MODULE__,
+      metadata: %{application: application_data(meta[:worker])}
+    )
   end
 
   def handle_event(
@@ -38,5 +44,13 @@ defmodule Tower.ObanExceptionHandler do
     )
 
     :ignored
+  end
+
+  defp application_data(worker) when is_binary(worker) do
+    Tower.Utils.application_data(String.to_existing_atom("Elixir.#{worker}"))
+  end
+
+  defp application_data(_worker) do
+    %{}
   end
 end

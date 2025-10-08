@@ -1,10 +1,10 @@
 defmodule Tower.MixProject do
   use Mix.Project
 
-  @description "Flexible error tracking and reporting in Elixir"
+  @description "Flexible exception tracking and reporting in Elixir"
   @source_url "https://github.com/mimiquate/tower"
   @changelog_url @source_url <> "/blob/-/CHANGELOG.md"
-  @version "0.8.1"
+  @version "0.8.5"
 
   def project do
     [
@@ -53,11 +53,11 @@ defmodule Tower.MixProject do
       {:uuid_v7, "~> 0.6.0"},
 
       # Optional
-      {:plug, "~> 1.0", optional: true},
       {:bandit, "~> 1.6", optional: true},
+      {:igniter, "~> 0.6", optional: true},
 
       # Dev
-      {:ex_doc, "~> 0.37.1", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.38.1", only: :dev, runtime: false},
       {:dialyxir, "~> 1.4", only: :dev, runtime: false},
 
       # Test
@@ -66,9 +66,7 @@ defmodule Tower.MixProject do
       {:phoenix, "~> 1.7", only: :test},
       {:phoenix_html, "~> 4.1", only: :test},
       {:oban, "~> 2.19", only: :test},
-      {:ecto_sqlite3, "~> 0.19.0", only: :test},
-      # Needed by ecto_sqlite3 (all Elixirs) and oban (for Elxir < 1.18)
-      {:jason, "~> 1.4", only: :test}
+      {:ecto_sqlite3, "~> 0.22.0", only: :test}
     ]
   end
 

@@ -145,7 +145,7 @@ defmodule TowerTest do
     assert [_ | _] = stacktrace
   end
 
-  test "doesn't report an normal exit" do
+  test "doesn't report a normal exit" do
     in_unlinked_process(fn ->
       exit(:normal)
     end)
@@ -153,7 +153,7 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
-  test "doesn't report an shutdown exit" do
+  test "doesn't report a shutdown exit" do
     in_unlinked_process(fn ->
       exit(:shutdown)
     end)
@@ -289,7 +289,7 @@ defmodule TowerTest do
     assert recent_datetime?(datetime)
   end
 
-  test "reports a Logger structured report" do
+  test "reports a Logger report list" do
     in_unlinked_process(fn ->
       require Logger
 
@@ -305,7 +305,34 @@ defmodule TowerTest do
           datetime: datetime,
           level: :critical,
           kind: :message,
-          reason: [something: :reported, this: :critical],
+          reason: "[something: :reported, this: :critical]",
+          stacktrace: nil,
+          by: Tower.LoggerHandler
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+  end
+
+  test "reports a Logger report map (as a list as Elixir's Logger)" do
+    in_unlinked_process(fn ->
+      require Logger
+
+      capture_log(fn ->
+        Logger.critical(%{one: 1, two: 2})
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :critical,
+          kind: :message,
+          reason: "[one: 1, two: 2]",
           stacktrace: nil,
           by: Tower.LoggerHandler
         }
@@ -331,6 +358,33 @@ defmodule TowerTest do
           level: :critical,
           kind: :message,
           reason: "This is a format with 2 :args",
+          stacktrace: nil,
+          by: Tower.LoggerHandler
+        }
+      ] = reported_events()
+    )
+
+    assert String.length(id) == 36
+    assert recent_datetime?(datetime)
+  end
+
+  test "reports a legacy Erlang's error_logger:error_msg (if enabled)" do
+    put_env(:log_level, :error)
+
+    in_unlinked_process(fn ->
+      capture_log(fn ->
+        :error_logger.error_msg("An error occurred in ~p", [:some_module])
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          id: id,
+          datetime: datetime,
+          level: :error,
+          kind: :message,
+          reason: "An error occurred in :some_module",
           stacktrace: nil,
           by: Tower.LoggerHandler
         }
@@ -720,7 +774,37 @@ defmodule TowerTest do
       ] = reported_events()
     )
 
-    assert metadata == %{user_id: 123}
+    assert metadata[:user_id] == 123
+  end
+
+  test "emits telemetry events", %{test: test_name} do
+    test_pid = self()
+
+    :telemetry.attach_many(
+      test_name,
+      [
+        [:tower, :report_event, :start],
+        [:tower, :report_event, :stop],
+        [:tower, :report_event, :exception]
+      ],
+      fn event, measures, metadata, config ->
+        send(test_pid, {:telemetry_event, {event, measures, metadata, config}})
+      end,
+      nil
+    )
+
+    on_exit(fn -> :telemetry.detach(test_name) end)
+
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        raise "an error"
+      end)
+    end)
+
+    assert_eventually([_] = reported_events())
+
+    assert_receive {:telemetry_event, {[:tower, :report_event, :start], _, _, _}}
+    assert_receive {:telemetry_event, {[:tower, :report_event, :stop], _, _, _}}
   end
 
   defp in_unlinked_process(fun) when is_function(fun, 0) do

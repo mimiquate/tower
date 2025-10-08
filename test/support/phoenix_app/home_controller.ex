@@ -1,5 +1,5 @@
 defmodule Tower.PhoenixApp.HomeController do
-  use Phoenix.Controller, formats: [:html], put_default_views: false
+  use Phoenix.Controller, formats: []
 
   def show(conn, %{"param" => "valid"}) do
     Plug.Conn.send_resp(conn, 200, "Hey!")
