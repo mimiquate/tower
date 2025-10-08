@@ -801,7 +801,7 @@ defmodule TowerTest do
       end)
     end)
 
-    assert_eventually [_] = reported_events()
+    assert_eventually([_] = reported_events())
 
     assert_receive {:telemetry_event, {[:tower, :report_event, :start], _, _, _}}
     assert_receive {:telemetry_event, {[:tower, :report_event, :stop], _, _, _}}
