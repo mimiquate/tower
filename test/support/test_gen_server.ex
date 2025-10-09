@@ -5,4 +5,9 @@ defmodule TestGenServer do
   def init(initial) do
     {:ok, initial}
   end
+
+  @impl true
+  def handle_call(:stop, _from, state) do
+    {:stop, :error_in_call, state}
+  end
 end

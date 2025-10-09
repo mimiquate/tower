@@ -238,6 +238,38 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
+          stacktrace: [],
+          by: Tower.LoggerHandler
+        }
+      ] = reported_events()
+    )
+  end
+
+  test "reports two events when both GenServer terminates abnormally and client exits" do
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        {:ok, pid} = GenServer.start(TestGenServer, [])
+        # Client also raises because it doesn't receive a response from call
+        GenServer.call(pid, :stop)
+      end)
+    end)
+
+    assert_eventually(
+      [
+        # client exit
+        %{
+          level: :error,
+          kind: :exit,
+          reason: {:error_in_call, {GenServer, :call, [_pid, :stop, 5000]}},
+          stacktrace: [_ | _],
+          by: Tower.LoggerHandler
+        },
+        # server exit
+        %{
+          level: :error,
+          kind: :exit,
+          reason: :error_in_call,
+          stacktrace: [],
           by: Tower.LoggerHandler
         }
       ] = reported_events()
