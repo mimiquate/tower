@@ -7,7 +7,7 @@ defmodule TestGenServer do
   end
 
   @impl true
-  def handle_call(:stop, _from, state) do
-    {:stop, :error_in_call, state}
+  def handle_call({:stop, reason}, _from, state) do
+    {:stop, reason, state}
   end
 end

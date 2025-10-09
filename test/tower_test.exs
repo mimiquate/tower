@@ -250,7 +250,7 @@ defmodule TowerTest do
       in_unlinked_process(fn ->
         {:ok, pid} = GenServer.start(TestGenServer, [])
         # Client also raises because it doesn't receive a response from call
-        GenServer.call(pid, :stop)
+        GenServer.call(pid, {:stop, :abnormal})
       end)
     end)
 
@@ -260,7 +260,7 @@ defmodule TowerTest do
         %{
           level: :error,
           kind: :exit,
-          reason: {:error_in_call, {GenServer, :call, [_pid, :stop, 5000]}},
+          reason: {:abnormal, {GenServer, :call, _args}},
           stacktrace: [_ | _],
           by: Tower.LoggerHandler
         },
@@ -268,7 +268,7 @@ defmodule TowerTest do
         %{
           level: :error,
           kind: :exit,
-          reason: :error_in_call,
+          reason: :abnormal,
           stacktrace: [],
           by: Tower.LoggerHandler
         }
