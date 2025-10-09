@@ -216,7 +216,7 @@ defmodule TowerTest do
   test "doesn't report if GenServer terminates normally" do
     capture_log(fn ->
       in_unlinked_process(fn ->
-        {:ok, pid} = GenServer.start_link(TestGenServer, [])
+        {:ok, pid} = GenServer.start(TestGenServer, [])
         GenServer.stop(pid)
       end)
     end)
@@ -227,7 +227,7 @@ defmodule TowerTest do
   test "reports if GenServer terminates abnormally" do
     capture_log(fn ->
       in_unlinked_process(fn ->
-        {:ok, pid} = GenServer.start_link(TestGenServer, [])
+        {:ok, pid} = GenServer.start(TestGenServer, [])
         GenServer.stop(pid, :abnormal)
       end)
     end)
