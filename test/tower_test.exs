@@ -213,7 +213,49 @@ defmodule TowerTest do
     assert [_ | _] = stacktrace
   end
 
-  test "doesn't report if GenServer terminates normally" do
+  test "reports if GenServer raises" do
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        {:ok, pid} = GenServer.start(TestGenServer, [])
+        GenServer.cast(pid, {:raise, "something"})
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          level: :error,
+          kind: :error,
+          reason: %RuntimeError{message: "something"},
+          stacktrace: [{TestGenServer, :handle_cast, 2, _} | _],
+          by: Tower.LoggerHandler
+        }
+      ] = reported_events()
+    )
+  end
+
+  test "reports if GenServer throws" do
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        {:ok, pid} = GenServer.start(TestGenServer, [])
+        GenServer.cast(pid, {:throw, "something"})
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          level: :error,
+          kind: :exit,
+          reason: {:bad_return_value, "something"},
+          stacktrace: [],
+          by: Tower.LoggerHandler
+        }
+      ] = reported_events()
+    )
+  end
+
+  test "doesn't report if GenServer exits normally" do
     capture_log(fn ->
       in_unlinked_process(fn ->
         {:ok, pid} = GenServer.start(TestGenServer, [])
@@ -224,7 +266,7 @@ defmodule TowerTest do
     assert [] = reported_events()
   end
 
-  test "reports if GenServer terminates abnormally" do
+  test "reports if GenServer exits abnormally" do
     capture_log(fn ->
       in_unlinked_process(fn ->
         {:ok, pid} = GenServer.start(TestGenServer, [])
