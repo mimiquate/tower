@@ -228,10 +228,15 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "something"},
           stacktrace: [{TestGenServer, :handle_cast, 2, _} | _],
+          metadata: metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0-a") do
+      assert %{log_event_label: {:gen_server, :terminate}} = metadata
+    end
   end
 
   test "reports if GenServer throws" do
@@ -249,10 +254,15 @@ defmodule TowerTest do
           kind: :exit,
           reason: {:bad_return_value, "something"},
           stacktrace: [],
+          metadata: metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0-a") do
+      assert %{log_event_label: {:gen_server, :terminate}} = metadata
+    end
   end
 
   test "doesn't report if GenServer exits normally" do
@@ -281,10 +291,15 @@ defmodule TowerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [],
+          metadata: metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0-a") do
+      assert %{log_event_label: {:gen_server, :terminate}} = metadata
+    end
   end
 
   test "reports two events when both GenServer terminates abnormally and client exits" do
@@ -304,6 +319,7 @@ defmodule TowerTest do
           kind: :exit,
           reason: {:abnormal, {GenServer, :call, _args}},
           stacktrace: [_ | _],
+          metadata: client_metadata,
           by: Tower.LoggerHandler
         },
         # server exit
@@ -312,10 +328,16 @@ defmodule TowerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [],
+          metadata: server_metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0-a") do
+      assert %{log_event_label: {Task.Supervisor, :terminating}} = client_metadata
+      assert %{log_event_label: {:gen_server, :terminate}} = server_metadata
+    end
   end
 
   test "doesn't report a Logger.error by default" do
