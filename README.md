@@ -4,7 +4,7 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/tower.svg)](https://hex.pm/packages/tower)
 [![Documentation](https://img.shields.io/badge/Documentation-purple.svg)](https://hexdocs.pm/tower)
 
-Tower is a flexible exception tracker for elixir applications.
+Tower is a modern and modular exception tracker and reporter for elixir applications.
 
 It **listens** for **exceptions** in an elixir application **and informs** about them to
 the configured list of **reporters** (one or many).
@@ -144,6 +144,22 @@ to tower and error capturing tactics is still valid and unchanged.
 
 Necessary future changes caused by deprecations and/or changes in error handling behavior in the BEAM or Elixir can be just
 made in `Tower` without need to change any of the service specific reporters.
+
+## How it works
+
+When your elixir application starts, Tower automatically starts "listening" for exceptions.
+
+In reality this means it attaches:
+
+- A logger handler that listens to EVERY event/message going through "the Elixir Logger and Erlang logger pipeline" and filters those
+that are considered exceptions or error events based on their shape. This logger handler should be enough to listen to all
+exceptions that happen in the system, including those from Phoenix, LiveView, cowboy, bandit, any exceptions raised by your own custom
+application code, or any other unhandled exception occurring in the running elixir application and it's dependencies.
+- An additional telemetry handler that listens to Oban Job exceptions, which don't go through the logger by Oban's design.
+
+Once the application is running any event that it's considered "reportable", i.e. any unhandled exception/crash or log event message above
+the minimum configured level, is transformed into a `Tower.Event` struct and passed to configured reporter or reporters, so that they can
+be reported to either a 3rd party service, e-mail, slack or whatever.
 
 ## Configuration
 
