@@ -12,13 +12,22 @@ defmodule TestGenServer do
   end
 
   @impl true
-  def handle_cast({:throw, reason}, state) do
-    throw(reason)
+  def handle_cast({:raise, reason}, state) do
+    raise(reason)
     {:noreply, state}
   end
 
-  def handle_cast({:raise, reason}, state) do
-    raise(reason)
+  def handle_cast({:exit, reason}, state) do
+    exit(reason)
+    {:noreply, state}
+  end
+
+  def handle_cast({:stop, reason}, state) do
+    {:stop, reason, state}
+  end
+
+  def handle_cast({:throw, reason}, state) do
+    throw(reason)
     {:noreply, state}
   end
 end
