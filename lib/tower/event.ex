@@ -135,6 +135,7 @@ defmodule Tower.Event do
       plug_conn: plug_conn(options),
       metadata:
         %{application: application_data_from_log_event(log_event)}
+        |> Map.merge(maybe_process_label())
         |> Map.merge(maybe_log_event_label(log_event))
         |> Map.merge(logger_metadata(log_event))
         |> Map.merge(Keyword.get(options, :metadata, %{})),
@@ -178,6 +179,14 @@ defmodule Tower.Event do
     (log_event[:meta] || %{})
     |> Map.merge(Enum.into(Logger.metadata(), %{}))
     |> Map.take(logger_metadata_keys())
+  end
+
+  if function_exported?(:proc_lib, :get_label, 1) do
+    defp maybe_process_label do
+      %{process_label: :proc_lib.get_label(self())}
+    end
+  else
+    defp maybe_process_label, do: %{}
   end
 
   defp logger_metadata_keys do
