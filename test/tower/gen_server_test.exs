@@ -32,7 +32,7 @@ defmodule TowerGenServerTest do
       ] = reported_events()
     )
 
-    if Version.match?(System.version(), ">= 1.19.0-a") do
+    if Version.match?(System.version(), ">= 1.19.0") do
       assert %{log_event_label: {:gen_server, :terminate}} = metadata
     end
   end
@@ -58,7 +58,7 @@ defmodule TowerGenServerTest do
       ] = reported_events()
     )
 
-    if Version.match?(System.version(), ">= 1.19.0-a") do
+    if Version.match?(System.version(), ">= 1.19.0") do
       assert %{log_event_label: {:gen_server, :terminate}} = metadata
     end
   end
@@ -117,7 +117,7 @@ defmodule TowerGenServerTest do
       ] = reported_events()
     )
 
-    if Version.match?(System.version(), ">= 1.19.0-a") do
+    if Version.match?(System.version(), ">= 1.19.0") do
       assert %{log_event_label: {:gen_server, :terminate}} = metadata
     end
   end
@@ -143,7 +143,7 @@ defmodule TowerGenServerTest do
       ] = reported_events()
     )
 
-    if Version.match?(System.version(), ">= 1.19.0-a") do
+    if Version.match?(System.version(), ">= 1.19.0") do
       assert %{log_event_label: {:gen_server, :terminate}} = metadata
     end
   end
@@ -169,7 +169,7 @@ defmodule TowerGenServerTest do
       ] = reported_events()
     )
 
-    if Version.match?(System.version(), ">= 1.19.0-a") do
+    if Version.match?(System.version(), ">= 1.19.0") do
       assert %{log_event_label: {:gen_server, :terminate}} = metadata
     end
   end
@@ -206,7 +206,7 @@ defmodule TowerGenServerTest do
       ] = reported_events()
     )
 
-    if Version.match?(System.version(), ">= 1.19.0-a") do
+    if Version.match?(System.version(), ">= 1.19.0") do
       assert %{log_event_label: {Task.Supervisor, :terminating}} = client_event_metadata
       assert %{log_event_label: {:gen_server, :terminate}} = server_event_metadata
     end
