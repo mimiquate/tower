@@ -142,14 +142,6 @@ defmodule Tower.Event do
     }
   end
 
-  if function_exported?(:proc_lib, :get_label, 1) do
-    defp maybe_process_label do
-      %{process_label: :proc_lib.get_label(self())}
-    end
-  else
-    defp maybe_process_label, do: %{}
-  end
-
   defp event_datetime(log_event) do
     log_event
     |> event_timestamp()
@@ -180,6 +172,14 @@ defmodule Tower.Event do
     (log_event[:meta] || %{})
     |> Map.merge(Enum.into(Logger.metadata(), %{}))
     |> Map.take(logger_metadata_keys())
+  end
+
+  if function_exported?(:proc_lib, :get_label, 1) do
+    defp maybe_process_label do
+      %{process_label: :proc_lib.get_label(self())}
+    end
+  else
+    defp maybe_process_label, do: %{}
   end
 
   defp logger_metadata_keys do
