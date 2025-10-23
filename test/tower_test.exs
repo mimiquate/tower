@@ -777,7 +777,7 @@ defmodule TowerTest do
     assert metadata[:user_id] == 123
   end
 
-  if Version.match?(System.version(), "~> 1.17") do
+  if Version.match?(System.version(), ">= 1.17.0") and String.to_integer(System.otp_release()) >= 27 do
     test "reports process label in metadata" do
       capture_log(fn ->
         in_unlinked_process(fn ->
