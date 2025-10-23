@@ -777,26 +777,26 @@ defmodule TowerTest do
     assert metadata[:user_id] == 123
   end
 
-  if Version.match?(System.version(), ">= 1.17.0") and
-       String.to_integer(System.otp_release()) >= 27 do
-    test "reports process label in metadata" do
-      capture_log(fn ->
-        in_unlinked_process(fn ->
-          Process.set_label({:special, :process})
+  @tag skip:
+         Version.match?(System.version(), "< 1.17.0") or
+           String.to_integer(System.otp_release()) < 27
+  test "reports process label in metadata" do
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        Process.set_label({:special, :process})
 
-          raise "an error"
-        end)
+        raise "an error"
       end)
+    end)
 
-      assert_eventually(
-        [
-          %{
-            reason: %RuntimeError{message: "an error"},
-            metadata: %{process_label: {:special, :process}}
-          }
-        ] = reported_events()
-      )
-    end
+    assert_eventually(
+      [
+        %{
+          reason: %RuntimeError{message: "an error"},
+          metadata: %{process_label: {:special, :process}}
+        }
+      ] = reported_events()
+    )
   end
 
   test "emits telemetry events", %{test: test_name} do
