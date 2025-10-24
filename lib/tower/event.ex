@@ -176,7 +176,10 @@ defmodule Tower.Event do
 
   if function_exported?(:proc_lib, :get_label, 1) do
     defp maybe_process_label do
-      %{process_label: :proc_lib.get_label(self())}
+      case :proc_lib.get_label(self()) do
+        :undefined -> %{}
+        process_label -> %{process_label: process_label}
+      end
     end
   else
     defp maybe_process_label, do: %{}
