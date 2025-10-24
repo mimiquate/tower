@@ -37,7 +37,9 @@ defmodule TowerGenServerTest do
     end
   end
 
-  test "reports if GenServer callback throws" do
+  # throws inside gen_server are interpreted as return values
+  # https://github.com/erlang/otp/pull/6053
+  test "reports bad return exit if GenServer callback throws" do
     capture_log(fn ->
       in_unlinked_process(fn ->
         {:ok, pid} = GenServer.start(TestGenServer, [])
