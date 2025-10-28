@@ -41,7 +41,7 @@ defmodule TowerObanTest do
           reason: %RuntimeError{message: "error from an Oban worker"},
           stacktrace: [_ | _],
           metadata: %{user_id: 123},
-          by: Tower.ObanExceptionHandler
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -66,7 +66,7 @@ defmodule TowerObanTest do
           reason: %Oban.CrashError{reason: "something"},
           stacktrace: [_ | _],
           metadata: %{user_id: 123},
-          by: Tower.ObanExceptionHandler
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
@@ -91,7 +91,7 @@ defmodule TowerObanTest do
           reason: %Oban.CrashError{reason: :abnormal},
           stacktrace: [_ | _],
           metadata: %{user_id: 123},
-          by: Tower.ObanExceptionHandler
+          by: Tower.LoggerHandler
         }
       ] = Tower.EphemeralReporter.events()
     )
