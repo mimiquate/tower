@@ -17,6 +17,10 @@ defmodule Tower.LoggerHandler do
           own_logs_filter: {
             &:logger_filters.domain/2,
             {:stop, :sub, [:elixir | @own_logs_domain]}
+          },
+          oban_logs_filter: {
+            &:logger_filters.domain/2,
+            {:stop, :sub, [:elixir, :oban]}
           }
         ]
       }
