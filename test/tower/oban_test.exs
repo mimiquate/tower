@@ -39,8 +39,8 @@ defmodule TowerObanTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "error from an Oban worker"},
-          stacktrace: stacktrace,
-          metadata: metadata,
+          stacktrace: [_ | _],
+          metadata: %{user_id: 123},
           by: Tower.ObanExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -48,8 +48,6 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
-    assert metadata[:user_id] == 123
   end
 
   test "reports uncaught throw generated in an Oban worker" do
@@ -66,8 +64,8 @@ defmodule TowerObanTest do
           level: :error,
           kind: :error,
           reason: %Oban.CrashError{reason: "something"},
-          stacktrace: stacktrace,
-          metadata: metadata,
+          stacktrace: [_ | _],
+          metadata: %{user_id: 123},
           by: Tower.ObanExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -75,8 +73,6 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
-    assert metadata[:user_id] == 123
   end
 
   test "reports abnormal exit generated in an Oban worker" do
@@ -93,8 +89,8 @@ defmodule TowerObanTest do
           level: :error,
           kind: :error,
           reason: %Oban.CrashError{reason: :abnormal},
-          stacktrace: stacktrace,
-          metadata: metadata,
+          stacktrace: [_ | _],
+          metadata: %{user_id: 123},
           by: Tower.ObanExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
@@ -102,8 +98,6 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
-    assert metadata[:user_id] == 123
   end
 
   defp put_env(key, value) do
