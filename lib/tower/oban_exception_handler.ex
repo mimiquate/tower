@@ -29,7 +29,10 @@ defmodule Tower.ObanExceptionHandler do
       reason,
       stacktrace,
       by: __MODULE__,
-      metadata: %{application: application_data(meta[:worker])}
+      metadata: %{
+        application: application_data(meta[:worker]),
+        oban_job: Map.take(meta, [:id, :worker, :attempt, :max_attempts])
+      }
     )
   end
 

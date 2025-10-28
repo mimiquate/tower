@@ -40,7 +40,10 @@ defmodule TowerObanTest do
           kind: :error,
           reason: %RuntimeError{message: "error from an Oban worker"},
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{
+            user_id: 123,
+            oban_job: %{id: _, worker: "TestApp.RuntimeErrorWorker", max_attempts: 1, attempt: 1}
+          },
           by: Tower.ObanExceptionHandler
         }
       ] = Tower.EphemeralReporter.events()
