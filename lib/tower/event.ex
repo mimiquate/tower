@@ -136,6 +136,7 @@ defmodule Tower.Event do
       metadata:
         %{application: application_data_from_log_event(log_event)}
         |> Map.merge(maybe_process_label())
+        |> Map.merge(maybe_log_event_report(log_event))
         |> Map.merge(logger_metadata(log_event))
         |> Map.merge(Keyword.get(options, :metadata, %{})),
       by: Keyword.get(options, :by)
@@ -167,6 +168,12 @@ defmodule Tower.Event do
   defp application_data_from_log_event(_log_event) do
     %{}
   end
+
+  defp maybe_log_event_report(%{msg: {:report, report}}) when is_map(report) do
+    %{log_event_report: Map.take(report, [:label, :last_message, :name])}
+  end
+
+  defp maybe_log_event_report(_), do: %{}
 
   defp logger_metadata(log_event) do
     (log_event[:meta] || %{})

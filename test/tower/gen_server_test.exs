@@ -26,10 +26,21 @@ defmodule TowerGenServerTest do
           kind: :error,
           reason: %RuntimeError{message: "something"},
           stacktrace: [{TestGenServer, :handle_cast, 2, _} | _],
+          metadata: metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0") do
+      assert %{
+               log_event_report: %{
+                 label: {:gen_server, :terminate},
+                 name: _pid,
+                 last_message: {:"$gen_cast", {:raise, "something"}}
+               }
+             } = metadata
+    end
   end
 
   # throws inside gen_server are interpreted as return values
@@ -49,10 +60,15 @@ defmodule TowerGenServerTest do
           kind: :exit,
           reason: {:bad_return_value, "something"},
           stacktrace: [],
+          metadata: metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0") do
+      assert %{log_event_report: %{label: {:gen_server, :terminate}}} = metadata
+    end
   end
 
   test "doesn't report if GenServer callback exits normally" do
@@ -103,10 +119,15 @@ defmodule TowerGenServerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [{TestGenServer, :handle_cast, 2, _} | _],
+          metadata: metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0") do
+      assert %{log_event_report: %{label: {:gen_server, :terminate}}} = metadata
+    end
   end
 
   test "reports if GenServer callback stops abnormally" do
@@ -124,10 +145,21 @@ defmodule TowerGenServerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [],
+          metadata: metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0") do
+      assert %{
+               log_event_report: %{
+                 label: {:gen_server, :terminate},
+                 name: _pid,
+                 last_message: {:"$gen_cast", {:stop, :abnormal}}
+               }
+             } = metadata
+    end
   end
 
   test "reports if GenServer stops abnormally" do
@@ -145,10 +177,15 @@ defmodule TowerGenServerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [],
+          metadata: metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0") do
+      assert %{log_event_report: %{label: {:gen_server, :terminate}}} = metadata
+    end
   end
 
   test "reports two events when both GenServer terminates abnormally and client exits" do
@@ -168,6 +205,7 @@ defmodule TowerGenServerTest do
           kind: :exit,
           reason: {:abnormal, {GenServer, :call, _args}},
           stacktrace: [_ | _],
+          metadata: client_event_metadata,
           by: Tower.LoggerHandler
         },
         # server exit
@@ -176,10 +214,18 @@ defmodule TowerGenServerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [],
+          metadata: server_event_metadata,
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0") do
+      assert %{log_event_report: %{label: {Task.Supervisor, :terminating}}} =
+               client_event_metadata
+
+      assert %{log_event_report: %{label: {:gen_server, :terminate}}} = server_event_metadata
+    end
   end
 
   defp in_unlinked_process(fun) when is_function(fun, 0) do
