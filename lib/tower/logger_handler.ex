@@ -17,6 +17,13 @@ defmodule Tower.LoggerHandler do
           own_logs_filter: {
             &:logger_filters.domain/2,
             {:stop, :sub, [:elixir | @own_logs_domain]}
+          },
+          # To avoid duplicate Oban exception events in case they start
+          # including crash_reason in the future. We currently listen
+          # via Tower.ObanExceptionHandler.
+          oban_logs_filter: {
+            &:logger_filters.domain/2,
+            {:stop, :sub, [:elixir, :oban]}
           }
         ]
       }
