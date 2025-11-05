@@ -54,7 +54,7 @@ defmodule Tower.MixProject do
 
       # Optional
       {:bandit, "~> 1.6", optional: true},
-      {:igniter, "~> 0.7", optional: true},
+      {:igniter, "~> 0.6", optional: true},
 
       # Dev
       {:ex_doc, "~> 0.39.0", only: :dev, runtime: false},
