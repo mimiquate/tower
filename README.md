@@ -231,6 +231,33 @@ More about Logger metadata:
  - https://hexdocs.pm/logger/Logger.html#module-metadata
  - https://hexdocs.pm/logger/Logger.html#metadata/1
 
+## Stacktrace length
+
+The [call-stack back-trace](https://www.erlang.org/doc/system/errors#the-call-stack-back-trace-stacktrace) (a.k.a. stacktrace)
+will be, by default, limited to a list of maximum lentgh 8 in any Erlang or Elixir application.
+
+Tower will only be able to report whatever stacktrace your running system produces.
+
+This default can prove to be a bit short when troubleshooting exceptions and issues in some instances.
+
+If you want longer stacktraces, e.g. let's say you want to set it to 12, you can
+
+```
+config :phoenix, stacktrace_depth: 16
+```
+
+if your app is a Phoenix application.
+
+Or call
+
+```
+_original_depth = :erlang.system_flag(:backtrace_depth, 12)
+```
+
+during your application start function.
+
+See: https://www.erlang.org/doc/apps/erts/erlang.html#system_flag/2
+
 ## License
 
 Copyright 2024 Mimiquate
