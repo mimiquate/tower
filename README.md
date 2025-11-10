@@ -202,11 +202,11 @@ Example:
 config :tower, ignored_exceptions: [DBConnection.ConnectionError]
 ```
 
-### `logger_metadata`
+### `allowed_metadata`
 
 List of keys that Tower should pick up from the current process `Logger.metadata` when reporting events.
 
-Default: `[]`
+Default: `[:pid, :process_label, :registered_name]`
 
 Example:
 

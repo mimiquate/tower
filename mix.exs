@@ -37,7 +37,7 @@ defmodule Tower.MixProject do
         reporters: [Tower.EphemeralReporter],
         log_level: :critical,
         ignored_exceptions: [],
-        logger_metadata: []
+        allowed_metadata: [:pid, :process_label, :registered_name]
       ],
       mod: {Tower.Application, []}
     ]

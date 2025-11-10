@@ -32,6 +32,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: stacktrace,
+          metadata: %{pid: _},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -769,12 +770,10 @@ defmodule TowerTest do
         %{
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          metadata: metadata
+          metadata: %{user_id: 123}
         }
       ] = reported_events()
     )
-
-    assert metadata[:user_id] == 123
   end
 
   @tag skip:
