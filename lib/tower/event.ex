@@ -129,12 +129,15 @@ defmodule Tower.Event do
   defp attributes_from_options(options) do
     log_event = Keyword.get(options, :log_event)
 
+    pid = log_event_pid(log_event) || self()
+
     %{
       datetime: event_datetime(log_event),
       log_event: log_event,
       plug_conn: plug_conn(options),
       metadata:
-        maybe_process_label(log_event)
+        %{pid: pid}
+        |> Map.merge(maybe_process_label(pid))
         |> Map.merge(log_event[:meta] || %{})
         |> Map.merge(Enum.into(Logger.metadata(), %{}))
         |> Map.take(allowed_metadata_keys())
@@ -161,17 +164,20 @@ defmodule Tower.Event do
     Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
   end
 
+  defp log_event_pid(%{meta: %{pid: pid}}), do: pid
+  defp log_event_pid(_log_event), do: nil
+
   if function_exported?(:proc_lib, :get_label, 1) do
-    defp maybe_process_label(%{meta: %{pid: pid}}) do
+    defp maybe_process_label(pid) when is_pid(pid) do
       case :proc_lib.get_label(pid) do
         :undefined -> %{}
         process_label -> %{process_label: process_label}
       end
     end
 
-    defp maybe_process_label(_log_event), do: %{}
+    defp maybe_process_label(_other), do: %{}
   else
-    defp maybe_process_label(_log_event), do: %{}
+    defp maybe_process_label(_pid), do: %{}
   end
 
   defp allowed_metadata_keys do
