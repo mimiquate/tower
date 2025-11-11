@@ -48,3 +48,27 @@ end
 defmodule TestApp.Repo do
   use Ecto.Repo, otp_app: :test_app, adapter: Ecto.Adapters.SQLite3
 end
+
+defmodule TestApp.Domain do
+  use Ash.Domain, validate_config_inclusion?: false
+
+  resources do
+    resource(TestApp.Domain.User)
+  end
+end
+
+defmodule TestApp.Domain.User do
+  use Ash.Resource, domain: TestApp.Domain
+
+  actions do
+    create(:create)
+  end
+
+  attributes do
+    uuid_primary_key(:id)
+
+    attribute(:name, :string) do
+      allow_nil?(false)
+    end
+  end
+end

@@ -11,10 +11,10 @@ defmodule AshTest do
     end)
   end
 
-  test "reports if ?" do
+  test "reports ash resource create exception" do
     capture_log(fn ->
       in_unlinked_process(fn ->
-        MyAppDomain.User
+        TestApp.Domain.User
         |> Ash.Changeset.for_create(:create)
         |> Ash.create!()
       end)
