@@ -5,7 +5,7 @@ on:
 
 jobs:
   main:
-    timeout-minutes: 4
+    timeout-minutes: 8
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -46,7 +46,6 @@ jobs:
       - run: mix deps.unlock --check-unused
         if: ${{ matrix.lint }}
       - run: mix compile --warnings-as-errors
-      # Temporary comment out
-      # - run: mix dialyzer --format github
+      - run: mix dialyzer --format github
         if: ${{ matrix.lint }}
       - run: mix test
