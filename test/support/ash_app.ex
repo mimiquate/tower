@@ -19,8 +19,9 @@ defmodule MyAppDomain.User do
 
   attributes do
     uuid_primary_key(:id)
+
     attribute(:name, :string) do
-      allow_nil? false
+      allow_nil?(false)
     end
   end
 end
