@@ -1,5 +1,5 @@
 defmodule MyAppDomain do
-  use Ash.Domain
+  use Ash.Domain, validate_config_inclusion?: false
 
   resources do
     resource(MyAppDomain.User)
