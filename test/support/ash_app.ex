@@ -10,10 +10,6 @@ defmodule MyAppDomain.User do
   use Ash.Resource, domain: MyAppDomain
 
   actions do
-    # Use the default implementation of the :read action
-    defaults([:read])
-
-    # and a create action, which we'll customize later
     create(:create)
   end
 
