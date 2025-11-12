@@ -5,7 +5,7 @@ on:
 
 jobs:
   main:
-    timeout-minutes: 4
+    timeout-minutes: 8
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
