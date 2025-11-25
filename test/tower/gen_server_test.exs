@@ -27,22 +27,27 @@ defmodule TowerGenServerTest do
           reason: %RuntimeError{message: "something"},
           stacktrace: [{TestGenServer, :handle_cast, 2, _} | _],
           metadata: %{
-            process: %{
-              pid: _pid,
-              group_leader: _group_leader,
-              # initial_call: _,
-              registered_name: :example_gen_server,
-              process_label: TestGenServer,
-              gen_server: %{
-                name: :example_gen_server,
-                last_message: {:"$gen_cast", {:raise, "something"}}
-              }
-            }
+            process:
+              %{
+                group_leader: _group_leader,
+                pid: _pid,
+                process_label: TestGenServer,
+                registered_name: :example_gen_server
+              } = process_metadata
           },
           by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
+
+    if Version.match?(System.version(), ">= 1.19.0") do
+      assert %{
+               gen_server: %{
+                 name: :example_gen_server,
+                 last_message: {:"$gen_cast", {:raise, "something"}}
+               }
+             } = process_metadata
+    end
   end
 
   # throws inside gen_server are interpreted as return values
