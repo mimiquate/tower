@@ -3,7 +3,10 @@ defmodule TestGenServer do
 
   @impl true
   def init(initial) do
-    Process.set_label(__MODULE__)
+    if function_exported?(Process, :set_label, 1) do
+      Process.set_label(__MODULE__)
+    end
+
     {:ok, initial}
   end
 
