@@ -31,7 +31,6 @@ defmodule TowerGenServerTest do
               %{
                 group_leader: _group_leader,
                 pid: _pid,
-                process_label: TestGenServer,
                 registered_name: :example_gen_server
               } = process_metadata
           },
@@ -47,6 +46,10 @@ defmodule TowerGenServerTest do
                  last_message: {:"$gen_cast", {:raise, "something"}}
                }
              } = process_metadata
+    end
+
+    if Version.match?(System.version(), ">= 1.18.0") do
+      assert %{process_label: TestGenServer} = process_metadata
     end
   end
 
