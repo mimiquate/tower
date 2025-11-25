@@ -48,7 +48,7 @@ defmodule TowerGenServerTest do
              } = process_metadata
     end
 
-    if Version.match?(System.version(), ">= 1.17.0") do
+    if Version.match?(System.version(), ">= 1.17.0") and System.otp_release() >= "27" do
       assert %{process_label: TestGenServer} = process_metadata
     end
   end
