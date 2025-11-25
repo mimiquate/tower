@@ -121,12 +121,12 @@ defmodule Tower.Event do
       __MODULE__,
       %{id: UUIDv7.generate()}
       |> Map.merge(map)
-      |> Map.merge(attributes_from_options(options))
+      |> Map.merge(fields_from_options(options))
     )
     |> put_similarity_id()
   end
 
-  defp attributes_from_options(options) do
+  defp fields_from_options(options) do
     log_event = Keyword.get(options, :log_event)
 
     %{
