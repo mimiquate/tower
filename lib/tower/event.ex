@@ -134,8 +134,17 @@ defmodule Tower.Event do
       log_event: log_event,
       plug_conn: plug_conn(options),
       metadata:
-        %{application: application_data_from_log_event(log_event)}
-        |> Map.merge(maybe_process_label(log_event))
+        %{
+          process:
+            %{}
+            |> Map.merge(maybe_pid(log_event))
+            |> Map.merge(maybe_gl(log_event))
+            |> Map.merge(maybe_application_data(log_event))
+            |> Map.merge(maybe_process_label(log_event))
+            |> Map.merge(maybe_initial_call(log_event))
+            |> Map.merge(maybe_registered_name(log_event))
+            |> Map.merge(maybe_gen(log_event))
+        }
         |> Map.merge(logger_metadata(log_event))
         |> Map.merge(Keyword.get(options, :metadata, %{})),
       by: Keyword.get(options, :by)
@@ -160,13 +169,17 @@ defmodule Tower.Event do
     Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
   end
 
-  defp application_data_from_log_event(%{meta: %{gl: group_leader}}) do
-    Tower.Utils.application_data(group_leader)
+  defp maybe_pid(%{meta: %{pid: pid}}), do: %{pid: pid}
+  defp maybe_pid(_log_event), do: %{}
+
+  defp maybe_gl(%{meta: %{gl: gl}}), do: %{group_leader: gl}
+  defp maybe_gl(_log_event), do: %{}
+
+  defp maybe_application_data(%{meta: %{gl: gl}}) do
+    %{application: Tower.Utils.application_data(gl)}
   end
 
-  defp application_data_from_log_event(_log_event) do
-    %{}
-  end
+  defp maybe_application_data(_log_event), do: %{}
 
   defp logger_metadata(log_event) do
     (log_event[:meta] || %{})
@@ -186,6 +199,24 @@ defmodule Tower.Event do
   else
     defp maybe_process_label(_log_event), do: %{}
   end
+
+  defp maybe_registered_name(%{meta: %{registered_name: registered_name}}) do
+    %{registered_name: registered_name}
+  end
+
+  defp maybe_registered_name(_log_event), do: %{}
+
+  defp maybe_initial_call(%{meta: %{initial_call: initial_call}}) do
+    %{initial_call: initial_call}
+  end
+
+  defp maybe_initial_call(_log_event), do: %{}
+
+  defp maybe_gen(%{msg: {:report, %{label: {:gen_server, :terminate}} = report}}) do
+    %{gen_server: Map.take(report, [:name, :last_message])}
+  end
+
+  defp maybe_gen(_log_event), do: %{}
 
   defp logger_metadata_keys do
     Application.fetch_env!(:tower, :logger_metadata)

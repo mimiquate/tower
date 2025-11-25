@@ -14,7 +14,7 @@ defmodule TowerGenServerTest do
   test "reports if GenServer callback raises" do
     capture_log(fn ->
       in_unlinked_process(fn ->
-        {:ok, pid} = GenServer.start(TestGenServer, [])
+        {:ok, pid} = GenServer.start(TestGenServer, [], name: :example_gen_server)
         GenServer.cast(pid, {:raise, "something"})
       end)
     end)
@@ -26,6 +26,19 @@ defmodule TowerGenServerTest do
           kind: :error,
           reason: %RuntimeError{message: "something"},
           stacktrace: [{TestGenServer, :handle_cast, 2, _} | _],
+          metadata: %{
+            process: %{
+              pid: _pid,
+              group_leader: _group_leader,
+              # initial_call: _,
+              registered_name: :example_gen_server,
+              process_label: TestGenServer,
+              gen_server: %{
+                name: :example_gen_server,
+                last_message: {:"$gen_cast", {:raise, "something"}}
+              }
+            }
+          },
           by: Tower.LoggerHandler
         }
       ] = reported_events()

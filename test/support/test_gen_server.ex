@@ -3,6 +3,7 @@ defmodule TestGenServer do
 
   @impl true
   def init(initial) do
+    Process.set_label(__MODULE__)
     {:ok, initial}
   end
 

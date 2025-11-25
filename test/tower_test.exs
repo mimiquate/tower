@@ -793,7 +793,7 @@ defmodule TowerTest do
       [
         %{
           reason: %RuntimeError{message: "an error"},
-          metadata: %{process_label: {:special, :process}}
+          metadata: %{process: %{process_label: {:special, :process}}}
         }
       ] = reported_events()
     )
