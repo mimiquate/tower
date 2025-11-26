@@ -29,7 +29,6 @@ defmodule TowerGenServerTest do
           metadata: %{
             process:
               %{
-                group_leader: _group_leader,
                 pid: _pid,
                 registered_name: :example_gen_server
               } = process_metadata

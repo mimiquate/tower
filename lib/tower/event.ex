@@ -129,6 +129,8 @@ defmodule Tower.Event do
   defp fields_from_options(options) do
     log_event = Keyword.get(options, :log_event)
 
+    pid = pid(log_event)
+
     %{
       datetime: event_datetime(log_event),
       log_event: log_event,
@@ -136,11 +138,9 @@ defmodule Tower.Event do
       metadata:
         %{
           process:
-            %{}
-            |> Map.merge(maybe_pid(log_event))
-            |> Map.merge(maybe_gl(log_event))
-            |> Map.merge(maybe_application_data(log_event))
-            |> Map.merge(maybe_process_label(log_event))
+            %{pid: pid}
+            |> Map.merge(maybe_otp_application_data(log_event))
+            |> Map.merge(maybe_process_label(pid))
             |> Map.merge(maybe_initial_call(log_event))
             |> Map.merge(maybe_registered_name(log_event))
             |> Map.merge(maybe_gen(log_event))
@@ -169,17 +169,14 @@ defmodule Tower.Event do
     Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
   end
 
-  defp maybe_pid(%{meta: %{pid: pid}}), do: %{pid: pid}
-  defp maybe_pid(_log_event), do: %{}
+  defp pid(%{meta: %{pid: pid}}), do: pid
+  defp pid(_log_event), do: self()
 
-  defp maybe_gl(%{meta: %{gl: gl}}), do: %{group_leader: gl}
-  defp maybe_gl(_log_event), do: %{}
-
-  defp maybe_application_data(%{meta: %{gl: gl}}) do
-    %{application: Tower.Utils.application_data(gl)}
+  defp maybe_otp_application_data(%{meta: %{gl: gl}}) do
+    %{otp_application: Tower.Utils.otp_application_data(gl)}
   end
 
-  defp maybe_application_data(_log_event), do: %{}
+  defp maybe_otp_application_data(_log_event), do: %{}
 
   defp logger_metadata(log_event) do
     (log_event[:meta] || %{})
@@ -188,16 +185,14 @@ defmodule Tower.Event do
   end
 
   if function_exported?(:proc_lib, :get_label, 1) do
-    defp maybe_process_label(%{meta: %{pid: pid}}) do
+    defp maybe_process_label(pid) do
       case :proc_lib.get_label(pid) do
         :undefined -> %{}
         process_label -> %{process_label: process_label}
       end
     end
-
-    defp maybe_process_label(_log_event), do: %{}
   else
-    defp maybe_process_label(_log_event), do: %{}
+    defp maybe_process_label(_pid), do: %{}
   end
 
   defp maybe_registered_name(%{meta: %{registered_name: registered_name}}) do

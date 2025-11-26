@@ -42,6 +42,7 @@ defmodule TowerObanTest do
           stacktrace: [_ | _],
           metadata: %{
             user_id: 123,
+            process: %{pid: _, process_label: TestApp.RuntimeErrorWorker},
             oban_job: %{id: _, worker: "TestApp.RuntimeErrorWorker", max_attempts: 1, attempt: 1}
           },
           by: Tower.ObanExceptionHandler

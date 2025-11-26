@@ -1,5 +1,5 @@
 defmodule Tower.Utils do
-  def application_data(pid_or_module) do
+  def otp_application_data(pid_or_module) do
     case :application.get_application(pid_or_module) do
       {:ok, app_name} ->
         case :application.get_key(app_name, :vsn) do
