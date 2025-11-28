@@ -75,6 +75,7 @@ defmodule TowerObanTest do
           stacktrace: [_ | _],
           metadata: %{
             user_id: 123,
+            process: %{pid: _} = process_metadata,
             oban_job: %{id: _, worker: "TestApp.UncaughtThrowWorker", max_attempts: 1, attempt: 1}
           },
           by: Tower.ObanExceptionHandler
@@ -84,6 +85,10 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
+
+    if Version.match?(System.version(), ">= 1.17.0") and System.otp_release() >= "27" do
+      assert %{process_label: TestApp.UncaughtThrowWorker} = process_metadata
+    end
   end
 
   test "reports abnormal exit generated in an Oban worker" do
@@ -103,6 +108,7 @@ defmodule TowerObanTest do
           stacktrace: [_ | _],
           metadata: %{
             user_id: 123,
+            process: %{pid: _} = process_metadata,
             oban_job: %{id: _, worker: "TestApp.AbnormalExitWorker", max_attempts: 1, attempt: 1}
           },
           by: Tower.ObanExceptionHandler
@@ -112,6 +118,10 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
+
+    if Version.match?(System.version(), ">= 1.17.0") and System.otp_release() >= "27" do
+      assert %{process_label: TestApp.AbnormalExitWorker} = process_metadata
+    end
   end
 
   defp put_env(key, value) do
