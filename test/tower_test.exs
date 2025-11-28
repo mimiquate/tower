@@ -754,12 +754,10 @@ defmodule TowerTest do
         %{
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          metadata: metadata
+          metadata: %{user_id: 123}
         }
       ] = reported_events()
     )
-
-    assert metadata[:user_id] == 123
   end
 
   @tag skip:
