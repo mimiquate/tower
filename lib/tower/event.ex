@@ -141,7 +141,6 @@ defmodule Tower.Event do
             %{pid: pid}
             |> Map.merge(maybe_otp_application_data(log_event))
             |> Map.merge(maybe_process_label(pid))
-            |> Map.merge(maybe_initial_call(log_event))
             |> Map.merge(maybe_registered_name(log_event))
             |> Map.merge(maybe_gen(log_event))
         }
@@ -200,12 +199,6 @@ defmodule Tower.Event do
   end
 
   defp maybe_registered_name(_log_event), do: %{}
-
-  defp maybe_initial_call(%{meta: %{initial_call: initial_call}}) do
-    %{initial_call: initial_call}
-  end
-
-  defp maybe_initial_call(_log_event), do: %{}
 
   defp maybe_gen(%{msg: {:report, %{label: {:gen_server, :terminate}} = report}}) do
     %{gen_server: Map.take(report, [:name, :last_message])}
