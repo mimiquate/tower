@@ -53,8 +53,8 @@ defmodule TowerPhoenixTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace,
-          metadata: metadata,
+          stacktrace: [_ | _],
+          metadata: %{user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -63,8 +63,6 @@ defmodule TowerPhoenixTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
-    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -86,8 +84,8 @@ defmodule TowerPhoenixTest do
           level: :error,
           kind: :error,
           reason: %ArithmeticError{},
-          stacktrace: stacktrace,
-          metadata: metadata,
+          stacktrace: [_ | _],
+          metadata: %{user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -96,8 +94,6 @@ defmodule TowerPhoenixTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
-    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -121,8 +117,8 @@ defmodule TowerPhoenixTest do
           level: :error,
           kind: :throw,
           reason: "something",
-          stacktrace: stacktrace,
-          metadata: metadata,
+          stacktrace: [_ | _],
+          metadata: %{user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -131,8 +127,6 @@ defmodule TowerPhoenixTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
-    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 
@@ -154,8 +148,8 @@ defmodule TowerPhoenixTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace,
-          metadata: metadata,
+          stacktrace: [_ | _],
+          metadata: %{user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -164,8 +158,6 @@ defmodule TowerPhoenixTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
-    assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
 

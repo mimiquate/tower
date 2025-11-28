@@ -31,7 +31,7 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -39,7 +39,6 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "reports as an :error an Erlang error Elixir can normalize" do
@@ -57,14 +56,13 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
-          stacktrace: stacktrace
+          stacktrace: [_ | _]
         }
       ] = reported_events()
     )
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "reports as an :exit an Erlang error Elixir cannot normalize" do
@@ -84,14 +82,13 @@ defmodule TowerTest do
           # https://github.com/elixir-lang/elixir/blob/78f63d08313677a680868685701ae79a2459dcc1/lib/logger/lib/logger/translator.ex#L663-L665
           kind: :exit,
           reason: "a naked erlang error",
-          stacktrace: stacktrace
+          stacktrace: [_ | _]
         }
       ] = reported_events()
     )
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "reports a thrown string" do
@@ -109,7 +106,7 @@ defmodule TowerTest do
           level: :error,
           kind: :throw,
           reason: "error",
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -117,7 +114,6 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "reports a thrown non-string" do
@@ -135,14 +131,13 @@ defmodule TowerTest do
           level: :error,
           kind: :throw,
           reason: [something: "here"],
-          stacktrace: stacktrace
+          stacktrace: [_ | _]
         }
       ] = reported_events()
     )
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "doesn't report a normal exit" do
@@ -176,7 +171,7 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -184,7 +179,6 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "reports a kill exit" do
@@ -202,7 +196,7 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :kill,
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -210,7 +204,6 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "doesn't report a Logger.error by default" do
@@ -436,14 +429,13 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: nil
         }
       ] = reported_events()
     )
 
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "reports Exception manually (shorthand)" do
@@ -464,7 +456,7 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: nil
         }
       ] = reported_events()
@@ -472,7 +464,6 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "manually reports a thrown string" do
@@ -492,14 +483,13 @@ defmodule TowerTest do
           level: :error,
           kind: :throw,
           reason: "error",
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: nil
         }
       ] = reported_events()
     )
 
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "manually reports a thrown string (shorthand)" do
@@ -520,7 +510,7 @@ defmodule TowerTest do
           level: :error,
           kind: :throw,
           reason: "error",
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: nil
         }
       ] = reported_events()
@@ -528,7 +518,6 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "manually reports an abnormal exit" do
@@ -548,14 +537,13 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: nil
         }
       ] = reported_events()
     )
 
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "manually ignores normal exits (shorthand)" do
@@ -607,7 +595,7 @@ defmodule TowerTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           by: nil
         }
       ] = reported_events()
@@ -615,7 +603,6 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
   end
 
   test "allows reporting an existing Tower.Event struct" do
@@ -665,7 +652,7 @@ defmodule TowerTest do
             reporter: BuggyReporter,
             original: {:error, %RuntimeError{message: "I have a bug"}, [_ | _]}
           },
-          stacktrace: stacktrace1,
+          stacktrace: [_ | _],
           by: Tower.LoggerHandler
         },
         %{
@@ -674,7 +661,7 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace2,
+          stacktrace: [_ | _],
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -682,10 +669,8 @@ defmodule TowerTest do
 
     assert String.length(id1) == 36
     assert recent_datetime?(datetime1)
-    assert is_list(stacktrace1)
     assert String.length(id2) == 36
     assert recent_datetime?(datetime2)
-    assert is_list(stacktrace2)
     assert datetime1 > datetime2
   end
 
@@ -769,12 +754,10 @@ defmodule TowerTest do
         %{
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          metadata: metadata
+          metadata: %{user_id: 123}
         }
       ] = reported_events()
     )
-
-    assert metadata[:user_id] == 123
   end
 
   @tag skip:
