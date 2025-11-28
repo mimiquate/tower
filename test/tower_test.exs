@@ -32,6 +32,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -56,7 +57,9 @@ defmodule TowerTest do
           level: :error,
           kind: :error,
           reason: %ArithmeticError{message: "bad argument in arithmetic expression"},
-          stacktrace: [_ | _]
+          stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -82,7 +85,9 @@ defmodule TowerTest do
           # https://github.com/elixir-lang/elixir/blob/78f63d08313677a680868685701ae79a2459dcc1/lib/logger/lib/logger/translator.ex#L663-L665
           kind: :exit,
           reason: "a naked erlang error",
-          stacktrace: [_ | _]
+          stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -107,6 +112,7 @@ defmodule TowerTest do
           kind: :throw,
           reason: "error",
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -131,7 +137,9 @@ defmodule TowerTest do
           level: :error,
           kind: :throw,
           reason: [something: "here"],
-          stacktrace: [_ | _]
+          stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
+          by: Tower.LoggerHandler
         }
       ] = reported_events()
     )
@@ -172,6 +180,7 @@ defmodule TowerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -197,6 +206,7 @@ defmodule TowerTest do
           kind: :exit,
           reason: :kill,
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -237,6 +247,7 @@ defmodule TowerTest do
           kind: :message,
           reason: "Something went wrong here",
           stacktrace: nil,
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -273,6 +284,7 @@ defmodule TowerTest do
           reason:
             "Postgrex.Protocol (#PID<0.2612.0>) disconnected: ** (DBConnection.ConnectionError) tcp recv (idle): closed",
           stacktrace: nil,
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -300,6 +312,7 @@ defmodule TowerTest do
           kind: :message,
           reason: "[something: :reported, this: :critical]",
           stacktrace: nil,
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -327,6 +340,7 @@ defmodule TowerTest do
           kind: :message,
           reason: "[one: 1, two: 2]",
           stacktrace: nil,
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -352,6 +366,7 @@ defmodule TowerTest do
           kind: :message,
           reason: "This is a format with 2 :args",
           stacktrace: nil,
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -379,6 +394,7 @@ defmodule TowerTest do
           kind: :message,
           reason: "An error occurred in :some_module",
           stacktrace: nil,
+          metadata: %{process: %{pid: _pid}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -429,6 +445,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: nil
         }
       ] = reported_events()
@@ -456,6 +473,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: nil
         }
       ] = reported_events()
@@ -483,6 +501,7 @@ defmodule TowerTest do
           kind: :throw,
           reason: "error",
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: nil
         }
       ] = reported_events()
@@ -510,6 +529,7 @@ defmodule TowerTest do
           kind: :throw,
           reason: "error",
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: nil
         }
       ] = reported_events()
@@ -537,6 +557,7 @@ defmodule TowerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: nil
         }
       ] = reported_events()
@@ -595,6 +616,7 @@ defmodule TowerTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _pid}},
           by: nil
         }
       ] = reported_events()
@@ -652,6 +674,7 @@ defmodule TowerTest do
             original: {:error, %RuntimeError{message: "I have a bug"}, [_ | _]}
           },
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _}},
           by: Tower.LoggerHandler
         },
         %{
@@ -661,6 +684,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
+          metadata: %{process: %{pid: _}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -753,7 +777,7 @@ defmodule TowerTest do
         %{
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          metadata: %{user_id: 123}
+          metadata: %{process: %{pid: _pid}, user_id: 123}
         }
       ] = reported_events()
     )
@@ -775,7 +799,7 @@ defmodule TowerTest do
       [
         %{
           reason: %RuntimeError{message: "an error"},
-          metadata: %{process: %{process_label: {:special, :process}}}
+          metadata: %{process: %{pid: _pid, process_label: {:special, :process}}}
         }
       ] = reported_events()
     )
