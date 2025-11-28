@@ -42,7 +42,7 @@ defmodule TowerObanTest do
           stacktrace: [_ | _],
           metadata: %{
             user_id: 123,
-            process: %{pid: _, process_label: TestApp.RuntimeErrorWorker},
+            process: %{pid: _} = process_metadata,
             oban_job: %{id: _, worker: "TestApp.RuntimeErrorWorker", max_attempts: 1, attempt: 1}
           },
           by: Tower.ObanExceptionHandler
@@ -52,6 +52,10 @@ defmodule TowerObanTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
+
+    if Version.match?(System.version(), ">= 1.17.0") and System.otp_release() >= "27" do
+      assert %{process_label: TestApp.RuntimeErrorWorker} = process_metadata
+    end
   end
 
   test "reports uncaught throw generated in an Oban worker" do
