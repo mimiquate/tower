@@ -33,7 +33,7 @@ defmodule TowerPlugTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
-          metadata: metadata,
+          metadata: %{process: %{pid: _pid}} = metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -71,7 +71,7 @@ defmodule TowerPlugTest do
           kind: :error,
           reason: %ArithmeticError{},
           stacktrace: [_ | _],
-          metadata: metadata,
+          metadata: %{process: %{pid: _pid}} = metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -107,7 +107,7 @@ defmodule TowerPlugTest do
           kind: :throw,
           reason: "something",
           stacktrace: [_ | _],
-          metadata: metadata,
+          metadata: %{process: %{pid: _pid}} = metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -144,7 +144,7 @@ defmodule TowerPlugTest do
           reason: :abnormal,
           # Plug.Cowboy doesn't provide stacktrace for exits
           stacktrace: [],
-          metadata: metadata,
+          metadata: %{process: %{pid: _pid}} = metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -182,7 +182,7 @@ defmodule TowerPlugTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{process: %{pid: _pid}, user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -216,7 +216,7 @@ defmodule TowerPlugTest do
           kind: :error,
           reason: %ArithmeticError{},
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{process: %{pid: _pid}, user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -250,7 +250,7 @@ defmodule TowerPlugTest do
           kind: :throw,
           reason: "something",
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{process: %{pid: _pid}, user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -284,7 +284,7 @@ defmodule TowerPlugTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{process: %{pid: _pid}, user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -297,6 +297,8 @@ defmodule TowerPlugTest do
   end
 
   test "reports message plug_conn manually" do
+    self = self()
+
     Tower.report_message(
       :info,
       "Something interesting",
@@ -309,6 +311,7 @@ defmodule TowerPlugTest do
           level: :info,
           kind: :message,
           reason: "Something interesting",
+          metadata: %{process: %{pid: ^self}},
           plug_conn: %Plug.Conn{assigns: %{hello: "world"}},
           by: nil
         }

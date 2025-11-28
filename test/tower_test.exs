@@ -389,6 +389,7 @@ defmodule TowerTest do
   end
 
   test "reports message manually" do
+    self = self()
     Tower.report_message(:info, "Something interesting", metadata: %{something: "else"})
 
     assert(
@@ -400,9 +401,7 @@ defmodule TowerTest do
           kind: :message,
           reason: "Something interesting",
           stacktrace: nil,
-          metadata: %{
-            something: "else"
-          },
+          metadata: %{process: %{pid: ^self}, something: "else"},
           by: nil
         }
       ] = reported_events()
