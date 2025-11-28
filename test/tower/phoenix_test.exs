@@ -54,7 +54,7 @@ defmodule TowerPhoenixTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{process: %{pid: _pid}, user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -85,7 +85,7 @@ defmodule TowerPhoenixTest do
           kind: :error,
           reason: %ArithmeticError{},
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{process: %{pid: _pid}, user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -118,7 +118,7 @@ defmodule TowerPhoenixTest do
           kind: :throw,
           reason: "something",
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{process: %{pid: _pid}, user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
@@ -149,7 +149,7 @@ defmodule TowerPhoenixTest do
           kind: :exit,
           reason: :abnormal,
           stacktrace: [_ | _],
-          metadata: %{user_id: 123},
+          metadata: %{process: %{pid: _pid}, user_id: 123},
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
         }
