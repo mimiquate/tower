@@ -14,7 +14,7 @@ defmodule TowerGenServerTest do
   test "reports if GenServer callback raises" do
     capture_log(fn ->
       in_unlinked_process(fn ->
-        {:ok, pid} = GenServer.start(TestGenServer, [], name: :example_gen_server)
+        {:ok, pid} = GenServer.start(TestGenServer, [], name: MyTestGenServer)
         GenServer.cast(pid, {:raise, "something"})
       end)
     end)
@@ -30,7 +30,7 @@ defmodule TowerGenServerTest do
             process:
               %{
                 pid: _pid,
-                registered_name: :example_gen_server
+                registered_name: MyTestGenServer
               } = process_metadata
           },
           by: Tower.LoggerHandler
@@ -41,14 +41,14 @@ defmodule TowerGenServerTest do
     if Version.match?(System.version(), ">= 1.19.0") do
       assert %{
                gen_server: %{
-                 name: :example_gen_server,
+                 name: MyTestGenServer,
                  last_message: {:"$gen_cast", {:raise, "something"}}
                }
              } = process_metadata
     end
 
     if Version.match?(System.version(), ">= 1.17.0") and System.otp_release() >= "27" do
-      assert %{process_label: TestGenServer} = process_metadata
+      assert %{process_label: {TestGenServer, init_args: []}} = process_metadata
     end
   end
 

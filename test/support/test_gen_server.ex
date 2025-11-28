@@ -4,7 +4,7 @@ defmodule TestGenServer do
   @impl true
   def init(initial) do
     if function_exported?(Process, :set_label, 1) do
-      Process.set_label(__MODULE__)
+      Process.set_label({__MODULE__, init_args: initial})
     end
 
     {:ok, initial}
