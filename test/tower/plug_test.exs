@@ -32,7 +32,7 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
@@ -42,7 +42,6 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
     # Plug.Cowboy doesn't report Logger.metadata when logging plug call
     # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
     # assert metadata[:user_id] == 123
@@ -71,7 +70,7 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :error,
           reason: %ArithmeticError{},
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
@@ -81,7 +80,6 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
     # Plug.Cowboy doesn't report Logger.metadata when logging plug call
     # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
     # assert metadata[:user_id] == 123
@@ -108,7 +106,7 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :throw,
           reason: "something",
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
@@ -118,7 +116,6 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
     # Plug.Cowboy doesn't report Logger.metadata when logging plug call
     # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
     # assert metadata[:user_id] == 123
@@ -145,7 +142,8 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace,
+          # Plug.Cowboy doesn't provide stacktrace for exits
+          stacktrace: [],
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
@@ -155,8 +153,6 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    # Plug.Cowboy doesn't provide stacktrace for exits
-    assert [] = stacktrace
     # Plug.Cowboy doesn't report Logger.metadata when logging plug call
     # exceptions: https://github.com/elixir-plug/plug_cowboy/pull/103
     # assert metadata[:user_id] == 123
@@ -185,7 +181,7 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :error,
           reason: %RuntimeError{message: "an error"},
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
@@ -195,7 +191,6 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
     assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
@@ -221,7 +216,7 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :error,
           reason: %ArithmeticError{},
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
@@ -231,7 +226,6 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
     assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
@@ -257,7 +251,7 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :throw,
           reason: "something",
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
@@ -267,7 +261,6 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
     assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
@@ -293,7 +286,7 @@ defmodule TowerPlugTest do
           level: :error,
           kind: :exit,
           reason: :abnormal,
-          stacktrace: stacktrace,
+          stacktrace: [_ | _],
           metadata: metadata,
           plug_conn: %Plug.Conn{} = plug_conn,
           by: Tower.LoggerHandler
@@ -303,7 +296,6 @@ defmodule TowerPlugTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
-    assert [_ | _] = stacktrace
     assert metadata[:user_id] == 123
     assert Plug.Conn.request_url(plug_conn) == url
   end
