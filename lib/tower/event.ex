@@ -142,7 +142,7 @@ defmodule Tower.Event do
             |> Map.merge(maybe_otp_application_data(log_event))
             |> Map.merge(maybe_process_label(pid))
             |> Map.merge(maybe_registered_name(log_event))
-            |> Map.merge(maybe_gen(log_event))
+            |> Map.merge(maybe_log_event_msg_report_data(log_event))
         }
         |> Map.merge(logger_metadata(log_event))
         |> Map.merge(Keyword.get(options, :metadata, %{})),
@@ -200,11 +200,13 @@ defmodule Tower.Event do
 
   defp maybe_registered_name(_log_event), do: %{}
 
-  defp maybe_gen(%{msg: {:report, %{label: {:gen_server, :terminate}} = report}}) do
+  defp maybe_log_event_msg_report_data(%{
+         msg: {:report, %{label: {:gen_server, :terminate}} = report}
+       }) do
     %{gen_server: Map.take(report, [:name, :last_message])}
   end
 
-  defp maybe_gen(_log_event), do: %{}
+  defp maybe_log_event_msg_report_data(_log_event), do: %{}
 
   defp logger_metadata_keys do
     Application.fetch_env!(:tower, :logger_metadata)
