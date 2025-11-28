@@ -129,13 +129,21 @@ defmodule Tower.Event do
   defp fields_from_options(options) do
     log_event = Keyword.get(options, :log_event)
 
+    pid = pid(log_event)
+
     %{
       datetime: event_datetime(log_event),
       log_event: log_event,
       plug_conn: plug_conn(options),
       metadata:
-        %{application: application_data_from_log_event(log_event)}
-        |> Map.merge(maybe_process_label(log_event))
+        %{
+          process:
+            %{pid: pid}
+            |> Map.merge(maybe_otp_application_data(log_event))
+            |> Map.merge(maybe_process_label(pid))
+            |> Map.merge(maybe_registered_name(log_event))
+            |> Map.merge(maybe_log_event_msg_report_data(log_event))
+        }
         |> Map.merge(logger_metadata(log_event))
         |> Map.merge(Keyword.get(options, :metadata, %{})),
       by: Keyword.get(options, :by)
@@ -160,13 +168,14 @@ defmodule Tower.Event do
     Keyword.get(options, :plug_conn, Keyword.get(options, :log_event)[:meta][:conn])
   end
 
-  defp application_data_from_log_event(%{meta: %{gl: group_leader}}) do
-    Tower.Utils.application_data(group_leader)
+  defp pid(%{meta: %{pid: pid}}), do: pid
+  defp pid(_log_event), do: self()
+
+  defp maybe_otp_application_data(%{meta: %{gl: gl}}) do
+    %{otp_application: Tower.Utils.otp_application_data(gl)}
   end
 
-  defp application_data_from_log_event(_log_event) do
-    %{}
-  end
+  defp maybe_otp_application_data(_log_event), do: %{}
 
   defp logger_metadata(log_event) do
     (log_event[:meta] || %{})
@@ -175,17 +184,29 @@ defmodule Tower.Event do
   end
 
   if function_exported?(:proc_lib, :get_label, 1) do
-    defp maybe_process_label(%{meta: %{pid: pid}}) do
+    defp maybe_process_label(pid) do
       case :proc_lib.get_label(pid) do
         :undefined -> %{}
         process_label -> %{process_label: process_label}
       end
     end
-
-    defp maybe_process_label(_log_event), do: %{}
   else
-    defp maybe_process_label(_log_event), do: %{}
+    defp maybe_process_label(_pid), do: %{}
   end
+
+  defp maybe_registered_name(%{meta: %{registered_name: registered_name}}) do
+    %{registered_name: registered_name}
+  end
+
+  defp maybe_registered_name(_log_event), do: %{}
+
+  defp maybe_log_event_msg_report_data(%{
+         msg: {:report, %{label: {:gen_server, :terminate}} = report}
+       }) do
+    %{gen_server: Map.take(report, [:name, :last_message])}
+  end
+
+  defp maybe_log_event_msg_report_data(_log_event), do: %{}
 
   defp logger_metadata_keys do
     Application.fetch_env!(:tower, :logger_metadata)

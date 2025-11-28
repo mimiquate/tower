@@ -50,7 +50,7 @@ defmodule Tower.ObanExceptionHandler do
   end
 
   defp application_data(worker) when is_binary(worker) do
-    Tower.Utils.application_data(String.to_existing_atom("Elixir.#{worker}"))
+    Tower.Utils.otp_application_data(String.to_existing_atom("Elixir.#{worker}"))
   end
 
   defp application_data(_worker) do
