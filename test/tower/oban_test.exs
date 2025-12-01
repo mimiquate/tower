@@ -43,7 +43,10 @@ defmodule TowerObanTest do
           metadata: %{
             user_id: 123,
             process: %{pid: _} = process_metadata,
-            oban_job: %{id: _, worker: "TestApp.RuntimeErrorWorker", max_attempts: 1, attempt: 1}
+            oban: %{
+              conf: %{name: Oban, engine: Oban.Engines.Lite},
+              job: %{id: _, worker: "TestApp.RuntimeErrorWorker", max_attempts: 1, attempt: 1}
+            }
           },
           by: Tower.ObanExceptionHandler
         }
@@ -76,7 +79,10 @@ defmodule TowerObanTest do
           metadata: %{
             user_id: 123,
             process: %{pid: _} = process_metadata,
-            oban_job: %{id: _, worker: "TestApp.UncaughtThrowWorker", max_attempts: 1, attempt: 1}
+            oban: %{
+              conf: %{name: Oban, engine: Oban.Engines.Lite},
+              job: %{id: _, worker: "TestApp.UncaughtThrowWorker", max_attempts: 1, attempt: 1}
+            }
           },
           by: Tower.ObanExceptionHandler
         }
@@ -109,7 +115,10 @@ defmodule TowerObanTest do
           metadata: %{
             user_id: 123,
             process: %{pid: _} = process_metadata,
-            oban_job: %{id: _, worker: "TestApp.AbnormalExitWorker", max_attempts: 1, attempt: 1}
+            oban: %{
+              conf: %{name: Oban, engine: Oban.Engines.Lite},
+              job: %{id: _, worker: "TestApp.AbnormalExitWorker", max_attempts: 1, attempt: 1}
+            }
           },
           by: Tower.ObanExceptionHandler
         }
