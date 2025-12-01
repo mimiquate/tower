@@ -206,6 +206,12 @@ defmodule Tower.Event do
     %{gen_server: Map.take(report, [:name, :last_message])}
   end
 
+  defp maybe_log_event_msg_report_data(%{
+         msg: {:report, %{label: {Task.Supervisor, :terminating}, report: report}}
+       }) do
+    %{task: Map.take(report, [:name, :starter, :function])}
+  end
+
   defp maybe_log_event_msg_report_data(_log_event), do: %{}
 
   defp logger_metadata_keys do
