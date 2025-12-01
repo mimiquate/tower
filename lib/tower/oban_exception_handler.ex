@@ -30,7 +30,6 @@ defmodule Tower.ObanExceptionHandler do
       stacktrace,
       by: __MODULE__,
       metadata: %{
-        application: application_data(meta[:worker]),
         oban_job: Map.take(meta, [:id, :worker, :attempt, :max_attempts])
       }
     )
@@ -47,13 +46,5 @@ defmodule Tower.ObanExceptionHandler do
     )
 
     :ignored
-  end
-
-  defp application_data(worker) when is_binary(worker) do
-    Tower.Utils.otp_application_data(String.to_existing_atom("Elixir.#{worker}"))
-  end
-
-  defp application_data(_worker) do
-    %{}
   end
 end
