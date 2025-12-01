@@ -21,7 +21,7 @@ defmodule Tower.ObanExceptionHandler do
   def handle_event(
         [:oban, :job, :exception],
         _event_measurements,
-        %{kind: kind, reason: reason, stacktrace: stacktrace} = meta,
+        %{kind: kind, reason: reason, stacktrace: stacktrace, conf: conf, job: job},
         _handler_config
       ) do
     Tower.report(
@@ -30,7 +30,10 @@ defmodule Tower.ObanExceptionHandler do
       stacktrace,
       by: __MODULE__,
       metadata: %{
-        oban_job: Map.take(meta, [:id, :worker, :attempt, :max_attempts])
+        oban: %{
+          conf: Map.take(conf, [:engine, :name]),
+          job: Map.take(job, [:id, :worker, :attempt, :max_attempts])
+        }
       }
     )
   end
