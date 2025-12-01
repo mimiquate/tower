@@ -32,7 +32,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
-          metadata: %{process: %{pid: _pid}},
+          metadata: %{process: %{pid: _pid, task: %{name: _, starter: _, function: _}}},
           by: Tower.LoggerHandler
         }
       ] = reported_events()

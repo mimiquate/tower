@@ -209,7 +209,7 @@ defmodule Tower.Event do
   defp maybe_log_event_msg_report_data(%{
          msg: {:report, %{label: {Task.Supervisor, :terminating}, report: report}}
        }) do
-    %{Task: Map.take(report, [:name, :starter, :function])}
+    %{task: Map.take(report, [:name, :starter, :function])}
   end
 
   defp maybe_log_event_msg_report_data(_log_event), do: %{}
