@@ -32,7 +32,7 @@ defmodule TowerTest do
           kind: :error,
           reason: %RuntimeError{message: "an error"},
           stacktrace: [_ | _],
-          metadata: %{process: %{pid: _pid, task: %{name: _, starter: _, function: _}}},
+          metadata: %{process: %{pid: _pid} = process_metadata},
           by: Tower.LoggerHandler
         }
       ] = reported_events()
@@ -40,6 +40,10 @@ defmodule TowerTest do
 
     assert String.length(id) == 36
     assert recent_datetime?(datetime)
+
+    if Version.match?(System.version(), ">= 1.19.0") do
+      assert %{task: %{name: _, starter: _, function: _}} = process_metadata
+    end
   end
 
   test "reports as an :error an Erlang error Elixir can normalize" do
