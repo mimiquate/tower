@@ -42,6 +42,8 @@ defmodule Tower.LoggerHandler do
   end
 
   def removing_handler(_config) do
+    Tower.report_message(:warning, "Removing Tower.LoggerHandler", by: __MODULE__)
+
     :ok
   end
 
