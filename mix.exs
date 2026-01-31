@@ -57,7 +57,7 @@ defmodule Tower.MixProject do
       {:igniter, "~> 0.6", optional: true},
 
       # Dev
-      {:ex_doc, "~> 0.39.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.40.0", only: :dev, runtime: false},
       {:dialyxir, "~> 1.4", only: :dev, runtime: false},
 
       # Test
