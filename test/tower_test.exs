@@ -740,6 +740,73 @@ defmodule TowerTest do
     assert similarity_id != other_similarity_id
   end
 
+  test "filter can prevent reporting to a specific reporter but not others" do
+    defmodule SecondReporter do
+      @behaviour Tower.Reporter
+
+      use Agent
+
+      def start_link(_opts), do: Agent.start_link(fn -> [] end, name: __MODULE__)
+
+      @impl true
+      def report_event(event) do
+        Agent.update(__MODULE__, fn l -> [event | l] end)
+      end
+
+      def events, do: Agent.get(__MODULE__, & &1)
+    end
+
+    defmodule Filter do
+      @behaviour Tower.Filter
+
+      @impl true
+      def should_report?(
+            SecondReporter,
+            %Tower.Event{reason: %RuntimeError{message: "for_second_reporter"}}
+          ),
+          do: true
+
+      def should_report?(
+            Tower.EphemeralReporter,
+            %Tower.Event{reason: %RuntimeError{message: "for_ephemeral"}}
+          ),
+          do: true
+
+      def should_report?(_reporter, _event), do: false
+    end
+
+    start_supervised!(SecondReporter)
+
+    put_env(:reporters, [SecondReporter, Tower.EphemeralReporter])
+    put_env(:filter, Filter)
+
+    capture_log(fn ->
+      in_unlinked_process(fn ->
+        raise "for_ephemeral"
+      end)
+
+      in_unlinked_process(fn ->
+        raise "for_second_reporter"
+      end)
+    end)
+
+    assert_eventually(
+      [
+        %{
+          reason: %RuntimeError{message: "for_ephemeral"}
+        }
+      ] = reported_events()
+    )
+
+    assert_eventually(
+      [
+        %{
+          reason: %RuntimeError{message: "for_second_reporter"}
+        }
+      ] = SecondReporter.events()
+    )
+  end
+
   test "doesn't report ignored exceptions" do
     put_env(:ignored_exceptions, [ArithmeticError])
 
