@@ -240,6 +240,30 @@ defmodule Tower do
   config :tower, ignored_exceptions: [DBConnection.ConnectionError]
   ```
 
+  ### `filter`
+
+  A module implementing the `Tower.Filter` behaviour, called before reporting each event to each
+  reporter. The `should_report?/2` function receives `(reporter, event)` and should return `true`
+  to report or `false` to ignore.
+
+  Default: `Tower.NoopFilter` (reports every event)
+
+  Example:
+
+  ```elixir
+  config :tower, filter: MyApp.ErrorFilter
+  ```
+
+  ```elixir
+  defmodule MyApp.ErrorFilter do
+    @behaviour Tower.Filter
+
+    @impl true
+    def should_report?(_reporter, %Tower.Event{reason: %DBConnection.ConnectionError{}}), do: false
+    def should_report?(_reporter, _event), do: true
+  end
+  ```
+
   ### `logger_metadata`
 
   List of keys that Tower should pick up from the current process `Logger.metadata` when reporting events.
@@ -558,24 +582,26 @@ defmodule Tower do
   end
 
   defp report_event(reporter, event) do
-    try do
-      :telemetry.span(
-        [:tower, :report_event],
-        %{reporter: reporter, event: event},
-        fn ->
-          {
-            reporter.report_event(event),
-            %{}
-          }
-        end
-      )
-    rescue
-      exception ->
-        async(fn ->
-          raise ReportEventError,
-            reporter: reporter,
-            original: {:error, exception, __STACKTRACE__}
-        end)
+    if filter().should_report?(reporter, event) do
+      try do
+        :telemetry.span(
+          [:tower, :report_event],
+          %{reporter: reporter, event: event},
+          fn ->
+            {
+              reporter.report_event(event),
+              %{}
+            }
+          end
+        )
+      rescue
+        exception ->
+          async(fn ->
+            raise ReportEventError,
+              reporter: reporter,
+              original: {:error, exception, __STACKTRACE__}
+          end)
+      end
     end
   end
 
@@ -590,5 +616,9 @@ defmodule Tower do
 
   defp ignored_exceptions do
     Application.fetch_env!(:tower, :ignored_exceptions)
+  end
+
+  defp filter do
+    Application.fetch_env!(:tower, :filter)
   end
 end
