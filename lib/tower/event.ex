@@ -122,7 +122,7 @@ defmodule Tower.Event do
       |> Map.merge(map)
       |> Map.merge(fields_from_options(options))
     )
-    |> put_similarity_id()
+    |> then(&struct!(&1, similarity_id: similarity_id(&1)))
   end
 
   defp fields_from_options(options) do
@@ -215,10 +215,6 @@ defmodule Tower.Event do
 
   defp logger_metadata_keys do
     Application.fetch_env!(:tower, :logger_metadata)
-  end
-
-  defp put_similarity_id(%__MODULE__{} = event) do
-    struct!(event, similarity_id: similarity_id(event))
   end
 
   defp similarity_id(%__MODULE__{
