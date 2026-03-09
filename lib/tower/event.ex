@@ -45,7 +45,6 @@ defmodule Tower.Event do
           by: atom() | nil
         }
 
-  @similarity_source_attributes [:level, :kind, :reason, :stacktrace]
   @logger_time_unit :microsecond
 
   @doc false
@@ -219,6 +218,33 @@ defmodule Tower.Event do
   end
 
   defp put_similarity_id(%__MODULE__{} = event) do
-    struct!(event, similarity_id: :erlang.phash2(Map.take(event, @similarity_source_attributes)))
+    struct!(event, similarity_id: similarity_id(event))
   end
+
+  defp similarity_id(%__MODULE__{
+         level: level,
+         kind: kind,
+         reason: reason,
+         stacktrace: stacktrace
+       }) do
+    [
+      level,
+      kind,
+      normalized_reason(reason),
+      stacktrace
+    ]
+    |> :erlang.phash2()
+  end
+
+  defp normalized_reason(reason) when is_exception(reason) do
+    Exception.format_banner(:error, reason)
+    |> normalized_reason()
+  end
+
+  defp normalized_reason(reason) when is_binary(reason) do
+    reason
+    |> String.replace(~r/#PID<\d\.\d+\.\d>/, "#PID<0.0.0>")
+  end
+
+  defp normalized_reason(reason), do: reason
 end
