@@ -12,12 +12,12 @@ jobs:
       matrix:
         include:
           - elixir: '1.19'
-            erlang: '28.2'
+            erlang: '28.4'
             lint: true
           - elixir: '1.18'
-            erlang: '27.3.4.6'
+            erlang: '27.3.4.8'
           - elixir: '1.17'
-            erlang: '26.2.5.16'
+            erlang: '26.2.5.17'
           - elixir: '1.16'
             erlang: '25.3.2.21'
           - elixir: '1.15'
