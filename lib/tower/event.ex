@@ -244,6 +244,7 @@ defmodule Tower.Event do
   defp normalized_reason(reason) when is_binary(reason) do
     reason
     |> String.replace(~r/#PID<\d\.\d+\.\d>/, "#PID<0.0.0>")
+    |> String.replace(~r/\d+ms/, "0ms")
   end
 
   defp normalized_reason(reason), do: reason

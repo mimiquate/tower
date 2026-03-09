@@ -744,7 +744,7 @@ defmodule TowerTest do
     capture_log(fn ->
       for _ <- 1..2 do
         in_unlinked_process(fn ->
-          raise "Process #{inspect(self())} timed out"
+          raise "Process #{inspect(self())} timed out after #{Enum.random(1..10_000)}ms"
         end)
       end
     end)
