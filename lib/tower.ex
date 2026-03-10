@@ -270,6 +270,22 @@ defmodule Tower do
    - https://hexdocs.pm/logger/Logger.html#metadata/1
   """
 
+  @options_schema [
+    by: [],
+    log_event: [
+      type: :map
+    ],
+    metadata: [
+      type: :map,
+      doc:
+        "a map with additional information you want to provide about the event. It's up to each reporter if and how to handle it."
+    ],
+    plug_conn: [
+      type: {:struct, Plug.Conn},
+      doc: "A plug connection relevant to the event, if available, that may be used by reporters to report useful context information. Be aware that the `Plug.Conn` may contain user and/or system sensitive information, and it's up to each reporter to be cautious about what to report or not."
+    ]
+  ]
+
   defmodule ReportEventError do
     defexception [:original, :reporter]
 
@@ -366,15 +382,9 @@ defmodule Tower do
           Tower.report(kind, reason, __STACKTRACE__)
       end
 
-  ## Options
+  ## Supported options
 
-    * `:plug_conn` - a `Plug.Conn` relevant to the event, if available, that may be used
-    by reporters to report useful context information. Be aware that the `Plug.Conn` may contain
-    user and/or system sensitive information, and it's up to each reporter to be cautious about
-    what to report or not.
-    * `:metadata` - a `Map` with additional information you want to provide about the event. It's
-    up to each reporter if and how to handle it.
-
+    #{NimbleOptions.docs(@options_schema)}
   """
   @spec report(Exception.kind(), Event.reason(), Exception.stacktrace(), Keyword.t()) ::
           :ok

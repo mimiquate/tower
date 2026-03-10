@@ -126,6 +126,10 @@ defmodule Tower.Event do
   end
 
   defp fields_from_options(options) do
+    {:ok, options} =
+      options
+      |> NimbleOptions.validate(@options_schema)
+
     log_event = Keyword.get(options, :log_event)
 
     pid = pid(log_event)

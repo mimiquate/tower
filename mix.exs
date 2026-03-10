@@ -49,6 +49,7 @@ defmodule Tower.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:nimble_options, "~> 1.0"},
       {:telemetry, "~> 1.1"},
       {:uuid_v7, "~> 0.6.0"},
 
