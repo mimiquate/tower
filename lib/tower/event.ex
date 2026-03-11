@@ -238,6 +238,9 @@ defmodule Tower.Event do
   end
 
   defp normalized_reason(reason) when is_binary(reason) do
+    # To have the assurance that this will only cause the intended collisions (and not
+    # more) of the similarity_id, the used replacement string must match the regular
+    # expression in all cases.
     reason
     |> String.replace(~r/#PID<\d\.\d+\.\d>/, "#PID<0.0.0>")
     |> String.replace(~r/\d+ms/, "0ms")
