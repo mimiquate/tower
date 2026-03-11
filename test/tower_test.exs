@@ -740,11 +740,11 @@ defmodule TowerTest do
     assert similarity_id != other_similarity_id
   end
 
-  test "protects reporters from repeated events (with pid in message)" do
+  test "protects reporters from repeated events (with dynamic data in message)" do
     capture_log(fn ->
       for _ <- 1..2 do
         in_unlinked_process(fn ->
-          raise "Process #{inspect(self())} timed out after #{Enum.random(1..10_000)}ms"
+          raise "Process #{inspect(self())} which ran for #{Enum.random(1..10_000)}ms timed out after #{Enum.random(1..10_000)}ms"
         end)
       end
     end)
