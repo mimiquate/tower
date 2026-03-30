@@ -202,7 +202,7 @@ defmodule Tower.Event do
   defp maybe_log_event_msg_report_data(%{
          msg: {:report, %{label: {:gen_server, :terminate}} = report}
        }) do
-    %{gen_server: Map.take(report, [:name, :last_message])}
+    %{gen_server: Map.take(report, [:name])}
   end
 
   defp maybe_log_event_msg_report_data(%{
