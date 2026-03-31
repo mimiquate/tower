@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.8.7] - 2026-09-10
+## [0.8.8] - 2026-03-30
+
+### Fixed
+
+- Don't include gen_server last_message by default in metadata because it can crash some reporters if it can't be JSON encoded
+
+## [0.8.7] - 2026-03-10
 
 ### Added
 
@@ -250,6 +256,7 @@ is the main way `tower` handles errors. Keep elixir 1.15+ for now.
 
 - Reporters (those implementing `Tower.Reporter` behaviour) can now handle events with just one callback: `report_event/1`, in replacement of `report_exception/2,3`, `report_exit/2,3`, `report_throw/2,3` and `report_message/2,3` callbacks.
 
+[0.8.8]: https://github.com/mimiquate/tower/compare/v0.8.7...v0.8.8/
 [0.8.7]: https://github.com/mimiquate/tower/compare/v0.8.6...v0.8.7/
 [0.8.6]: https://github.com/mimiquate/tower/compare/v0.8.5...v0.8.6/
 [0.8.5]: https://github.com/mimiquate/tower/compare/v0.8.4...v0.8.5/
