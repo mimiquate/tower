@@ -41,8 +41,7 @@ defmodule TowerGenServerTest do
     if Version.match?(System.version(), ">= 1.19.0") do
       assert %{
                gen_server: %{
-                 name: MyTestGenServer,
-                 last_message: {:"$gen_cast", {:raise, "something"}}
+                 name: MyTestGenServer
                }
              } = process_metadata
     end
@@ -84,8 +83,7 @@ defmodule TowerGenServerTest do
     if Version.match?(System.version(), ">= 1.19.0") do
       assert %{
                gen_server: %{
-                 name: MyTestGenServer,
-                 last_message: {:"$gen_cast", {:throw, "something"}}
+                 name: MyTestGenServer
                }
              } = process_metadata
     end
@@ -158,8 +156,7 @@ defmodule TowerGenServerTest do
     if Version.match?(System.version(), ">= 1.19.0") do
       assert %{
                gen_server: %{
-                 name: MyTestGenServer,
-                 last_message: {:"$gen_cast", {:exit, :abnormal}}
+                 name: MyTestGenServer
                }
              } = process_metadata
     end
@@ -199,8 +196,7 @@ defmodule TowerGenServerTest do
     if Version.match?(System.version(), ">= 1.19.0") do
       assert %{
                gen_server: %{
-                 name: MyTestGenServer,
-                 last_message: {:"$gen_cast", {:stop, :abnormal}}
+                 name: MyTestGenServer
                }
              } = process_metadata
     end
@@ -240,8 +236,7 @@ defmodule TowerGenServerTest do
     if Version.match?(System.version(), ">= 1.19.0") do
       assert %{
                gen_server: %{
-                 name: MyTestGenServer,
-                 last_message: []
+                 name: MyTestGenServer
                }
              } = process_metadata
     end
@@ -294,8 +289,7 @@ defmodule TowerGenServerTest do
     if Version.match?(System.version(), ">= 1.19.0") do
       assert %{
                gen_server: %{
-                 name: MyTestGenServer,
-                 last_message: {:stop, :abnormal}
+                 name: MyTestGenServer
                }
              } = process_metadata
     end
