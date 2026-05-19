@@ -52,7 +52,7 @@
   "spitfire": {:hex, :spitfire, "0.3.10", "19aea9914132456515e8f7d592f63ab9f3130876b0252e834d2390bdd8becb24", [:mix], [], "hexpm", "6a6a5f77eb4165249c76199cd2d01fb595bac9207aed3de551918ac1c2bc9267"},
   "splode": {:hex, :splode, "0.3.0", "ff8effecc509a51245df2f864ec78d849248647c37a75886033e3b1a53ca9470", [:mix], [], "hexpm", "73cfd0892d7316d6f2c93e6e8784bd6e137b2aa38443de52fd0a25171d106d81"},
   "stream_data": {:hex, :stream_data, "1.3.0", "bde37905530aff386dea1ddd86ecbf00e6642dc074ceffc10b7d4e41dfd6aac9", [:mix], [], "hexpm", "3cc552e286e817dca43c98044c706eec9318083a1480c52ae2688b08e2936e3c"},
-  "telemetry": {:hex, :telemetry, "1.4.1", "ab6de178e2b29b58e8256b92b382ea3f590a47152ca3651ea857a6cae05ac423", [:rebar3], [], "hexpm", "2172e05a27531d3d31dd9782841065c50dd5c3c7699d95266b2edd54c2dafa1c"},
+  "telemetry": {:hex, :telemetry, "1.4.2", "a0cb522801dffb1c49fe6e30561badffc7b6d0e180db1300df759faa22062855", [:rebar3], [], "hexpm", "928f6495066506077862c0d1646609eed891a4326bee3126ba54b60af61febb1"},
   "text_diff": {:hex, :text_diff, "0.1.0", "1caf3175e11a53a9a139bc9339bd607c47b9e376b073d4571c031913317fecaa", [:mix], [], "hexpm", "d1ffaaecab338e49357b6daa82e435f877e0649041ace7755583a0ea3362dbd7"},
   "thousand_island": {:hex, :thousand_island, "1.4.3", "2158209580f633be38d43ec4e3ce0a01079592b9657afff9080d5d8ca149a3af", [:mix], [{:telemetry, "~> 0.4 or ~> 1.0", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm", "6e4ce09b0fd761a58594d02814d40f77daff460c48a7354a15ab353bb998ea0b"},
   "uuid_v7": {:hex, :uuid_v7, "0.6.0", "1d65727ade8ca619ed40fdef90c4186b50c84657d2b412f7cb79777ab2d47559", [:mix], [{:ecto, "~> 3.0", [hex: :ecto, repo: "hexpm", optional: true]}], "hexpm", "1dc401134e61da847a7b2a3b28d2593893f457b9f2704893b1ba3ff7946ce91f"},
