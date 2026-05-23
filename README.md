@@ -40,8 +40,11 @@ Self-hosted [ErrorTracker](https://github.com/elixir-error-tracker/error-tracker
 
 Community supported:
 
-- [`ivanhercaz/tower_telegram`](https://github.com/ivanhercaz/tower_telegram)
-- [`KristerV/tower_discord`](https://github.com/KristerV/tower_discord)
+Report to | Tower reporter | Package dependency
+:-----| :---------------| :---------
+[Telegram](https://telegram.org) | `TowerTelegram` | [ivanhercaz/tower_telegram](https://github.com/ivanhercaz/tower_telegram)
+[Discord](https://discord.com) | `TowerDiscord` | [KristerV/tower_discord](https://github.com/KristerV/tower_discord)
+[OpenTelemetry](https://opentelemetry.io/) | `TowerOpenTelemetry` | [tuist/tower_opentelemetry](https://github.com/tuist/tower_opentelemetry)
 
 Follow each reporter's README to get `Tower` installed and configured properly.
 
