@@ -65,6 +65,7 @@ defmodule Tower.MixProject do
       {:plug_cowboy, "~> 2.7", only: :test},
       {:phoenix, "~> 1.7", only: :test},
       {:phoenix_html, "~> 4.1", only: :test},
+      {:phoenix_live_view, "~> 1.2", only: :test},
       {:oban, "~> 2.19", only: :test},
       {:ecto_sqlite3, "~> 0.24.0", only: :test},
       {:ash, "~> 3.9", only: :test}
