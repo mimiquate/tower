@@ -26,14 +26,14 @@ jobs:
             erlang: '25.3.2.21'
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         if: ${{ ! matrix.lint }}
         with:
           path: |
             _build
             deps
           key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.erlang }}-${{ hashFiles('mix.lock') }}
-      - uses: actions/cache@v5
+      - uses: actions/cache@v6
         with:
           key: ${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.erlang }}-${{ hashFiles('mix.lock') }}-plt
           path: plts
